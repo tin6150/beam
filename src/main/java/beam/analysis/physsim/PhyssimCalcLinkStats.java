@@ -58,6 +58,7 @@ public class PhyssimCalcLinkStats implements BeamConfigChangesObserver {
     private OutputDirectoryHierarchy controllerIO;
     private BeamCalcLinkStats linkStats;
     private VolumesAnalyzer volumes;
+    private Double minSpeed;
 
     public PhyssimCalcLinkStats(Network network, OutputDirectoryHierarchy controlerIO, BeamConfig beamConfig,
                                 TravelTimeCalculatorConfigGroup ttcConfigGroup, BeamConfigChangesObservable beamConfigChangesObservable) {
@@ -116,11 +117,13 @@ public class PhyssimCalcLinkStats implements BeamConfigChangesObserver {
 
                 double averageTime = travelTime.getLinkTravelTime(link, idx * binSize, null, null);
 
+                double minSpeed = this.beamConfig.beam().physsim().quick_fix_minCarSpeedInMetersPerSecond();
+
                 double averageSpeed = linkLength / averageTime;
 
                 double averageSpeedToFreeSpeedRatio = averageSpeed / freeSpeed;
 
-                double relativeSpeed = Math.round(averageSpeedToFreeSpeedRatio * 50) / 10;
+                double relativeSpeed = Math.max((Math.round(averageSpeedToFreeSpeedRatio * 50.0) / 10.0),minSpeed);
 
                 Map<Integer, Integer> hoursDataMap = relativeSpeedFrequenciesPerBin.get(relativeSpeed);
 
