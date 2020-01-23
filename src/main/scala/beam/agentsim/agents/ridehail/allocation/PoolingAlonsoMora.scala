@@ -48,8 +48,7 @@ class PoolingAlonsoMora(val rideHailManager: RideHailManager)
           inquiry.pickUpLocationUTM,
           inquiry.destinationUTM,
           inquiry.departAt,
-          defaultBeamVehilceTypeId,
-          rideHailManager.beamServices
+          defaultBeamVehilceTypeId
         )
         SingleOccupantQuoteAndPoolingInfo(
           agentETA.agentLocation,

@@ -962,6 +962,8 @@ class PersonAgent(
             modeChoiceCalculator.getGeneralizedTimeOfTrip(correctedTrip, Some(attributes), nextActivity(data))
           val generalizedCost = modeChoiceCalculator.getNonTimeCost(correctedTrip) + attributes
             .getVOT(generalizedTime)
+//          val occupancyLevel = modeChoiceCalculator.getCrowdingForTrip(correctedTrip)
+          // TODO: Collect crowding here also
           // Correct the trip to deal with ride hail / disruptions and then register to skimmer
           eventsManager.processEvent(
             ODSkimmerEvent(
@@ -1079,12 +1081,12 @@ class PersonAgent(
       )
     case Event(Finish, _) =>
       if (stateName == Moving) {
-        log.warning("Still travelling at end of simulation.")
-        log.warning(s"Events leading up to this point:\n\t${getLog.mkString("\n\t")}")
+        log.warning(s"$id is still travelling at end of simulation.")
+        log.warning(s"$id events leading up to this point:\n\t${getLog.mkString("\n\t")}")
       } else if (stateName == PerformingActivity) {
-        logger.warn(s"Performing Activity at end of simulation")
+        logger.debug(s"$id is performing Activity at end of simulation")
       } else {
-        logger.warn(s"Received Finish while in state: ${stateName}")
+        logger.warn(s"$id has received Finish while in state: ${stateName}")
       }
       stop
     case Event(
