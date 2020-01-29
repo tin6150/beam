@@ -26,7 +26,7 @@ object ReplanningUtil {
         experiencedPlan.getPlanElements.get(i) match {
           case leg: Leg =>
             // Make sure it is not `null`
-            Option(person.getSelectedPlan.getPlanElements.get(i).getAttributes.getAttribute("vehicles")).foreach {
+            Option(x = person.getSelectedPlan.getPlanElements.get(i).getAttributes.getAttribute("vehicles")).foreach {
               attibValue =>
                 leg.getAttributes.putAttribute("vehicles", attibValue)
             }
