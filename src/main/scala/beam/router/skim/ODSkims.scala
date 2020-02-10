@@ -40,7 +40,7 @@ case class ODSkims(beamConfig: BeamConfig, beamScenario: BeamScenario) extends A
       case _   => 1.0
     }
     val travelCost: Double = mode match {
-      case CAR | CAV =>
+      case CAR =>
         DrivingCost.estimateDrivingCost(
           new BeamLeg(
             departureTime,
@@ -51,6 +51,17 @@ case class ODSkims(beamConfig: BeamConfig, beamScenario: BeamScenario) extends A
           beamScenario.vehicleTypes(vehicleTypeId),
           beamScenario.fuelTypePrices
         )
+      case CAV =>
+        DrivingCost.estimateDrivingCost(
+          new BeamLeg(
+            departureTime,
+            mode,
+            travelTime,
+            new BeamPath(IndexedSeq(), IndexedSeq(), None, null, null, travelDistance)
+          ),
+          beamScenario.vehicleTypes(vehicleTypeId),
+          beamScenario.fuelTypePrices
+        ) * beamConfig.beam.agentsim.agents.modalBehaviors.modeVotMultiplier.CAV
       case RIDE_HAIL =>
         beamConfig.beam.agentsim.agents.rideHail.defaultBaseCost + beamConfig.beam.agentsim.agents.rideHail.defaultCostPerMile * travelDistance / 1609.0 + beamConfig.beam.agentsim.agents.rideHail.defaultCostPerMinute * travelTime / 60.0
       case RIDE_HAIL_POOLED =>
