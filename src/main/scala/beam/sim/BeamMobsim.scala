@@ -380,10 +380,11 @@ class BeamMobsimIteration(
     ),
     "population"
   )
-  fillInSecondaryActivities(beamServices.matsimServices.getScenario.getHouseholds)
 
   context.watch(population)
   scheduler ! ScheduleTrigger(InitializeTrigger(0), population)
+
+  fillInSecondaryActivities(beamServices.matsimServices.getScenario.getHouseholds)
 
   scheduleRideHailManagerTimerMessages()
 
@@ -525,7 +526,7 @@ class BeamMobsimIteration(
         case VehicleCategory.Bike => BeamMode.BIKE
       }.toList
 
-      var cavs = vehicles.filter(_.beamVehicleType.automationLevel > 3).toList
+      val cavs = vehicles.filter(_.beamVehicleType.automationLevel > 3).toList
 
       val cavModeAvailable: List[BeamMode] =
         if (cavs.nonEmpty) {
@@ -542,23 +543,26 @@ class BeamMobsimIteration(
           addSupplementaryTrips.run(person)
         }
 
-        val supplementaryTripGenerator =
-          new SupplementaryTripGenerator(
-            person.getCustomAttributes.get("beam-attributes").asInstanceOf[AttributesOfIndividual],
-            destinationChoiceModel,
-            beamServices,
-            person.getId
-          )
-        val newPlan =
-          supplementaryTripGenerator.generateNewPlans(person.getSelectedPlan, destinationChoiceModel, modesAvailable)
-        newPlan match {
-          case Some(plan) =>
-            person.removePlan(person.getSelectedPlan)
-            person.addPlan(plan)
-            person.setSelectedPlan(plan)
-          case None =>
+        if (person.getSelectedPlan.getPlanElements.asScala
+              .collect { case activity: Activity => activity.getType }
+              .contains("Temp")) {
+          val supplementaryTripGenerator =
+            new SupplementaryTripGenerator(
+              person.getCustomAttributes.get("beam-attributes").asInstanceOf[AttributesOfIndividual],
+              destinationChoiceModel,
+              beamServices,
+              person.getId
+            )
+          val newPlan =
+            supplementaryTripGenerator.generateNewPlans(person.getSelectedPlan, destinationChoiceModel, modesAvailable)
+          newPlan match {
+            case Some(plan) =>
+              person.removePlan(person.getSelectedPlan)
+              person.addPlan(plan)
+              person.setSelectedPlan(plan)
+            case None =>
+          }
         }
-
       }
     }
     log.info("Done filling in secondary trips in plans")
