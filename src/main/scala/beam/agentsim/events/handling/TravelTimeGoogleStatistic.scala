@@ -3,6 +3,7 @@ package beam.agentsim.events.handling
 import java.nio.file.Paths
 import java.time.{DayOfWeek, LocalDate, LocalDateTime, LocalTime}
 import java.util.Objects
+import java.util.concurrent.TimeUnit
 
 import akka.actor.ActorSystem
 import beam.agentsim.events.PathTraversalEvent
@@ -16,7 +17,6 @@ import beam.utils.mapsapi.googleapi.GoogleAdapter.RouteRequest
 import beam.utils.mapsapi.googleapi.TravelConstraints.{AvoidTolls, TravelConstraint}
 import beam.utils.mapsapi.googleapi.{GoogleAdapter, Route}
 import com.typesafe.scalalogging.LazyLogging
-import org.apache.commons.codec.digest.DigestUtils
 import org.matsim.api.core.v01.Coord
 import org.matsim.api.core.v01.events.Event
 import org.matsim.core.controler.events.IterationEndsEvent
@@ -47,6 +47,7 @@ class TravelTimeGoogleStatistic(
   if (cfg.enable && apiKey == null)
     logger.warn("google api key is empty")
   private val queryDate = getQueryDate(cfg.queryDate)
+  logger.info(s"queryDate :$queryDate")
 
   private val enabled = cfg.enable && apiKey != null
   private val constraints: Set[TravelConstraint] = if (cfg.tolls) Set.empty else Set(AvoidTolls)
@@ -64,6 +65,8 @@ class TravelTimeGoogleStatistic(
   override def notifyIterationEnds(event: IterationEndsEvent): Unit = {
     if (enabled
         && cfg.iterationInterval > 0
+        // HACK: to avoid requests at iteration 0
+        && event.getIteration > 0
         && event.getIteration % cfg.iterationInterval == 0) {
       logger.info(
         "Executing google API call for iteration #{}, query date = {}",
@@ -86,7 +89,7 @@ class TravelTimeGoogleStatistic(
       val result = using(adapter) { adapter =>
         queryGoogleAPI(events, adapter)
       }.sortBy(
-        ec => (ec.event.departureTime, ec.event.vehicleId, ec.route.durationIntervalInSeconds)
+        ec => (ec.event.departureTime, ec.event.vehicleId, ec.route.durationInTrafficSeconds)
       )
       val filePath = controller.getIterationFilename(event.getIteration, "googleTravelTimeEstimation.csv")
       val num = writeToCsv(result, filePath)
@@ -124,6 +127,7 @@ class TravelTimeGoogleStatistic(
       "destLng",
       "simTravelTime",
       "googleTravelTime",
+      "googleTravelTimeWithTraffic",
       "euclideanDistanceInMeters",
       "legLength",
       "googleDistance"
@@ -142,6 +146,7 @@ class TravelTimeGoogleStatistic(
               ec.event.endX,
               ec.event.arrivalTime - ec.event.departureTime,
               ec.route.durationIntervalInSeconds,
+              ec.route.durationInTrafficSeconds.getOrElse(-1).toString,
               geoUtils.distLatLon2Meters(
                 new Coord(ec.event.startX, ec.event.startY),
                 new Coord(ec.event.endX, ec.event.endY)
@@ -157,8 +162,16 @@ class TravelTimeGoogleStatistic(
     seq.size
   }
 
-  private def getAppropriateEvents(events: Seq[PathTraversalEvent], numEventsPerHour: Int): Seq[PathTraversalEvent] =
-    Random.shuffle(events).take(numEventsPerHour)
+  private def getAppropriateEvents(events: Seq[PathTraversalEvent], numEventsPerHour: Int): Seq[PathTraversalEvent] = {
+    val chosenEvents = Random.shuffle(events).take(numEventsPerHour)
+    // Use the same events, but with departure time on 3am
+    val offPeakEvents = if (cfg.offPeakEnabled) {
+      chosenEvents.map(pte => pte.copy(departureTime = TimeUnit.HOURS.toSeconds(3).toInt))
+    } else {
+      Seq.empty
+    }
+    chosenEvents ++ offPeakEvents
+  }
 
   private def getQueryDate(dateStr: String): LocalDateTime = {
     val triedDate = Try(LocalDate.parse(dateStr))
