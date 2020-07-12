@@ -30,7 +30,9 @@ trait AbstractSkimmerInternal {
   def toCsv: String
 }
 
-abstract class AbstractSkimmerEvent(eventTime: Double) extends Event(eventTime) with ScalaEvent {
+abstract class AbstractSkimmerEvent(eventTime: Double, beamServices: BeamServices)
+    extends Event(eventTime)
+    with ScalaEvent {
   protected val skimName: String
 
   def getKey: AbstractSkimmerKey
