@@ -14,7 +14,8 @@ import beam.agentsim.agents.{BeamAgent, InitializeTrigger, Population, TransitSy
 import beam.agentsim.infrastructure.{ParallelParkingManager, ZonalParkingManager}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger, StartSchedule}
-import beam.replanning.{AddSupplementaryTrips, SupplementaryTripGenerator}
+import beam.cosim.helics.BeamFederate.BeamFederateTrigger
+import beam.replanning.{AddSupplementaryTrips, ModeIterationPlanCleaner, SupplementaryTripGenerator}
 import beam.router.Modes.BeamMode
 import beam.router._
 import beam.router.osm.TollCalculator
@@ -27,11 +28,11 @@ import beam.sim.monitoring.ErrorListener
 import beam.sim.population.AttributesOfIndividual
 import beam.sim.vehiclesharing.Fleets
 import beam.utils._
+import beam.utils.csv.writers.PlansCsvWriter
 import beam.utils.matsim_conversion.ShapeUtils.QuadTreeBounds
 import com.conveyal.r5.transit.TransportNetwork
 import com.google.inject.Inject
 import com.typesafe.scalalogging.LazyLogging
-import helics.BeamFederate.BeamFederateTrigger
 import org.matsim.api.core.v01.population.{Activity, Leg, Person, Population => MATSimPopulation}
 import org.matsim.api.core.v01.{Id, Scenario}
 import org.matsim.core.api.experimental.events.EventsManager
@@ -55,6 +56,7 @@ class BeamMobsim @Inject()(
   val rideHailIterationHistory: RideHailIterationHistory,
   val routeHistory: RouteHistory,
   val geo: GeoUtils,
+  val planCleaner: ModeIterationPlanCleaner,
   val networkHelper: NetworkHelper
 ) extends Mobsim
     with LazyLogging
@@ -119,8 +121,14 @@ class BeamMobsim @Inject()(
     eventsManager.initProcessing()
 
     clearRoutesAndModesIfNeeded(beamServices.matsimServices.getIterationNumber)
-    if (beamScenario.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities) {
-      fillInSecondaryActivities(beamServices.matsimServices.getScenario.getHouseholds)
+    planCleaner.clearModesAccordingToStrategy(beamServices.matsimServices.getIterationNumber)
+
+    if (beamServices.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities) {
+      logger.info("Filling in secondary trips in plans")
+      fillInSecondaryActivities(
+        beamServices.matsimServices.getScenario.getHouseholds,
+        beamServices.matsimServices.getIterationNumber
+      )
     }
 
     val iteration = actorSystem.actorOf(
@@ -135,6 +143,7 @@ class BeamMobsim @Inject()(
       ),
       "BeamMobsim.iteration"
     )
+
     Await.result(iteration ? "Run!", timeout.duration)
 
     logger.info("Agentsim finished.")
@@ -145,7 +154,12 @@ class BeamMobsim @Inject()(
     logger.info("Processing Agentsim Events (End)")
   }
 
-  private def fillInSecondaryActivities(households: Households): Unit = {
+  private def fillInSecondaryActivities(households: Households, iteration: Int): Unit = {
+    //    PlansCsvWriter.toCsv(
+    //      scenario,
+    //      beamServices.matsimServices.getControlerIO.getIterationFilename(iteration, "plans_before_fill_in.csv.gz")
+    //    )
+
     households.getHouseholds.values.forEach { household =>
       val vehicles = household.getVehicleIds.asScala
         .flatten(vehicleId => beamServices.beamScenario.privateVehicles.get(vehicleId.asInstanceOf[Id[BeamVehicle]]))
@@ -201,11 +215,12 @@ class BeamMobsim @Inject()(
         }
       }
 
-      // val newP  = beamServices.matsimServices.getScenario.getPopulation.getPersons.values()
-
-      logger.info("Done filling in secondary trips in plans")
     }
-
+    //    PlansCsvWriter.toCsv(
+    //      scenario,
+    //      beamServices.matsimServices.getControlerIO.getIterationFilename(iteration, "plans_after_fill_in.csv.gz")
+    //    )
+    logger.info("Done filling in secondary trips in plans")
   }
 
   private def clearRoutesAndModesIfNeeded(iteration: Int): Unit = {
