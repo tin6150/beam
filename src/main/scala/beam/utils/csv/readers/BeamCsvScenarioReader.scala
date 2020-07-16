@@ -2,9 +2,9 @@ package beam.utils.csv.readers
 
 import java.util.{Map => JavaMap}
 
+import beam.utils.scenario._
 import beam.utils.scenario.matsim.BeamScenarioReader
 import beam.utils.{FileUtils, ProfilingUtils}
-import beam.utils.scenario._
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.lang3.math.NumberUtils
 import org.supercsv.io.CsvMapReader
@@ -96,6 +96,7 @@ object BeamCsvScenarioReader extends BeamScenarioReader with LazyLogging {
     val age = getIfNotNull(rec, "age").toInt
     val isFemale = getIfNotNull(rec, "isFemale", "false").toBoolean
     val rank = getIfNotNull(rec, "householdRank", "0").toInt
+    val industry = Option(rec.get("industry"))
     val valueOfTime = NumberUtils.toDouble(Try(getIfNotNull(rec, "valueOfTime", "0")).getOrElse("0"), 0D)
     PersonInfo(
       personId = PersonId(personId),
@@ -104,7 +105,7 @@ object BeamCsvScenarioReader extends BeamScenarioReader with LazyLogging {
       age = age,
       isFemale = isFemale,
       valueOfTime = valueOfTime,
-      industry = None
+      industry = industry
     )
   }
 
