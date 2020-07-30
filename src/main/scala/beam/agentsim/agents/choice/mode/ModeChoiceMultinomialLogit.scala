@@ -71,8 +71,7 @@ class ModeChoiceMultinomialLogit(
         (mct.embodiedBeamTrip, theParams ++ transferParam)
       }.toMap
 
-      val alternativesWithUtility: Iterable[MultinomialLogit.AlternativeWithUtility[String]] =
-        model.calcAlternativesWithUtility(inputData)
+      val alternativesWithUtility = model.calcAlternativesWithUtility(inputData)
       val chosenModeOpt = model.sampleAlternative(alternativesWithUtility, random)
 
       expectedMaximumUtility = model.getExpectedMaximumUtility(inputData).getOrElse(0)
@@ -289,7 +288,7 @@ class ModeChoiceMultinomialLogit(
     destinationActivity: Option[Activity]
   ): IndexedSeq[ModeCostTimeTransfer] = {
     alternatives.zipWithIndex.map { altAndIdx =>
-      val mode: BeamMode = altAndIdx._1.tripClassifier
+      val mode = altAndIdx._1.tripClassifier
       val totalCost = getNonTimeCost(altAndIdx._1, includeReplanningPenalty = true)
       val incentive: Double = beamServices.beamScenario.modeIncentives.computeIncentive(attributesOfIndividual, mode)
 
