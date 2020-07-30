@@ -47,7 +47,6 @@ class ModeChoiceMultinomialLogit(
   private val bikeLanesAdjustment: BikeLanesAdjustment = beamServices.bikeLanesAdjustment
 
   override def apply(
-    // SOME ALTERNATIVE IS A BIKE
     alternatives: IndexedSeq[EmbodiedBeamTrip],
     attributesOfIndividual: AttributesOfIndividual,
     destinationActivity: Option[Activity],
