@@ -465,10 +465,7 @@ object ModeChoiceMultinomialLogit extends StrictLogging {
         "transitOccupancyLevel" -> UtilityFunctionOperation("multiplier", params.transit_crowding),
         "transfer"              -> UtilityFunctionOperation("multiplier", params.transfer)
       ),
-      "bike" -> Map(
-        "intercept"      -> UtilityFunctionOperation("intercept", params.bike_intercept),
-        "attractiveness" -> UtilityFunctionOperation("multiplier", params.bike_attractiviness)
-      ),
+      "bike" -> Map("intercept" -> UtilityFunctionOperation("intercept", params.bike_intercept)),
       "walk_transit" -> Map(
         "intercept"             -> UtilityFunctionOperation("intercept", params.walk_transit_intercept),
         "transitOccupancyLevel" -> UtilityFunctionOperation("multiplier", params.transit_crowding),
