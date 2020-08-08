@@ -19,7 +19,6 @@ import beam.router.BeamRouter._
 import beam.router.Modes.BeamMode
 import beam.router.Modes.BeamMode.{WALK, _}
 import beam.router.model.{BeamLeg, EmbodiedBeamLeg, EmbodiedBeamTrip}
-import beam.router.r5.R5RoutingWorker
 import beam.sim.{BeamServices, Geofence}
 import beam.sim.population.AttributesOfIndividual
 import beam.utils.plan.sampling.AvailableModeUtils._
@@ -32,6 +31,7 @@ import org.matsim.core.utils.misc.Time
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import beam.agentsim.infrastructure.parking.ParkingMNL
+import beam.router.RoutingWorker
 
 /**
   * BEAM
@@ -330,8 +330,10 @@ trait ChoosesMode {
             withParking = willRequestDrivingRoute
           )
         case Some(WALK) =>
+          // FIXME: Our previous tour was WALK, but this should not stop us to use RideHail or try transit!
+          // This is important for the secondary activties because you can end-up walking very far (the problem was that whenever the person chooses WALK, he will never use any other mode anymore)
           responsePlaceholders = makeResponsePlaceholders(boundingBox, withRouting = true)
-          makeRequestWith(withTransit = false, Vector(bodyStreetVehicle), withParking = false)
+          makeRequestWith(withTransit = true, Vector(bodyStreetVehicle), withParking = false)
         case Some(WALK_TRANSIT) =>
           responsePlaceholders = makeResponsePlaceholders(boundingBox, withRouting = true)
           makeRequestWith(withTransit = true, Vector(bodyStreetVehicle), withParking = false)
@@ -642,10 +644,12 @@ trait ChoosesMode {
     val secondDuration = Math.min(math.round(secondTravelTimes.tail.sum.toFloat), leg.beamLeg.duration)
     val firstDuration = leg.beamLeg.duration - secondDuration
     val secondDistance = Math.min(secondPathLinkIds.tail.map(lengthOfLink).sum, leg.beamLeg.travelPath.distanceInM)
-    val firstPathEndpoint = SpaceTime(
-      beamServices.geo.coordOfR5Edge(transportNetwork.streetLayer, theLinkIds(indexFromBeg)),
-      leg.beamLeg.startTime + firstDuration
-    )
+    val firstPathEndpoint =
+      SpaceTime(
+        beamServices.geo
+          .coordOfR5Edge(transportNetwork.streetLayer, theLinkIds(math.min(theLinkIds.size - 1, indexFromBeg))),
+        leg.beamLeg.startTime + firstDuration
+      )
     val secondPath = leg.beamLeg.travelPath.copy(
       linkIds = secondPathLinkIds,
       linkTravelTime = secondTravelTimes,
@@ -962,6 +966,10 @@ trait ChoosesMode {
           .asInstanceOf[AttributesOfIndividual]
       val availableAlts = Some(filteredItinerariesForChoice.map(_.tripClassifier).mkString(":"))
 
+//      if (filteredItinerariesForChoice.size == 1 && filteredItinerariesForChoice.head.tripClassifier == WALK) {
+//        log.info(s"Person ${id}, filteredItinerariesForChoice: ${filteredItinerariesForChoice}")
+//      }
+
       modeChoiceCalculator(
         filteredItinerariesForChoice,
         attributesOfIndividual,
@@ -1001,7 +1009,7 @@ trait ChoosesMode {
                   availableAlternatives = availableAlts
                 )
               } else {
-                val bushwhackingTrip = R5RoutingWorker.createBushwackingTrip(
+                val bushwhackingTrip = RoutingWorker.createBushwackingTrip(
                   choosesModeData.currentLocation.loc,
                   nextActivity(choosesModeData.personData).get.getCoord,
                   _currentTick.get,
@@ -1020,10 +1028,10 @@ trait ChoosesMode {
                   case Some(originalWalkTrip) =>
                     originalWalkTrip.legs.head
                   case None =>
-                    R5RoutingWorker
+                    RoutingWorker
                       .createBushwackingTrip(
-                        beamServices.geo.utm2Wgs(currentPersonLocation.loc),
-                        beamServices.geo.utm2Wgs(nextAct.getCoord),
+                        currentPersonLocation.loc,
+                        nextAct.getCoord,
                         _currentTick.get,
                         body.toStreetVehicle,
                         beamServices.geo
@@ -1103,7 +1111,9 @@ trait ChoosesMode {
           data.availablePersonalStreetVehicles.nonEmpty,
           chosenTrip.legs.view.map(_.beamLeg.travelPath.distanceInM).sum,
           _experiencedBeamPlan.tourIndexOfElement(nextActivity(data.personData).get),
-          chosenTrip
+          chosenTrip,
+          _experiencedBeamPlan.activities(data.personData.currentActivityIndex).getType,
+          nextActivity(data.personData).get.getType
         )
       )
 
