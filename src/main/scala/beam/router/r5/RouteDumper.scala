@@ -239,7 +239,6 @@ object RouteDumper {
             record.put("totalTravelTimeInSecs", itinerary.totalTravelTimeInSecs)
             record.put("legs", itinerary.legs.length)
             record.put("legIndex", legIndex)
-            record.put("itineraries", routingResponse.itineraries.length)
 
             record.put("beamVehicleId", Option(embodiedBeamLeg.beamVehicleId).map(_.toString).orNull)
             record.put("beamVehicleTypeId", Option(embodiedBeamLeg.beamVehicleTypeId).map(_.toString).orNull)
@@ -369,7 +368,6 @@ object RouteDumper {
       null.asInstanceOf[Any]
     )
 
-    val itineraries = new Schema.Field("itineraries", Schema.create(Type.INT), "itineraries", null.asInstanceOf[Any])
     val legIndex = new Schema.Field("legIndex", Schema.create(Type.INT), "legIndex", null.asInstanceOf[Any])
     val beamVehicleId = new Schema.Field("beamVehicleId", nullable[String], "beamVehicleId", null.asInstanceOf[Any])
     val beamVehicleTypeId =
@@ -401,7 +399,6 @@ object RouteDumper {
       totalTravelTimeInSecs,
       legs,
       legIndex,
-      itineraries,
       beamVehicleId,
       beamVehicleTypeId,
       asDriver,
