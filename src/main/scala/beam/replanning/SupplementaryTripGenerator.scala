@@ -9,6 +9,7 @@ import beam.router.Modes.BeamMode.{CAR, CAV, RIDE_HAIL, RIDE_HAIL_POOLED, WALK, 
 import beam.router.skim.Skims
 import beam.sim.BeamServices
 import beam.sim.population.AttributesOfIndividual
+import com.conveyal.r5.profile.StreetMode
 import beam.utils.scenario.PlanElement
 import org.matsim.api.core.v01.population.{Activity, Person, Plan}
 import org.matsim.api.core.v01.{Coord, Id}
@@ -84,8 +85,20 @@ class SupplementaryTripGenerator(
       case List(prev, curr, next) =>
         if (curr.getType.equalsIgnoreCase("temp")) {
           anyChanges = true
-          val newActivities =
-            generateSubtour(updatedPreviousActivity, curr, next, modeMNL, destinationMNL, tripMNL, modes)
+          val newActivities = prev.getType match {
+            case "Work" =>
+              generateSubtour(
+                updatedPreviousActivity,
+                curr,
+                next,
+                modeMNL,
+                destinationMNL,
+                tripMNL,
+                modes.filter(_ != BeamMode.CAR)
+              )
+            case _ =>
+              generateSubtour(updatedPreviousActivity, curr, next, modeMNL, destinationMNL, tripMNL, modes)
+          }
           newActivities.foreach { x =>
             activityAccumulator.lastOption match {
               case Some(lastTrip) =>
@@ -96,12 +109,13 @@ class SupplementaryTripGenerator(
             }
             activityAccumulator.append(x)
           }
+          updatedPreviousActivity = activityAccumulator.last
         } else {
           if ((!prev.getType.equalsIgnoreCase("temp")) & (!next.getType.equalsIgnoreCase("temp"))) {
             activityAccumulator.append(curr)
           }
+          updatedPreviousActivity = curr
         }
-        updatedPreviousActivity = activityAccumulator.last
       case _ =>
     }
     activityAccumulator.foreach { x =>
