@@ -2,25 +2,21 @@ package beam.utils.map
 
 import java.nio.charset.StandardCharsets
 import java.time.LocalDate
-import java.util
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 import beam.router.BeamRouter.RoutingRequest
-import beam.router.FreeFlowTravelTime
-import beam.router.Modes.BeamMode.WALK_TRANSIT
-import beam.router.Modes.{BeamMode, toR5StreetMode}
+import beam.router.{BeamRouter, FreeFlowTravelTime}
+import beam.router.Modes.BeamMode.{DRIVE_TRANSIT, WALK_TRANSIT}
+import beam.router.Modes.{toR5StreetMode, BeamMode}
 import beam.router.R5Requester.prepareConfig
 import beam.router.r5.{R5Parameters, R5Wrapper}
 import beam.sim.common.GeoUtils
-import beam.utils.ParquetReader
+import beam.utils.{NetworkHelperImpl, ParquetReader}
 import beam.utils.csv.CsvWriter
 import beam.utils.json.AllNeededFormats._
-import com.conveyal.r5.api.util.{LegMode, TransitModes}
 import com.conveyal.r5.point_to_point.builder.PointToPointQuery
-import com.conveyal.r5.profile.McRaptorSuboptimalPathProfileRouter
 import com.conveyal.r5.streets.{StreetLayer, StreetRouter}
-import com.conveyal.r5.transit.TransportNetwork
 import org.apache.avro.generic.GenericRecord
 import org.apache.avro.util.Utf8
 import org.matsim.api.core.v01.Coord
@@ -44,74 +40,53 @@ object NewYorkRouteDebugging {
   }
 
   def main(args: Array[String]): Unit = {
-    val onlyWalkResponseRecords = {
-      val (it, toClose) = ParquetReader.read(
-        "d:/Work/beam/NewYork/Runs/new-york-200k-baseline__2020-08-22_19-16-08_bhu/0.routingResponse.parquet"
-      )
-      try {
-        it.filter(walkWithOneItinerary).toArray
-      } finally {
-        toClose.close()
-      }
-    }
-
-    val requestIds = onlyWalkResponseRecords.map { resp =>
-      resp.get("requestId").asInstanceOf[Int]
-    }.toSet
-    val requestRecords = {
-      val (it, toClose) = ParquetReader.read(
-        "d:/Work/beam/NewYork/Runs/new-york-200k-baseline__2020-08-22_19-16-08_bhu/0.routingRequest.parquet"
-      )
-      try {
-        it.filter(
-            req =>
-              req.get("withTransit").asInstanceOf[Boolean] && requestIds
-                .contains(req.get("requestId").asInstanceOf[Int])
-          )
-          .toArray
-      } finally {
-        toClose.close()
-      }
-    }
-    println(s"requestRecords: ${requestRecords.length}")
-    println(s"onlyWalkResponseRecords: ${onlyWalkResponseRecords.length}")
-
-    val requests = requestRecords.map { req =>
-      val reqJsonStr = new String(req.get("requestAsJson").asInstanceOf[Utf8].getBytes, StandardCharsets.UTF_8)
-      io.circe.parser.parse(reqJsonStr).right.get.as[RoutingRequest].right.get
-    }
-    println(s"requests: ${requests.length}")
+    val requests = getRequests
 
     val runArgs = args
     val (_, cfg) = prepareConfig(runArgs, isConfigArgRequired = true)
 
-    val workerParams: R5Parameters = R5Parameters.fromConfig(cfg)
+    val (workerParams: R5Parameters, maybeNetworks2) = R5Parameters.fromConfig(cfg)
     println(s"baseDate: ${workerParams.dates.localBaseDate}")
     val r5Wrapper: R5Wrapper = new R5Wrapper(workerParams, new FreeFlowTravelTime, travelTimeNoiseFraction = 0)
+    val r5Wrapper2: Option[R5Wrapper] = maybeNetworks2.map {
+      case (transportNetwork, network) =>
+        new R5Wrapper(
+          workerParams.copy(transportNetwork = transportNetwork, networkHelper = new NetworkHelperImpl(network)),
+          new FreeFlowTravelTime,
+          travelTimeNoiseFraction = 0
+        )
+    }
     val ppQuery = new PointToPointQuery(workerParams.transportNetwork)
 
     var totalWalkTransitsByPointToPointQuery: Int = 0
 
-
 //    showDatesAndServices(workerParams)
 //    writeTransitServiceInfo(workerParams)
 
-    val withWalkTransit = new AtomicInteger(0)
+    val withSubwayTransit1 = new AtomicInteger(0)
+    val withSubwayTransit2 = new AtomicInteger(0)
     val nDone = new AtomicInteger(0)
     val s = System.currentTimeMillis()
     requests.par.foreach { req =>
-      val resp = r5Wrapper.calcRoute(req)
-      if (resp.itineraries.exists(x => x.tripClassifier == WALK_TRANSIT)) {
-        withWalkTransit.incrementAndGet()
+      val resp1 = r5Wrapper.calcRoute(req)
+      val resp = r5Wrapper2.map(wrapper => wrapper.calcRoute(req)).getOrElse(resp1)
+      if (subwayPresented(resp1)) {
+        withSubwayTransit1.incrementAndGet()
+      }
+      if (subwayPresented(resp)) {
+        withSubwayTransit2.incrementAndGet()
       }
       val idx = nDone.getAndIncrement()
-      if (idx % 1000 == 0){
+      if (idx % 1000 == 0) {
         val diffS = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - s)
         val avg = idx.toDouble / diffS
-        println(s"Done $idx out of ${requests.length}. Total time: ${diffS} seconds, AVG per second: ${avg}, withWalkTransit: ${withWalkTransit}")
+        println(
+          s"Done $idx out of ${requests.length}. Total time: ${diffS} seconds, AVG per second: ${avg}," +
+          s" withSubwayTransit1: ${withSubwayTransit1} and withSubwayTransit2: $withSubwayTransit2"
+        )
       }
 
-      //      val startWgs = geoUtils.utm2Wgs(req.originUTM)
+    //      val startWgs = geoUtils.utm2Wgs(req.originUTM)
 //      val endWgs = geoUtils.utm2Wgs(req.destinationUTM)
 //
 //      val streetRouter =
@@ -152,29 +127,127 @@ object NewYorkRouteDebugging {
 //        println(s"Link to R5 PointToPointRouterServer: ${planLink}")
 //      }
     }
-    println(s"${withWalkTransit} out of ${requests.length} have transit")
+    println(s"${withSubwayTransit1} out of ${requests.length} have transit")
 
   }
 
+  private def subwayPresented(resp: BeamRouter.RoutingResponse) = {
+    resp.itineraries.exists(
+      x =>
+        (x.tripClassifier == WALK_TRANSIT || x.tripClassifier == DRIVE_TRANSIT) & x.legs
+          .exists(leg => leg.beamLeg.mode == beam.router.Modes.BeamMode.SUBWAY)
+    )
+  }
+
+  def getRequestsFakeWalkers: Array[RoutingRequest] = {
+    val onlyWalkResponseRecords = {
+      val (it, toClose) = ParquetReader.read(
+        "D:/Work/beam/NewYork/Runs/new-york-200k-baseline-test-transit-feb__2020-08-23_18-59-19_gev/0.routingResponse.parquet"
+      )
+      try {
+        it.filter(walkWithOneItinerary).toArray
+      } finally {
+        toClose.close()
+      }
+    }
+
+    val requestIds = onlyWalkResponseRecords.map { resp =>
+      resp.get("requestId").asInstanceOf[Int]
+    }.toSet
+    val requestRecords = {
+      val (it, toClose) = ParquetReader.read(
+        "C:\\Users\\dimao\\Downloads\\ny-baseline.routingRequest.parquet"
+      )
+      try {
+        it.filter(
+            req =>
+              req.get("withTransit").asInstanceOf[Boolean] && requestIds
+                .contains(req.get("requestId").asInstanceOf[Int])
+          )
+          .toArray
+      } finally {
+        toClose.close()
+      }
+    }
+    println(s"requestRecords: ${requestRecords.length}")
+    println(s"onlyWalkResponseRecords: ${onlyWalkResponseRecords.length}")
+
+    val requests = requestRecords.map { req =>
+      val reqJsonStr = new String(req.get("requestAsJson").asInstanceOf[Utf8].getBytes, StandardCharsets.UTF_8)
+      io.circe.parser.parse(reqJsonStr).right.get.as[RoutingRequest].right.get
+    }
+    println(s"requests: ${requests.length}")
+    requests
+  }
+
+  def getRequests: Array[RoutingRequest] = {
+    val requestRecords = {
+      val (it, toClose) = ParquetReader.read(
+        "d:/Work/beam/NewYork/Runs/new-york-200k-fixed-walk-high-transit-capacity__2020-08-09_13-23-50_ayk/0.routingRequest.parquet"
+      )
+      try {
+        it.take(100000).toArray
+      } finally {
+        toClose.close()
+      }
+    }
+    println(s"requestRecords: ${requestRecords.length}")
+
+    val requests = requestRecords.map { req =>
+      val reqJsonStr = new String(req.get("requestAsJson").asInstanceOf[Utf8].getBytes, StandardCharsets.UTF_8)
+      io.circe.parser.parse(reqJsonStr).right.get.as[RoutingRequest].right.get
+    }
+    println(s"requests: ${requests.length}")
+    requests
+  }
+
   private def writeTransitServiceInfo(workerParams: R5Parameters): Unit = {
-    val headers = Vector("service_id", "is_working", "feed_id", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "start_date", "end_date")
+    val headers = Vector(
+      "service_id",
+      "is_working",
+      "feed_id",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+      "sunday",
+      "start_date",
+      "end_date"
+    )
     val csvWriter = new CsvWriter("services.csv", headers)
 
     def escape(str: String): String = "\"" + str + "\""
 
-    val activeServices = workerParams.transportNetwork.transitLayer.getActiveServicesForDate(workerParams.dates.localBaseDate)
-    workerParams.transportNetwork.transitLayer.services.asScala.zipWithIndex.foreach { case (svc, idx) =>
-      val isWorking = activeServices.get(idx).toString
-      workerParams.transportNetwork.transitLayer.services
-      Option(svc.calendar) match {
-        case Some(calendar) =>
-          csvWriter.write(Vector(escape(svc.service_id), isWorking, escape(calendar.feed_id), calendar.monday.toString, calendar.tuesday.toString,
-            calendar.wednesday.toString, calendar.thursday.toString, calendar.friday.toString, calendar.saturday.toString, calendar.sunday.toString,
-            calendar.start_date.toString, calendar.end_date.toString): _*)
-        case None =>
-          val row = Vector(escape(svc.service_id), isWorking) ++ Vector.fill(headers.size - 2)("")
-          csvWriter.write(row: _*)
-      }
+    val activeServices =
+      workerParams.transportNetwork.transitLayer.getActiveServicesForDate(workerParams.dates.localBaseDate)
+    workerParams.transportNetwork.transitLayer.services.asScala.zipWithIndex.foreach {
+      case (svc, idx) =>
+        val isWorking = activeServices.get(idx).toString
+        workerParams.transportNetwork.transitLayer.services
+        Option(svc.calendar) match {
+          case Some(calendar) =>
+            csvWriter.write(
+              Vector(
+                escape(svc.service_id),
+                isWorking,
+                escape(calendar.feed_id),
+                calendar.monday.toString,
+                calendar.tuesday.toString,
+                calendar.wednesday.toString,
+                calendar.thursday.toString,
+                calendar.friday.toString,
+                calendar.saturday.toString,
+                calendar.sunday.toString,
+                calendar.start_date.toString,
+                calendar.end_date.toString
+              ): _*
+            )
+          case None =>
+            val row = Vector(escape(svc.service_id), isWorking) ++ Vector.fill(headers.size - 2)("")
+            csvWriter.write(row: _*)
+        }
     }
     csvWriter.close()
   }
@@ -195,13 +268,17 @@ object NewYorkRouteDebugging {
       }
     }
 
-    val dateToActiveServices = it.map { date =>
-      val activeServices = workerParams.transportNetwork.transitLayer.getActiveServicesForDate(date)
-      val nActiveServices = (0 until nServices).count(idx => activeServices.get(idx))
-      (date, nActiveServices)
-    }.toList.sortBy { case (_, n) => n }(Ordering[Int].reverse)
-    dateToActiveServices.foreach { case (d, n) =>
-      println(s"$d => $n")
+    val dateToActiveServices = it
+      .map { date =>
+        val activeServices = workerParams.transportNetwork.transitLayer.getActiveServicesForDate(date)
+        val nActiveServices = (0 until nServices).count(idx => activeServices.get(idx))
+        (date, nActiveServices)
+      }
+      .toList
+      .sortBy { case (_, n) => n }(Ordering[Int].reverse)
+    dateToActiveServices.foreach {
+      case (d, n) =>
+        println(s"$d => $n")
     }
   }
 
