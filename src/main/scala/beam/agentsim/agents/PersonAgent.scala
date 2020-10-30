@@ -24,14 +24,14 @@ import beam.agentsim.events.resources.{ReservationError, ReservationErrorCode}
 import beam.agentsim.infrastructure.parking.ParkingMNL
 import beam.agentsim.infrastructure.{ParkingInquiryResponse, ParkingStall}
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, IllegalTriggerGoToError, ScheduleTrigger}
-import beam.agentsim.scheduler.Trigger
 import beam.agentsim.scheduler.Trigger.TriggerWithId
+import beam.agentsim.scheduler.{BeamAgentSchedulerTimer, Trigger}
 import beam.router.Modes.BeamMode
 import beam.router.Modes.BeamMode.{CAR, CAV, RIDE_HAIL, RIDE_HAIL_POOLED, RIDE_HAIL_TRANSIT, WALK, WALK_TRANSIT}
 import beam.router.RouteHistory
 import beam.router.model.{EmbodiedBeamLeg, EmbodiedBeamTrip}
 import beam.router.osm.TollCalculator
-import beam.router.skim.{DriveTimeSkimmerEvent, ODSkimmerEvent}
+import beam.router.skim.event.{DriveTimeSkimmerEvent, ODSkimmerEvent}
 import beam.sim.common.GeoUtils
 import beam.sim.population.AttributesOfIndividual
 import beam.sim.{BeamScenario, BeamServices, Geofence}
@@ -293,7 +293,7 @@ class PersonAgent(
 
   def resetFuelConsumed(): Unit = curFuelConsumed = FuelConsumed(0.0, 0.0)
 
-  override def logDepth: Int = 30
+  override def logDepth: Int = 3000
 
   /**
     * identifies agents with remaining range which is smaller than their remaining tour
@@ -1056,6 +1056,10 @@ class PersonAgent(
   }
 
   val myUnhandled: StateFunction = {
+    case Event(BeamAgentSchedulerTimer, _) =>
+      // Put a breakpoitn here to see an internal state of the actor
+      log.info(s"Received message from ${sender()}")
+      stay
     case Event(IllegalTriggerGoToError(reason), _) =>
       stop(Failure(reason))
     case Event(Status.Failure(reason), _) =>
@@ -1075,7 +1079,7 @@ class PersonAgent(
         logger.debug(s"$id is performing Activity at end of simulation")
         logger.warn("Performing Activity at end of simulation")
       } else {
-        logger.warn(s"$id has received Finish while in state: ${stateName}")
+        logger.warn(s"$id has received Finish while in state: $stateName")
       }
       stop
     case Event(
@@ -1153,11 +1157,12 @@ class PersonAgent(
     case Event(TriggerWithId(RideHailResponseTrigger(_, _), triggerId), _) =>
       stay() replying CompletionNotice(triggerId)
     case Event(
-        TriggerWithId(EndRefuelSessionTrigger(tick, sessionStart, fuelAddedInJoule, vehicle), triggerId),
+        TriggerWithId(EndRefuelSessionTrigger(tick, sessionDuration, fuelAddedInJoule, vehicle), triggerId),
         _
         ) =>
+      log.info(s"PersonAgent: EndRefuelSessionTrigger. tick: $tick, vehicle: $vehicle")
       if (vehicle.isConnectedToChargingPoint()) {
-        handleEndCharging(tick, vehicle, (tick - sessionStart), fuelAddedInJoule)
+        handleEndCharging(tick, vehicle, sessionDuration, fuelAddedInJoule)
       }
       stay() replying CompletionNotice(triggerId)
     case ev @ Event(RideHailResponse(_, _, _, _), _) =>

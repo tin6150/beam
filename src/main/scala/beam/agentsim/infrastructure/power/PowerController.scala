@@ -1,92 +1,114 @@
 package beam.agentsim.infrastructure.power
 
-import beam.agentsim.infrastructure.ChargingNetworkManager.ChargingZone
-import beam.agentsim.infrastructure.power.SitePowerManager.{PhysicalBounds, PowerInKW, ZoneId}
-import beam.cosim.helics.BeamFederate
-import beam.sim.BeamServices
+import beam.agentsim.infrastructure.ChargingNetworkManager
+import beam.agentsim.infrastructure.ChargingNetworkManager._
+import beam.agentsim.infrastructure.taz.TAZ
+import beam.cosim.helics.BeamHelicsInterface._
 import beam.sim.config.BeamConfig
+import org.matsim.api.core.v01.Id
 import org.slf4j.{Logger, LoggerFactory}
-import spray.json._
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Try}
 
-class PowerController(beamServices: BeamServices, beamConfig: BeamConfig) {
+class PowerController(beamConfig: BeamConfig) {
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[PowerController])
+  private val cnmCfg = beamConfig.beam.agentsim.chargingNetworkManager
 
-  private[power] lazy val beamFederateOption: Option[BeamFederate] = Try {
-    logger.debug("Init PowerController resources...")
-    BeamFederate.loadHelics
-    BeamFederate.getInstance(
-      beamServices,
-      beamConfig.beam.agentsim.chargingNetworkManager.helicsFederateName,
-      beamConfig.beam.agentsim.chargingNetworkManager.planningHorizonInSeconds
-    )
-  }.recoverWith {
-    case e =>
-      logger.error("Cannot init BeamFederate: {}", e.getMessage)
-      Failure(e)
-  }.toOption
+  private[power] lazy val beamFederateOption: Option[BeamFederate] = if (cnmCfg.gridConnectionEnabled) {
+    logger.info("ChargingNetworkManager should be connected to a grid model...")
+    Try {
+      logger.debug("Init PowerController resources...")
+      getFederateInstance(
+        cnmCfg.helicsFederateName,
+        cnmCfg.helicsDataOutStreamPoint match {
+          case s: String if s.nonEmpty => Some(s)
+          case _                       => None
+        },
+        cnmCfg.helicsDataInStreamPoint match {
+          case s: String if s.nonEmpty => Some((s, cnmCfg.helicsBufferSize))
+          case _                       => None
+        }
+      )
+    }.recoverWith {
+      case e =>
+        logger.warn("Cannot init BeamFederate: {}. ChargingNetworkManager is not connected to the grid", e.getMessage)
+        Failure(e)
+    }.toOption
+  } else None
 
-  def initFederateConnection: Boolean = beamFederateOption.isDefined
+  private var physicalBounds = Map.empty[Int, PhysicalBounds]
+  private var currentBin = -1
 
   /**
     * Obtains physical bounds from the grid
     *
     * @param currentTime current time
-    *  @param requiredLoad map required power per zone
+    *  @param estimatedLoad map required power per zone
     * @return tuple of PhysicalBounds and Int (next time)
     */
   def obtainPowerPhysicalBounds(
     currentTime: Int,
-    requiredLoad: Map[ChargingZone, PowerInKW]
+    chargingStationsMap: Map[Int, ChargingZone],
+    estimatedLoad: Option[Map[Int, PowerInKW]]
   ): Map[Int, PhysicalBounds] = {
-    import DefaultJsonProtocol._
-    import SitePowerManager._
-    import JsonProtocol.PBMJsonFormat
-    logger.debug("Sending power over next planning horizon to the grid at time {}...", currentTime)
-    beamFederateOption
-      .fold(logger.warn("Not connected to grid, nothing was sent")) { beamFederate =>
-        val value =
-          requiredLoad.map(x => PhysicalBounds(x._1.tazId, x._1.parkingZoneId, x._2, x._2)).toList
-        beamFederate.publishPowerOverPlanningHorizon(value.toJson)
+    if (physicalBounds.isEmpty || currentBin < currentTime / cnmCfg.timeStepInSeconds) {
+      physicalBounds = beamFederateOption match {
+        case Some(beamFederate) if cnmCfg.gridConnectionEnabled && estimatedLoad.isDefined =>
+          logger.debug("Sending power over next planning horizon to the grid at time {}...", currentTime)
+          beamFederate.publishJSON(
+            estimatedLoad.get
+              .map(
+                x =>
+                  Map(
+                    "tazId"   -> chargingStationsMap(x._1).tazId.toString,
+                    "zoneId"  -> chargingStationsMap(x._1).parkingZoneId,
+                    "minLoad" -> x._2,
+                    "maxLoad" -> x._2
+                )
+              )
+              .toList
+          )
+          val (_, gridBounds) = beamFederate.syncAndCollectJSON(currentTime)
+          logger.debug("Obtained power from the grid {}...", gridBounds)
+          gridBounds
+            .map(
+              x =>
+                x("zoneId").asInstanceOf[Int] ->
+                PhysicalBounds(
+                  Id.create(x("tazId").asInstanceOf[String], classOf[TAZ]),
+                  x("zoneId").asInstanceOf[Int],
+                  x("minLoad").asInstanceOf[Double],
+                  x("maxLoad").asInstanceOf[Double]
+              )
+            )
+            .toMap
+        case _ =>
+          logger.debug("Not connected to grid, falling to default physical bounds at time {}...", currentTime)
+          // estimatedLoad.map { case (k, v) => k.parkingZoneId -> PhysicalBounds(k.tazId, k.parkingZoneId, v, v) }
+          ChargingNetworkManager.unlimitedPhysicalBounds(chargingStationsMap).value
       }
-    logger.debug("Obtaining power from the grid at time {}...", currentTime)
-    val bounds = beamFederateOption
-      .map { beamFederate =>
-        beamFederate.syncAndMoveToNextTimeStep(currentTime)
-        beamFederate.obtainPowerFlowValue
-          .convertTo[List[PhysicalBounds]]
-          .map(x => x.zoneId -> x)
-      }
-      .getOrElse(defaultPowerPhysicalBounds(currentTime, requiredLoad))
-      .toMap
-    logger.debug("Obtained power from the grid {}...", bounds)
-    bounds
+      currentBin = currentTime / cnmCfg.timeStepInSeconds
+    }
+    physicalBounds
   }
 
+  /**
+    * closing helics connection
+    */
   def close(): Unit = {
     logger.debug("Release PowerController resources...")
     beamFederateOption
-      .fold(logger.warn("Not connected to grid, just releasing helics resources")) { beamFederate =>
+      .fold(logger.debug("Not connected to grid, just releasing helics resources")) { beamFederate =>
         beamFederate.close()
+        try {
+          logger.debug("Destroying BeamFederate")
+          unloadHelics()
+        } catch {
+          case NonFatal(ex) =>
+            logger.error(s"Cannot destroy BeamFederate: ${ex.getMessage}")
+        }
       }
-
-    try {
-      logger.debug("Destroying BeamFederate")
-      BeamFederate.destroyInstance()
-    } catch {
-      case NonFatal(ex) =>
-        logger.error(s"Cannot destroy BeamFederate: ${ex.getMessage}")
-    }
-  }
-
-  def defaultPowerPhysicalBounds(
-    currentTime: Int,
-    requiredLoad: Map[ChargingZone, PowerInKW]
-  ): Map[ZoneId, PhysicalBounds] = {
-    logger.warn("Not connected to grid, falling to default physical bounds at time {}...", currentTime)
-    requiredLoad.map { case (k, v) => k.parkingZoneId -> PhysicalBounds(k.tazId, k.parkingZoneId, v, v) }
   }
 }

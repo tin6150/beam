@@ -9,7 +9,7 @@ import beam.agentsim.infrastructure.ParkingStall
 import beam.agentsim.infrastructure.charging.ChargingPointType
 import beam.agentsim.infrastructure.parking.{ParkingType, PricingModel}
 import beam.agentsim.infrastructure.taz.TAZ
-import beam.cosim.helics.BeamFederate
+import beam.cosim.helics.BeamHelicsInterface._
 import beam.sim.{BeamHelper, BeamServicesImpl}
 import beam.sim.config.{BeamConfig, MatSimBeamConfigBuilder}
 import beam.utils.TestConfigUtils.testConfig
@@ -43,11 +43,8 @@ class SitePowerManagerSpec
     with ImplicitSender
     with BeforeAndAfterEach {
 
-  private val filesPath = s"${System.getenv("PWD")}/test/test-resources/beam/input"
   private val conf = system.settings.config
     .withFallback(ConfigFactory.parseString(s"""
-                                               |beam.agentsim.agents.vehicles.vehicleTypesFilePath = $filesPath"/vehicleTypes-simple.csv"
-                                               |beam.agentsim.agents.vehicles.vehiclesFilePath = $filesPath"/vehicles-simple.csv"
                                                |beam.router.skim = {
                                                |  keepKLatestSkims = 1
                                                |  writeSkimsInterval = 1
@@ -61,7 +58,10 @@ class SitePowerManagerSpec
                                                |  gridConnectionEnabled = false
                                                |  chargingSessionInSeconds = 300
                                                |  planningHorizonInSec = 300
-                                               |  helicsFederateName = "BeamCNM"
+                                               |  helicsFederateName = "CNMFederate"
+                                               |  helicsDataOutStreamPoint = ""
+                                               |  helicsDataInStreamPoint = ""
+                                               |  helicsBufferSize = 1000
                                                |}
                                                |""".stripMargin))
     .withFallback(testConfig("test/input/beamville/beam.conf").resolve())
@@ -74,30 +74,19 @@ class SitePowerManagerSpec
   private val injector = buildInjector(system.settings.config, beamConfig, scenario, beamScenario)
   val beamServices = new BeamServicesImpl(injector)
 
-  val beamFederateMock = mock[BeamFederate]
-  val parkingStall1 = mock[ParkingStall]
+  val beamFederateMock: BeamFederate = mock[BeamFederate]
+  val parkingStall1: ParkingStall = mock[ParkingStall]
   when(parkingStall1.chargingPointType).thenReturn(Some(ChargingPointType.ChargingStationType1))
   when(parkingStall1.locationUTM).thenReturn(beamServices.beamScenario.tazTreeMap.getTAZs.head.coord)
   when(parkingStall1.parkingZoneId).thenReturn(1)
 
-  val parkingStall2 = mock[ParkingStall]
+  val parkingStall2: ParkingStall = mock[ParkingStall]
   when(parkingStall2.chargingPointType).thenReturn(Some(ChargingPointType.ChargingStationType1))
   when(parkingStall2.locationUTM).thenReturn(beamServices.beamScenario.tazTreeMap.getTAZs.head.coord)
   when(parkingStall2.parkingZoneId).thenReturn(1)
 
   private val vehicleTypes = BeamVehicleUtils.readBeamVehicleTypeFile("test/input/beamville/vehicleTypes.csv")
-
-  val dummyChargingZone = ChargingZone(
-    1,
-    Id.create("Dummy", classOf[TAZ]),
-    ParkingType.Public,
-    1,
-    1,
-    ChargingPointType.ChargingStationType1,
-    PricingModel.FlatFee(0.0)
-  )
-
-  private def vehiclesList = {
+  private val vehiclesList = {
     val v1 = new BeamVehicle(
       Id.createVehicleId("id1"),
       new Powertrain(0.0),
@@ -114,26 +103,41 @@ class SitePowerManagerSpec
   }
 
   "SitePowerManager" should {
-    val sitePowerManager = new SitePowerManager(Map[Int, ChargingZone](1 -> dummyChargingZone), beamServices)
+    val dummyChargingZone: ChargingZone = ChargingZone(
+      1,
+      Id.create("Dummy", classOf[TAZ]),
+      ParkingType.Public,
+      1,
+      1,
+      ChargingPointType.ChargingStationType1,
+      PricingModel.FlatFee(0.0)
+    )
+    val stations: Map[Int, ChargingZone] = Map[Int, ChargingZone](1 -> dummyChargingZone)
+    val sitePowerManager = new SitePowerManager(stations, beamServices)
 
     "get power over planning horizon 0.0 for charged vehicles" in {
       sitePowerManager.getPowerOverNextPlanningHorizon(300) shouldBe Map(
-        dummyChargingZone -> ChargingPointType.getChargingPointInstalledPowerInKw(dummyChargingZone.chargingPointType)
+        dummyChargingZone.parkingZoneId -> 0.0
       )
     }
     "get power over planning horizon greater than 0.0 for discharged vehicles" in {
       val vehiclesMap = Map(vehiclesList.map(v => v.id -> v): _*)
       vehiclesMap.foreach(_._2.addFuel(-10000))
       sitePowerManager.getPowerOverNextPlanningHorizon(300) shouldBe Map(
-        dummyChargingZone -> ChargingPointType.getChargingPointInstalledPowerInKw(dummyChargingZone.chargingPointType)
+        dummyChargingZone.parkingZoneId -> 0.0
       )
     }
     "replan horizon and get charging plan per vehicle" in {
       val vehiclesMap = Map(vehiclesList.map(v => v.id -> v): _*)
       vehiclesMap.foreach(_._2.addFuel(-10000))
-      sitePowerManager.replanHorizonAndGetChargingPlanPerVehicle(vehiclesMap.values, 300) shouldBe Map(
-        Id.createVehicleId("id1") -> (1, 7200.0, 7200.0),
-        Id.createVehicleId("id2") -> (1, 7200.0, 7200.0)
+      sitePowerManager.replanHorizonAndGetChargingPlanPerVehicle(
+        0,
+        vehiclesMap.values,
+        sitePowerManager.unlimitedPhysicalBounds,
+        300
+      ) shouldBe Map(
+        Id.createVehicleId("id1") -> (3, 21600.0),
+        Id.createVehicleId("id2") -> (3, 21600.0)
       )
     }
   }

@@ -8,7 +8,7 @@ import beam.agentsim.agents.household.HouseholdActor.HouseholdActor
 import beam.agentsim.agents.vehicles.EnergyEconomyAttributes.Powertrain
 import beam.agentsim.agents.vehicles.{BeamVehicle, _}
 import beam.agentsim.events._
-import beam.agentsim.infrastructure.{AnotherTrivialParkingManager, ChargingNetworkManager, TrivialParkingManager}
+import beam.agentsim.infrastructure.{AnotherTrivialParkingManager, TrivialParkingManager}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger, SchedulerProps, StartSchedule}
 import beam.router.BeamRouter._
@@ -16,7 +16,7 @@ import beam.router.Modes.BeamMode
 import beam.router.Modes.BeamMode.{BIKE, CAR, WALK}
 import beam.router.RouteHistory
 import beam.router.model.{EmbodiedBeamLeg, _}
-import beam.router.skim.AbstractSkimmerEvent
+import beam.router.skim.core.AbstractSkimmerEvent
 import beam.utils.TestConfigUtils.testConfig
 import beam.utils.{SimRunnerForTest, StuckFinder, TestConfigUtils}
 import com.typesafe.config.{Config, ConfigFactory}

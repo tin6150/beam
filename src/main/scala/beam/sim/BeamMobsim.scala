@@ -11,7 +11,6 @@ import beam.agentsim.agents.ridehail.RideHailManager.{BufferedRideHailRequestsTr
 import beam.agentsim.agents.ridehail.{RideHailIterationHistory, RideHailManager, RideHailSurgePricingManager}
 import beam.agentsim.agents.vehicles.{BeamVehicle, BeamVehicleType, VehicleCategory}
 import beam.agentsim.agents.{BeamAgent, InitializeTrigger, Population, TransitSystem}
-import beam.agentsim.infrastructure.ChargingNetworkManager.PlanningTimeOutTrigger
 import beam.agentsim.infrastructure.{ChargingNetworkManager, ParallelParkingManager, ZonalParkingManager}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger, StartSchedule}
@@ -38,7 +37,6 @@ import org.matsim.core.api.experimental.events.EventsManager
 import org.matsim.core.mobsim.framework.Mobsim
 import org.matsim.core.utils.misc.Time
 import org.matsim.households.Households
-import beam.utils.plan.PlanUtils
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Await
@@ -341,8 +339,7 @@ class BeamMobsimIteration(
   private val envelopeInUTM = geo.wgs2Utm(beamScenario.transportNetwork.streetLayer.envelope)
   envelopeInUTM.expandBy(beamConfig.beam.spatial.boundingBoxBuffer)
 
-  val activityQuadTreeBounds: QuadTreeBounds =
-    PlanUtils.buildActivityQuadTreeBounds(matsimServices.getScenario.getPopulation, beamConfig)
+  val activityQuadTreeBounds: QuadTreeBounds = buildActivityQuadTreeBounds(matsimServices.getScenario.getPopulation)
   log.info(s"envelopeInUTM before expansion: $envelopeInUTM")
 
   envelopeInUTM.expandToInclude(activityQuadTreeBounds.minx, activityQuadTreeBounds.miny)
@@ -369,12 +366,12 @@ class BeamMobsimIteration(
   context.watch(parkingManager)
 
   private val chargingNetworkManager = context.actorOf(
-    Props(new ChargingNetworkManager(beamServices, beamScenario, scheduler, activityQuadTreeBounds))
+    Props(new ChargingNetworkManager(beamServices, beamScenario, parkingManager, scheduler))
       .withDispatcher("charging-network-manager-pinned-dispatcher"),
     "ChargingNetworkManager"
   )
   context.watch(chargingNetworkManager)
-  scheduler ! ScheduleTrigger(PlanningTimeOutTrigger(0), chargingNetworkManager)
+  scheduler ! ScheduleTrigger(InitializeTrigger(0), chargingNetworkManager)
 
   private val rideHailManager = context.actorOf(
     Props(
@@ -509,12 +506,11 @@ class BeamMobsimIteration(
       rideHailManager ! Finish
       transitSystem ! Finish
       tazSkimmer ! Finish
+      chargingNetworkManager ! Finish
       context.stop(scheduler)
       context.stop(errorListener)
       context.stop(parkingManager)
       sharedVehicleFleets.foreach(context.stop)
-      context.stop(tazSkimmer)
-      context.stop(chargingNetworkManager)
       if (beamConfig.beam.debug.debugActorTimerIntervalInSec > 0) {
         debugActorWithTimerCancellable.cancel()
         context.stop(debugActorWithTimerActorRef)
@@ -549,6 +545,31 @@ class BeamMobsimIteration(
     }
     if (config.agents.rideHail.allocationManager.requestBufferTimeoutInSeconds > 0)
       scheduler ! ScheduleTrigger(BufferedRideHailRequestsTrigger(0), rideHailManager)
+  }
+
+  def buildActivityQuadTreeBounds(population: MATSimPopulation): QuadTreeBounds = {
+    val persons = population.getPersons.values().asInstanceOf[java.util.Collection[Person]].asScala.view
+    val activities = persons.flatMap(p => p.getSelectedPlan.getPlanElements.asScala.view).collect {
+      case activity: Activity =>
+        activity
+    }
+    val coordinates = activities.map(_.getCoord)
+    // Force to compute xs and ys arrays
+    val xs = coordinates.map(_.getX).toArray
+    val ys = coordinates.map(_.getY).toArray
+    val xMin = xs.min
+    val xMax = xs.max
+    val yMin = ys.min
+    val yMax = ys.max
+    log.info(
+      s"QuadTreeBounds with X: [$xMin; $xMax], Y: [$yMin, $yMax]. boundingBoxBuffer: ${beamConfig.beam.spatial.boundingBoxBuffer}"
+    )
+    QuadTreeBounds(
+      xMin - beamConfig.beam.spatial.boundingBoxBuffer,
+      yMin - beamConfig.beam.spatial.boundingBoxBuffer,
+      xMax + beamConfig.beam.spatial.boundingBoxBuffer,
+      yMax + beamConfig.beam.spatial.boundingBoxBuffer
+    )
   }
 
 }
