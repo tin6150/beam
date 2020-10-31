@@ -1,30 +1,25 @@
 package beam.replanning
 
-import beam.agentsim.agents.choice.logit
-import beam.agentsim.agents.choice.logit.DestinationChoiceModel.TripParameters.{ASC, ExpMaxUtility}
-import beam.agentsim.agents.choice.logit.DestinationChoiceModel.{
-  ActivityDurations,
-  ActivityRates,
-  ActivityVOTs,
-  DestinationParameters,
-  SupplementaryTripAlternative,
-  TimesAndCost,
-  TripParameters
-}
+import beam.agentsim.agents.choice.logit.DestinationChoiceModel.TripParameters.ExpMaxUtility
+import beam.agentsim.agents.choice.logit.DestinationChoiceModel._
+import beam.agentsim.agents.choice.logit.{DestinationChoiceModel, MultinomialLogit}
+import beam.agentsim.agents.vehicles.BeamVehicleType
 import beam.agentsim.infrastructure.taz.{TAZ, TAZTreeMap}
 import beam.router.Modes.BeamMode
+import beam.router.Modes.BeamMode.{CAR, CAV, RIDE_HAIL, RIDE_HAIL_POOLED, WALK, WALK_TRANSIT}
 import beam.router.skim.Skims
-import beam.sim.population.AttributesOfIndividual
-import beam.agentsim.agents.choice.logit.{DestinationChoiceModel, MultinomialLogit}
-import beam.router.Modes.BeamMode.{BIKE, CAR, CAV, RIDE_HAIL, RIDE_HAIL_POOLED, WALK, WALK_TRANSIT}
 import beam.sim.BeamServices
-import org.matsim.api.core.v01.population.Person
+import beam.sim.population.AttributesOfIndividual
+import com.conveyal.r5.profile.StreetMode
+import beam.utils.scenario.PlanElement
+import org.matsim.api.core.v01.population.{Activity, Person, Plan}
 import org.matsim.api.core.v01.{Coord, Id}
-import org.matsim.api.core.v01.population.{Activity, Plan}
 import org.matsim.core.population.PopulationUtils
+import org.matsim.utils.objectattributes.attributable.AttributesUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.List
+import scala.collection.mutable.ListBuffer
 import scala.util.Random
 
 class SupplementaryTripGenerator(
@@ -34,9 +29,9 @@ class SupplementaryTripGenerator(
   val personId: Id[Person]
 ) {
   val r: Random.type = scala.util.Random
-  val personSpecificSeed = personId.hashCode().toLong
+  val personSpecificSeed: Long = personId.hashCode().toLong
 
-  val travelTimeBufferInSec = 30 * 60
+  val travelTimeBufferInSec: Int = 30 * 60
 
   val activityRates: ActivityRates = destinationChoiceModel.activityRates
   val activityVOTs: ActivityVOTs = destinationChoiceModel.activityVOTs
@@ -52,7 +47,7 @@ class SupplementaryTripGenerator(
       SupplementaryTripAlternative,
       DestinationChoiceModel.DestinationParameters
     ] =
-      new MultinomialLogit(
+      MultinomialLogit(
         Map.empty,
         destinationChoiceModel.DefaultMNLParameters,
         beamServices.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.mode_nest_scale_factor
@@ -62,14 +57,14 @@ class SupplementaryTripGenerator(
       SupplementaryTripAlternative,
       DestinationChoiceModel.TripParameters
     ] =
-      new MultinomialLogit(
+      MultinomialLogit(
         Map.empty,
         destinationChoiceModel.TripMNLParameters,
         beamServices.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.destination_nest_scale_factor
       )
 
     val tripMNL: MultinomialLogit[Boolean, DestinationChoiceModel.TripParameters] =
-      new MultinomialLogit(
+      MultinomialLogit(
         Map.empty,
         destinationChoiceModel.TripMNLParameters,
         beamServices.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.trip_nest_scale_factor
@@ -83,28 +78,46 @@ class SupplementaryTripGenerator(
 
     if (!elements(1).getType.equalsIgnoreCase("temp")) { newPlan.addActivity(elements.head) }
 
+    var updatedPreviousActivity = elements.head
+
+    val activityAccumulator = ListBuffer[Activity]()
+
     elements.sliding(3).foreach {
       case List(prev, curr, next) =>
         if (curr.getType.equalsIgnoreCase("temp")) {
           anyChanges = true
-          val newActivities = generateSubtour(prev, curr, next, modeMNL, destinationMNL, tripMNL, modes)
+          val newActivities =
+            generateSubtour(updatedPreviousActivity, curr, next, modeMNL, destinationMNL, tripMNL, modes)
           newActivities.foreach { x =>
-            newPlan.addActivity(x)
+            activityAccumulator.lastOption match {
+              case Some(lastTrip) =>
+                if (lastTrip.getType == x.getType) {
+                  activityAccumulator -= activityAccumulator.last
+                }
+              case _ =>
+            }
+            activityAccumulator.append(x)
           }
+          updatedPreviousActivity = activityAccumulator.last
         } else {
           if ((!prev.getType.equalsIgnoreCase("temp")) & (!next.getType.equalsIgnoreCase("temp"))) {
-            newPlan.addActivity(curr)
+            activityAccumulator.append(curr)
           }
+          updatedPreviousActivity = curr
         }
       case _ =>
     }
-
+    activityAccumulator.foreach { x =>
+      newPlan.addActivity(x)
+    }
     if (!elements(elements.size - 2).getType.equalsIgnoreCase("temp")) { newPlan.addActivity(elements.last) }
 
     if (anyChanges) {
       //newPlan.setScore(plan.getScore)
       newPlan.setType(plan.getType)
-      Some(ReplanningUtil.addNoModeBeamTripsToPlanWithOnlyActivities(newPlan))
+      val resultPlan = ReplanningUtil.addNoModeBeamTripsToPlanWithOnlyActivities(newPlan)
+      AttributesUtils.copyAttributesFromTo(plan, resultPlan)
+      Some(resultPlan)
     } else {
       None
     }
@@ -166,14 +179,12 @@ class SupplementaryTripGenerator(
             false -> noTrip,
           )
 
-        val makeTrip: Boolean = tripMNL.sampleAlternative(tripChoice, r).get.alternativeType
-
-        if (makeTrip) {
-          destinationMNL.sampleAlternative(modeChoice, r)
-        } else {
-          None
+        tripMNL.sampleAlternative(tripChoice, r) match {
+          case Some(mnlSample) if mnlSample.alternativeType => destinationMNL.sampleAlternative(modeChoice, r)
+          case _                                            => None
         }
     }
+
     chosenAlternativeOption match {
       case Some(outcome) =>
         val chosenAlternative = outcome.alternativeType
@@ -277,18 +288,22 @@ class SupplementaryTripGenerator(
     val modeToTimeAndCosts: Map[BeamMode, DestinationChoiceModel.TimesAndCost] =
       modes.map { mode =>
         val accessTripSkim =
-          Skims.od_skimmer.getTimeDistanceAndCost(
+          beamServices.skims.od_skimmer.getTimeDistanceAndCost(
             alternativeActivity.getCoord,
             additionalActivity.getCoord,
             desiredDepartTimeBin,
-            mode
+            mode,
+            beamServices.beamScenario.vehicleTypes.keys.head, // TODO: FIX WITH REAL VEHICLE
+            beamServices.beamScenario
           )
         val egressTripSkim =
-          Skims.od_skimmer.getTimeDistanceAndCost(
+          beamServices.skims.od_skimmer.getTimeDistanceAndCost(
             additionalActivity.getCoord,
             alternativeActivity.getCoord,
             desiredReturnTimeBin,
-            mode
+            mode,
+            beamServices.beamScenario.vehicleTypes.keys.head, // TODO: FIX
+            beamServices.beamScenario
           )
         val startingOverlap =
           (altStart - (additionalActivity.getStartTime - accessTripSkim.time)).max(0)

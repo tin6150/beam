@@ -1,69 +1,43 @@
 package beam.replanning
 
-import beam.agentsim.agents.choice.logit.LatentClassChoiceModel.LccmData
-import beam.agentsim.agents.choice.logit.{
-  DestinationChoiceModel,
-  LatentClassChoiceModel,
-  MultinomialLogit,
-  UtilityFunctionOperation
-}
-import beam.sim.population.AttributesOfIndividual
+import beam.sim.config.BeamConfig
 import javax.inject.Inject
-import org.matsim.api.core.v01.population.{Activity, HasPlansAndId, Leg, Person, Plan}
-import org.matsim.core.config.Config
+import org.matsim.api.core.v01.population.{Activity, HasPlansAndId, Person, Plan}
 import org.matsim.core.population.PopulationUtils
-import org.matsim.core.utils.io.IOUtils
 import org.matsim.utils.objectattributes.attributable.AttributesUtils
 import org.slf4j.LoggerFactory
-import org.supercsv.cellprocessor.ift.CellProcessor
-import org.supercsv.io.CsvBeanReader
-import org.supercsv.prefs.CsvPreference
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.List
 import scala.collection.mutable
 
-class AddSupplementaryTrips @Inject()(config: Config) extends PlansStrategyAdopter {
+class AddSupplementaryTrips @Inject()(beamConfig: BeamConfig) extends PlansStrategyAdopter {
 
   private val log = LoggerFactory.getLogger(classOf[AddSupplementaryTrips])
 
   override def run(person: HasPlansAndId[Plan, Person]): Unit = {
-    log.debug("Before Replanning AddNewActivities: Person-" + person.getId + " - " + person.getPlans.size())
-    ReplanningUtil.makeExperiencedMobSimCompatible(person)
+    if (beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities) {
+      log.debug("Before Replanning AddNewActivities: Person-" + person.getId + " - " + person.getPlans.size())
+      ReplanningUtil.makeExperiencedMobSimCompatible(person)
 
-//    val destinationMNL
-//      : MultinomialLogit[DestinationMNL.SupplementaryTripAlternative, DestinationMNL.DestinationParameters] =
-//      new MultinomialLogit(Map.empty, DestinationMNL.DefaultMNLParameters)
-//
-//    val tripMNL: MultinomialLogit[Boolean, DestinationMNL.TripParameters] =
-//      new MultinomialLogit(Map.empty, DestinationMNL.TripMNLParameters)
-//
-//    val supplementaryTripGenerator = new SupplementaryTripGenerator(
-//      person.getSelectedPlan.getPerson.getCustomAttributes.get("beam-attributes").asInstanceOf[AttributesOfIndividual]
-//    )
+      val simplifiedPlan = mandatoryTour(person.getSelectedPlan)
 
-    val simplifiedPlan = mandatoryTour(person.getSelectedPlan)
-
-    val newPlan = ReplanningUtil.addNoModeBeamTripsToPlanWithOnlyActivities(
-      addSecondaryActivities(
-        simplifiedPlan,
-        person.getSelectedPlan.getPerson
+      val newPlan = ReplanningUtil.addNoModeBeamTripsToPlanWithOnlyActivities(
+        addSecondaryActivities(
+          simplifiedPlan,
+          person.getSelectedPlan.getPerson
+        )
       )
-    )
 
-    AttributesUtils.copyAttributesFromTo(person.getSelectedPlan, newPlan)
+      AttributesUtils.copyAttributesFromTo(person.getSelectedPlan, newPlan)
 
-    if (newPlan.getPlanElements.size > 1) {
-      if (person.getSelectedPlan.getPlanElements.asScala
-            .collect { case activity: Activity => activity }
-            .exists(x => !x.getType.equalsIgnoreCase("Work") & !x.getType.equalsIgnoreCase("Home"))) {
-        person.removePlan(person.getSelectedPlan)
+      if (newPlan.getPlanElements.size > 1) {
+        person.addPlan(newPlan)
+        person.setSelectedPlan(newPlan)
       }
-      person.addPlan(newPlan)
-      person.setSelectedPlan(newPlan)
-    }
 
-    log.debug("After Replanning AddNewActivities: Person-" + person.getId + " - " + person.getPlans.size())
+      log.debug("After Replanning AddNewActivities: Person-" + person.getId + " - " + person.getPlans.size())
+    }
   }
 
   private def mandatoryTour(
@@ -75,7 +49,7 @@ class AddSupplementaryTrips @Inject()(config: Config) extends PlansStrategyAdopt
 
     val elements: List[Activity] = plan.getPlanElements.asScala
       .collect { case activity: Activity => activity }
-      .filter(x => (x.getType.equalsIgnoreCase("Work") | x.getType.equalsIgnoreCase("Home")))
+      .filter(x => x.getType.equalsIgnoreCase("Work") | x.getType.equalsIgnoreCase("Home"))
       .toList
 
     val newElements = elements.foldLeft(mutable.MutableList[Activity]())(
@@ -83,14 +57,17 @@ class AddSupplementaryTrips @Inject()(config: Config) extends PlansStrategyAdopt
         listOfAct.lastOption match {
           case Some(lastAct) =>
             if (lastAct.getType == currentAct.getType) {
-              listOfAct.last.setEndTime(currentAct.getEndTime)
-              listOfAct
+              val lastActivity = PopulationUtils.createActivity(lastAct)
+              lastActivity.setEndTime(currentAct.getEndTime)
+              val newList = listOfAct.dropRight(1)
+              newList :+ lastActivity
             } else {
               listOfAct += currentAct
             }
           case None => mutable.MutableList[Activity](currentAct)
       }
     )
+
     newElements.foreach { x =>
       newPlan.addActivity(x)
     }
@@ -99,12 +76,25 @@ class AddSupplementaryTrips @Inject()(config: Config) extends PlansStrategyAdopt
 
   private def definitelyAddSubtours(
     activity: Activity,
-    person: Person
+    person: Person,
+    nonWorker: Boolean = false
   ): List[Activity] = {
-    activity.getType match {
+    val listOfActivities = activity.getType match {
       case "Home" => addSubtourToActivity(activity)
       case "Work" => addSubtourToActivity(activity)
       case _      => List[Activity](activity)
+    }
+    if (nonWorker) {
+      listOfActivities.flatMap(
+        activity =>
+          activity.getType match {
+            case "Home" => addSubtourToActivity(activity)
+            case "Work" => List[Activity](activity)
+            case _      => List[Activity](activity)
+        }
+      )
+    } else {
+      listOfActivities
     }
   }
 
@@ -147,15 +137,17 @@ class AddSupplementaryTrips @Inject()(config: Config) extends PlansStrategyAdopt
     newPlan.setType(plan.getType)
 
     val elements = plan.getPlanElements.asScala.collect { case activity: Activity => activity }
+    val nonWorker = (elements.length == 1)
     val newActivitiesToAdd = elements.zipWithIndex.map {
       case (planElement, idx) =>
         val prevEndTime = if (idx > 0) {
-          elements(idx - 1).getEndTime.max(0)
+          (elements(idx - 1).getEndTime + 1).max(0)
         } else {
           0
         }
         planElement.setMaximumDuration(planElement.getEndTime - prevEndTime)
-        definitelyAddSubtours(planElement, person)
+        planElement.setStartTime(prevEndTime)
+        definitelyAddSubtours(planElement, person, nonWorker)
     }
     newActivitiesToAdd.flatten.foreach { x =>
       newPlan.addActivity(x)
