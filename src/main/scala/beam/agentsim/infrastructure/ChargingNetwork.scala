@@ -221,7 +221,7 @@ object ChargingNetwork {
             Some(cycle)
           case Some(cycle: ChargingCycle) if cycle.startTime == startTime =>
             // keep existing charging cycle
-            logger.debug(s"the new charging cycle of vehicle $vehicle ends after the end of the last cycle")
+            logger.info(s"the new charging cycle of vehicle $vehicle ends after the end of the last cycle")
             None
           case Some(cycle: ChargingCycle) if cycle.startTime > startTime =>
             // This should never happen
