@@ -163,25 +163,23 @@ class ChargingNetworkManager(
       sender ! CompletionNotice(triggerId)
 
     case ChargingPlugRequest(tick, vehicle, vehicleManager) =>
-      log.info(s"ChargingPlugRequest for vehicle $vehicle at $tick")
+      log.info(
+        s"ChargingPlugRequest received for vehicle $vehicle at $tick and stall {} / reserved stall {}",
+        vehicle.stall,
+        vehicle.reservedStall
+      )
       if (vehicle.isBEV | vehicle.isPHEV) {
         val chargingNetwork = chargingNetworkMap(vehicleManager)
-        if (vehicle.stall.isEmpty && vehicle.reservedStall.isEmpty) {
-          throw new RuntimeException(s"Vehicle $vehicle doesn't have a stall!")
-        }
-        // processing waiting line
-        val stall = vehicle.stall.getOrElse(vehicle.reservedStall.get)
-        val waitingInLine = chargingNetwork
-          .lookupStation(stall)
-          .map(chargingNetwork.processWaitingLine)
-          .getOrElse(List.empty[ChargingVehicle])
-        waitingInLine.foreach(handleStartCharging(tick, _))
         // connecting the current vehicle
         chargingNetwork.connectVehicle(tick, vehicle, sender) match {
           case chargingVehicle: ChargingVehicle if chargingVehicle.status == Waiting =>
+            log.info(s"Vehicle ${chargingVehicle.vehicle} is moved to waiting line at $tick")
             sender ! WaitingInLine(tick, chargingVehicle.vehicle.id)
           case chargingVehicle: ChargingVehicle =>
             handleStartCharging(tick, chargingVehicle)
+            val endTime = chargingVehicle.computeSessionEndTime
+            if (endTime < nextTimeBin(tick))
+              scheduler ! ScheduleTrigger(ChargingTimeOutTrigger(endTime, vehicle.id, vehicleManager), self)
         }
       } else {
         sender ! Failure(
@@ -192,7 +190,7 @@ class ChargingNetworkManager(
       }
 
     case ChargingUnplugRequest(tick, vehicle, vehicleManager) =>
-      log.info(s"ChargingUnplugRequest for vehicle $vehicle at $tick")
+      log.info(s"ChargingUnplugRequest received for vehicle $vehicle at $tick")
       val physicalBounds = obtainPowerPhysicalBounds(tick, None)
       val chargingNetwork = chargingNetworkMap(vehicleManager)
       chargingNetwork.lookupVehicle(vehicle.id) match {
@@ -223,15 +221,14 @@ class ChargingNetworkManager(
     * @param chargingVehicle charging vehicle information
     */
   private def handleStartCharging(tick: Int, chargingVehicle: ChargingVehicle): Unit = {
-    val physicalBounds = obtainPowerPhysicalBounds(tick, None)
     log.info(s"Starting charging for vehicle ${chargingVehicle.vehicle} at $tick")
+    val physicalBounds = obtainPowerPhysicalBounds(tick, None)
     chargingVehicle.vehicle.connectToChargingPoint(tick)
     chargingVehicle.theSender ! StartingRefuelSession(tick, chargingVehicle.vehicle.id)
     handleStartChargingHelper(tick, chargingVehicle)
     val (chargeDurationAtTick, energyToChargeAtTick) =
       dispatchEnergy(nextTimeBin(tick) - tick, chargingVehicle, physicalBounds)
     chargingVehicle.processChargingCycle(tick, energyToChargeAtTick, chargeDurationAtTick)
-    if (chargeDurationAtTick == 0) handleEndCharging(tick, chargingVehicle)
   }
 
   /**

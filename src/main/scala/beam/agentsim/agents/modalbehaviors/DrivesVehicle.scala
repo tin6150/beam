@@ -365,7 +365,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash {
             if (currentBeamVehicle.isBEV | currentBeamVehicle.isPHEV) {
               stall.chargingPointType match {
                 case Some(_) =>
-                  log.debug("Sending ChargingPlugRequest to chargingNetworkManager at {}", tick)
+                  log.info("Sending ChargingPlugRequest to chargingNetworkManager at {}", tick)
                   try {
                     Await
                       .result(
@@ -377,9 +377,9 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash {
                         atMost = 1.minute
                       ) match {
                       case StartingRefuelSession(tick, vehicleId) =>
-                        log.debug(s"Vehicle $vehicleId started charging and it is now handled by the CNM at $tick")
+                        log.info(s"Vehicle $vehicleId started charging and it is now handled by the CNM at $tick")
                       case WaitingInLine(tick, vehicleId) =>
-                        log.debug(s"Vehicle $vehicleId is waiting in line and it is now handled by the CNM at $tick")
+                        log.info(s"Vehicle $vehicleId is waiting in line and it is now handled by the CNM at $tick")
                     }
                   } catch {
                     case _: TimeoutException =>

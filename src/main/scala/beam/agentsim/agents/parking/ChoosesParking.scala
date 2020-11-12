@@ -78,7 +78,7 @@ trait ChoosesParking extends {
     case Event(StateTimeout, data: BasePersonData) =>
       val (tick, _) = releaseTickAndTriggerId()
       if (currentBeamVehicle.isConnectedToChargingPoint()) {
-        log.debug("Sending ChargingUnplugRequest to ChargingNetworkManager at {}", tick)
+        log.info("Sending ChargingUnplugRequest to ChargingNetworkManager at {}", tick)
         try {
           Await
             .result(
@@ -90,9 +90,9 @@ trait ChoosesParking extends {
               atMost = 1.minute
             ) match {
             case EndingRefuelSession(tick, vehicleId) =>
-              log.debug(s"Vehicle $vehicleId ended charging and it is not handled by the CNM at tick $tick")
+              log.info(s"Vehicle $vehicleId ended charging and it is not handled by the CNM at tick $tick")
             case UnhandledVehicle(tick, vehicleId) =>
-              log.debug(s"Vehicle $vehicleId is not handled by the CNM at tick $tick")
+              log.info(s"Vehicle $vehicleId is not handled by the CNM at tick $tick")
           }
         } catch {
           case _: TimeoutException =>
