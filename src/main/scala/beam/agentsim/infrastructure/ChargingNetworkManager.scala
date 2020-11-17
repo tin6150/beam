@@ -23,6 +23,7 @@ import beam.router.BeamRouter.Location
 import beam.sim.BeamServices
 import beam.sim.config.BeamConfig
 import beam.utils.{DateUtils, ParkingManagerIdGenerator}
+import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.Id
 import org.matsim.core.utils.collections.QuadTree
 
@@ -166,6 +167,8 @@ class ChargingNetworkManager(
     case ChargingPlugRequest(tick, vehicle, vehicleManager) =>
       log.info(s"ChargingPlugRequest received for vehicle $vehicle at $tick and stall ${vehicle.stall}")
       if (vehicle.isBEV | vehicle.isPHEV) {
+        if(!chargingNetworkMap.contains(vehicleManager))
+          log.info(s"vehicleManager not in chargingNetworkMap $vehicleManager ${chargingNetworkMap.values}")
         val chargingNetwork = chargingNetworkMap(vehicleManager)
         // connecting the current vehicle
         chargingNetwork.connectVehicle(tick, vehicle, sender) match {
@@ -368,7 +371,7 @@ object ChargingNetworkManager {
     override def hashCode: Int = uniqueId.hashCode()
   }
 
-  object ChargingZone {
+  object ChargingZone extends LazyLogging {
 
     /**
       * Construct charging zone from the parking stall
@@ -376,15 +379,19 @@ object ChargingNetworkManager {
       * @param vehicleManager VehicleManager
       * @return ChargingZone
       */
-    def to(stall: ParkingStall, vehicleManager: VehicleManager): ChargingZone = ChargingZone(
-      stall.parkingZoneId,
-      stall.tazId,
-      stall.parkingType,
-      1,
-      stall.chargingPointType.get,
-      stall.pricingModel.get,
-      vehicleManager
-    )
+    def to(stall: ParkingStall, vehicleManager: VehicleManager): ChargingZone = {
+      if(stall.chargingPointType.isEmpty)
+        logger.info(s"**** no charging point: $stall")
+      ChargingZone(
+        stall.parkingZoneId,
+        stall.tazId,
+        stall.parkingType,
+        1,
+        stall.chargingPointType.get,
+        stall.pricingModel.get,
+        vehicleManager
+      )
+    }
 
     /**
       * convert to ChargingZone from Map
