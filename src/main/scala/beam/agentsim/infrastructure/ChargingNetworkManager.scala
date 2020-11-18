@@ -213,6 +213,7 @@ class ChargingNetworkManager(
       }
 
     case Finish =>
+      log.info("CNM is Finishing. Now clearing the charging networks!")
       chargingNetworkMap.foreach(_._2.clear())
       chargingNetworkMap.clear()
       powerController.close()

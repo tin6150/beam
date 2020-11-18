@@ -948,7 +948,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash {
     eventsManager.processEvent(chargingPlugOutEvent)
     vehicle.stall match {
       case Some(stall) =>
-        log.info(s"*** 951 handleEndCharging DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}")
+        log.info(s"*** 951 handleEndCharging DrivesVehicle unsetting vehicle ${vehicle} from stall ${vehicle.stall}")
         parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
         vehicle.unsetParkingStall()
       case None =>

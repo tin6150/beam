@@ -660,6 +660,7 @@ class RideHailAgent(
             )
           )
         if (!vehicle.isCAV) {
+          log.info(s"*** 663 handleEndRefuel RideHailAgent vehicle ${vehicle} from stall ${vehicle.stall}")
           val stall = vehicle.stall.get
           parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
         }
