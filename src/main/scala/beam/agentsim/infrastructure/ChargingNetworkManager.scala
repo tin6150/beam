@@ -70,12 +70,12 @@ class ChargingNetworkManager(
         .pipeTo(sender())
 
     case TriggerWithId(PlanningTimeOutTrigger(timeBin), triggerId) =>
-      log.info(s"Planning energy dispatch for vehicles currently connected to a charging point, at t=$timeBin")
+//      log.info(s"Planning energy dispatch for vehicles currently connected to a charging point, at t=$timeBin")
       import scala.concurrent.ExecutionContext.Implicits.global
       import scala.concurrent.duration._
       import scala.concurrent.{Await, Future, TimeoutException}
       val estimatedLoad = requiredPowerInKWOverNextPlanningHorizon(timeBin)
-      log.info("Total Load estimated is {} at tick {}", estimatedLoad.values.sum, timeBin)
+//      log.info("Total Load estimated is {} at tick {}", estimatedLoad.values.sum, timeBin)
 
       // obtaining physical bounds
       val physicalBounds = obtainPowerPhysicalBounds(timeBin, Some(estimatedLoad))
@@ -97,12 +97,13 @@ class ChargingNetworkManager(
                       handleEndCharging(timeBin, chargingVehicle)
                       None
                     case cycle if cycle.duration >= cnmConfig.timeStepInSeconds =>
-                      log.info(
-                        "Ending refuel cycle for vehicle {}. Provided energy of {} J. Remaining {} J",
-                        vehicle.id,
-                        cycle.energy,
-                        energyToCharge
-                      )
+//                      log.info(
+//                        "Ending refuel cycle of vehicle {}. Stall: {}. Provided energy: {} J. Remaining: {} J",
+//                        vehicle.id,
+//                        vehicle.stall,
+//                        cycle.energy,
+//                        energyToCharge
+//                      )
                       None
                     case cycle =>
                       Some(
@@ -156,7 +157,7 @@ class ChargingNetworkManager(
       )
 
     case TriggerWithId(ChargingTimeOutTrigger(tick, vehicleId, vehicleManager), triggerId) =>
-      log.info(s"ChargingTimeOutTrigger for vehicle $vehicleId at $tick")
+//      log.info(s"ChargingTimeOutTrigger for vehicle $vehicleId at $tick")
       val chargingNetwork = chargingNetworkMap(vehicleManager)
       chargingNetwork.lookupVehicle(vehicleId) match {
         case Some(chargingVehicle) => handleEndCharging(tick, chargingVehicle)
@@ -194,7 +195,7 @@ class ChargingNetworkManager(
       }
 
     case ChargingUnplugRequest(tick, vehicle, vehicleManager) =>
-      log.info(s"ChargingUnplugRequest received for vehicle $vehicle at $tick")
+      log.info(s"ChargingUnplugRequest received for vehicle $vehicle from plug ${vehicle.stall} at $tick")
       val physicalBounds = obtainPowerPhysicalBounds(tick, None)
       val chargingNetwork = chargingNetworkMap(vehicleManager)
       chargingNetwork.lookupVehicle(vehicle.id) match {
@@ -258,6 +259,7 @@ class ChargingNetworkManager(
       vehicle.disconnectFromChargingPoint()
       vehicle.stall match {
         case Some(stall) =>
+          log.info(s"*** 262 handleEndCharging CNM unsetting vehicle ${vehicle} from stall ${vehicle.stall}")
           parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
           vehicle.unsetParkingStall()
         case None =>
@@ -276,9 +278,10 @@ class ChargingNetworkManager(
     */
   private def handleRefueling(chargingVehicle: ChargingVehicle): Unit = {
     chargingVehicle.latestChargingCycle.foreach { cycle =>
-      chargingVehicle.vehicle.addFuel(cycle.energy)
+    val vehicle = chargingVehicle.vehicle
+      vehicle.addFuel(cycle.energy)
       collectObservedLoadInKW(chargingVehicle, cycle)
-      log.info(s"Charging vehicle ${chargingVehicle.vehicle}. Provided energy of = ${cycle.energy} J")
+//      log.info(s"Charging vehicle ${vehicle}. Stall ${vehicle.stall}. Provided energy of = ${cycle.energy} J")
     }
   }
 

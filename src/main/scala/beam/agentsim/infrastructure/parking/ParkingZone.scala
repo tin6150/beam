@@ -96,8 +96,7 @@ object ParkingZone extends LazyLogging {
     * @param parkingZone the object to increment
     * @return True|False (representing success) wrapped in an effect type
     */
-  def releaseStall(parkingZone: ParkingZone): Eval[Boolean] =
-    Eval.later {
+  def releaseStall(parkingZone: ParkingZone): Boolean = parkingZone.synchronized {
       if (parkingZone.parkingZoneId == DefaultParkingZoneId) {
         // this zone does not exist in memory but it has infinitely many stalls to release
         true
@@ -116,8 +115,7 @@ object ParkingZone extends LazyLogging {
     * @param parkingZone the object to increment
     * @return True|False (representing success) wrapped in an effect type
     */
-  def claimStall(parkingZone: ParkingZone): Eval[Boolean] =
-    Eval.later {
+  def claimStall(parkingZone: ParkingZone): Boolean = parkingZone.synchronized {
       if (parkingZone.parkingZoneId == DefaultParkingZoneId) {
         // this zone does not exist in memory but it has infinitely many stalls to release
         true

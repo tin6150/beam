@@ -292,16 +292,20 @@ class ZonalParkingManager(
             s"reserving a ${if (parkingStall.chargingPointType.isDefined) "charging" else "non-charging"} stall for agent ${inquiry.requestId} in parkingZone ${parkingZone.parkingZoneId}"
           )
           // update the parking stall data
-          val claimed: Boolean = ParkingZone.claimStall(parkingZone).value
+          val claimed: Boolean = ParkingZone.claimStall(parkingZone)
+          log.info(s"claimed stall in parking zone $parkingZone with reference ${parkingZone.hashCode()} and inquiry is ${inquiry.beamVehicle}")
           if (claimed) {
             totalStallsInUse += 1
             totalStallsAvailable -= 1
             log.debug("Parking stalls in use: {} available: {}", totalStallsInUse, totalStallsAvailable)
             if (totalStallsInUse % 1000 == 0) log.debug("Parking stalls in use: {}", totalStallsInUse)
             parkingStallMaybe = Some(parkingStall)
+          } else {
+            log.info(s"**** failed inquiry $inquiry and this is the failed $parkingStall in parking zone $parkingZone with reference ${parkingZone.hashCode()}")
           }
         } else {
           parkingStallMaybe = Some(parkingStall)
+          log.info(s"**** Reserve is false for $inquiry and stall $parkingStall in parking zone $parkingZone with reference ${parkingZone.hashCode()}")
         }
       } while (parkingStallMaybe.isEmpty)
 
@@ -318,8 +322,9 @@ class ZonalParkingManager(
           log.debug("Attempting to release stall in zone {} which is an illegal parking zone id", parkingZoneId)
         }
       } else {
-
-        val released: Boolean = ParkingZone.releaseStall(parkingZones(parkingZoneId)).value
+        val parkingZone = parkingZones(parkingZoneId)
+        val released: Boolean = ParkingZone.releaseStall(parkingZone)
+        log.info(s"released stall in parking zone $parkingZone with reference ${parkingZone.hashCode()}")
         if (released) {
           totalStallsInUse -= 1
           totalStallsAvailable += 1

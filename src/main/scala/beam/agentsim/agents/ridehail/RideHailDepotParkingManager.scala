@@ -178,7 +178,7 @@ class RideHailDepotParkingManager(
       if (parkingZone.stallsAvailable == 0) {
         None
       } else {
-        val success = ParkingZone.claimStall(parkingZone).value
+        val success = ParkingZone.claimStall(parkingZone)
         if (!success) {
           None
         } else {
@@ -202,7 +202,7 @@ class RideHailDepotParkingManager(
     if (parkingStall.parkingZoneId < 0 || rideHailParkingStalls.length <= parkingStall.parkingZoneId) None
     else {
       val parkingZone: ParkingZone = rideHailParkingStalls(parkingStall.parkingZoneId)
-      val success = ParkingZone.releaseStall(parkingZone).value
+      val success = ParkingZone.releaseStall(parkingZone)
       if (!success) None
       else
         Some {

@@ -104,6 +104,7 @@ trait ChoosesParking extends {
 
     case Event(StateTimeout, data) =>
       val stall = currentBeamVehicle.stall.get
+      log.info(s"*** 107 ReleasingParkingSpot ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}")
       parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
       currentBeamVehicle.unsetParkingStall()
       releaseTickAndTriggerId()
@@ -113,6 +114,7 @@ trait ChoosesParking extends {
   private def handleReleaseParking(tick: Int, data: PersonData) {
     val stallForLeavingParkingEvent = currentBeamVehicle.stall match {
       case Some(stall) =>
+        log.info(s"*** 117 handleReleaseParking ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}")
         parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
         currentBeamVehicle.unsetParkingStall()
         stall
