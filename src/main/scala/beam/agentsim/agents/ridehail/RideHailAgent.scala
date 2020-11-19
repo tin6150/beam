@@ -660,9 +660,9 @@ class RideHailAgent(
             )
           )
         if (!vehicle.isCAV) {
-          log.info(s"*** 663 handleEndRefuel RideHailAgent vehicle ${vehicle} from stall ${vehicle.stall}")
+          val msg = s"*** 663 handleEndRefuel RideHailAgent vehicle ${vehicle} from stall ${vehicle.stall}"
           val stall = vehicle.stall.get
-          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
+          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId, msg)
         }
         val currentLocation = vehicle.stall.get.locationUTM
         if (!vehicle.isCAV) vehicle.unsetParkingStall()

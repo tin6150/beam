@@ -245,7 +245,7 @@ class ParallelParkingManagerSpec
         expectMsg(ParkingInquiryResponse(expectedStall, firstInquiry.requestId))
 
         // release the stall
-        val releaseParkingStall = ReleaseParkingStall(expectedParkingZoneId, expectedTAZId)
+        val releaseParkingStall = ReleaseParkingStall(expectedParkingZoneId, expectedTAZId, "")
         parkingManager ! releaseParkingStall
 
         // request the stall again

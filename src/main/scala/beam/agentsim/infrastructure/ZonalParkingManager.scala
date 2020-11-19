@@ -311,7 +311,7 @@ class ZonalParkingManager(
 
       sender() ! ParkingInquiryResponse(parkingStallMaybe.get, inquiry.requestId)
 
-    case ReleaseParkingStall(parkingZoneId, _) =>
+    case ReleaseParkingStall(parkingZoneId, _, senderMsg) =>
       if (parkingZoneId == ParkingZone.DefaultParkingZoneId) {
         if (log.isDebugEnabled) {
           // this is an infinitely available resource; no update required
@@ -324,7 +324,7 @@ class ZonalParkingManager(
       } else {
         val parkingZone = parkingZones(parkingZoneId)
         val released: Boolean = ParkingZone.releaseStall(parkingZone)
-        log.info(s"released stall in parking zone $parkingZone with reference ${parkingZone.hashCode()}")
+        log.info(s"released stall in parking zone $parkingZone with reference ${parkingZone.hashCode()} by sender $sender with message $senderMsg")
         if (released) {
           totalStallsInUse -= 1
           totalStallsAvailable += 1

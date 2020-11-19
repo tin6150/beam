@@ -96,7 +96,8 @@ class ParallelParkingManager(
       counter.count(worker.cluster.presentation)
       worker.actor.forward(inquiry)
 
-    case release @ ReleaseParkingStall(parkingZoneId, tazId) =>
+    case release @ ReleaseParkingStall(parkingZoneId, tazId, senderMsg) =>
+      log.info(s"ParallelParkingManager received ReleaseParkingStall from $sender with msg $senderMsg parkingZoneId $parkingZoneId tazId $tazId")
       tazToWorker.get(tazId) match {
         case Some(worker) => worker.actor.forward(release)
         case None         => log.error(s"No TAZ with id $tazId, zone id = $parkingZoneId. Cannot release.")
