@@ -150,7 +150,8 @@ class HierarchicalParkingManager(
 
       sender() ! ParkingInquiryResponse(parkingStall, inquiry.requestId)
 
-    case ReleaseParkingStall(parkingZoneId, _) =>
+    case ReleaseParkingStall(parkingZoneId, tazId, senderMsg) =>
+      log.info(s"ParallelParkingManager received ReleaseParkingStall from $sender with msg $senderMsg parkingZoneId $parkingZoneId tazId $tazId")
       if (parkingZoneId == ParkingZone.DefaultParkingZoneId) {
         if (log.isDebugEnabled) {
           // this is an infinitely available resource; no update required

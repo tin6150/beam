@@ -91,7 +91,7 @@ class ZonalParkingManager[GEO: GeoLevel](
 
       sender() ! ParkingInquiryResponse(parkingStall, inquiry.requestId)
 
-    case ReleaseParkingStall(parkingZoneId, _) =>
+    case ReleaseParkingStall(parkingZoneId, _, senderMsg) =>
       if (parkingZoneId == ParkingZone.DefaultParkingZoneId) {
         if (log.isDebugEnabled) {
           // this is an infinitely available resource; no update required
@@ -102,8 +102,9 @@ class ZonalParkingManager[GEO: GeoLevel](
           log.debug("Attempting to release stall in zone {} which is an illegal parking zone id", parkingZoneId)
         }
       } else {
-
-        val released: Boolean = ParkingZone.releaseStall(parkingZones(parkingZoneId))
+        val parkingZone = parkingZones(parkingZoneId)
+        val released: Boolean = ParkingZone.releaseStall(parkingZone)
+        log.info(s"released stall in parking zone $parkingZone with reference ${parkingZone.hashCode()} by sender $sender with message $senderMsg")
         if (released) {
           totalStallsInUse -= 1
           totalStallsAvailable += 1

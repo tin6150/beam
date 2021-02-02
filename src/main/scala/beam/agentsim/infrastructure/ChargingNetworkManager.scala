@@ -255,7 +255,8 @@ class ChargingNetworkManager(
       vehicle.disconnectFromChargingPoint()
       vehicle.stall match {
         case Some(stall) =>
-          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId)
+          val msg = s"*** 623 WaitingToDrive DrivesVehicle unsetting vehicle ${vehicle} from stall ${vehicle.stall}"
+          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.tazId, msg)
           vehicle.unsetParkingStall()
         case None =>
           log.error(s"Vehicle $vehicle has no stall while ending charging event")

@@ -101,7 +101,8 @@ trait ChoosesParking extends {
 
       val stallForLeavingParkingEvent = currentBeamVehicle.stall match {
         case Some(stall) =>
-          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId)
+          val msg = s"*** 104 ReleasingParkingSpot ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
+          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId, msg)
           currentBeamVehicle.unsetParkingStall()
           stall
         case None =>
@@ -122,7 +123,8 @@ trait ChoosesParking extends {
 
     case Event(StateTimeout, data) =>
       val stall = currentBeamVehicle.stall.get
-      parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId)
+      val msg = s"*** 126 StateTimeout ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
+      parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId, msg)
       currentBeamVehicle.unsetParkingStall()
       releaseTickAndTriggerId()
       goto(WaitingToDrive) using data
