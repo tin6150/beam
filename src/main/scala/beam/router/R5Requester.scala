@@ -39,7 +39,7 @@ class MyDebugRoutingVisitor extends RoutingVisitor {
 /*
 ./gradlew :execute -PmainClass=beam.router.R5Requester -PmaxRAM=24 -PappArgs="['--config', 'test/input/newyork/new-york-PROD-baseline-one-r5.conf']" \
 	-PlogbackCfg=logback.xml -Dplans=test/input/newyork/generic_scenario/1049k-NYC-related/plans.csv.gz -DconvertToWgs=false
-*/
+ */
 object R5Requester extends BeamHelper {
   private val geoUtils: GeoUtils = new beam.sim.common.GeoUtils {
     override def localCRS: String = "epsg:32118"
@@ -149,8 +149,7 @@ object R5Requester extends BeamHelper {
           val homeWgs = geoUtils.utm2Wgs(homeUTM)
           val workWgs = geoUtils.utm2Wgs(workUTM)
           (homeWgs, workWgs, homeUTM, workUTM)
-        }
-        else {
+        } else {
           val homeWgs = new Coord(home.activityLocationX.get, home.activityLocationY.get)
           val workWgs = new Coord(work.activityLocationX.get, work.activityLocationY.get)
           val homeUTM = geoUtils.wgs2Utm(homeWgs)

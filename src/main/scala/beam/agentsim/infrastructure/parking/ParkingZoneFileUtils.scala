@@ -19,7 +19,7 @@ import scala.util.{Failure, Random, Success, Try}
 object ParkingZoneFileUtils extends LazyLogging {
 
   /**
-    * used to parse a row of the parking file
+    * used to parse a row ofParkingGeoIndexConverterSpec the parking file
     * last row (ReservedFor) is ignored
     */
   val ParkingFileRowRegex: Regex = """(\w+),(\w+),(\w+),(\w.+),(\d+),(\d+\.{0,1}\d*).*""".r.unanchored
