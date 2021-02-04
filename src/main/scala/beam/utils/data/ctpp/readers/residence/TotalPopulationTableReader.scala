@@ -6,7 +6,7 @@ import beam.utils.data.ctpp.readers.BaseTableReader.{CTPPDatabaseInfo, PathToDat
 import beam.utils.data.ctpp.readers.residence.TotalPopulationTableReader.TotalPopulation
 
 class TotalPopulationTableReader(dbInfo: CTPPDatabaseInfo, val residenceGeography: ResidenceGeography)
-    extends BaseTableReader(dbInfo, Table.PopulationInHouseholds, Some(residenceGeography.level)) {
+    extends BaseTableReader(dbInfo, Table.Residence.PopulationInHouseholds, Some(residenceGeography.level)) {
 
   def read(): TotalPopulation = {
     val map = readRaw()
@@ -36,7 +36,7 @@ object TotalPopulationTableReader {
     val readData = new TotalPopulationTableReader(databaseInfo, ResidenceGeography.TAZ).read()
 
     println(s"Number of keys: ${readData.size}")
-    val totalNumberOfPeopleInAllGeoIds = readData.values.sum
+    val totalNumberOfPeopleInAllGeoIds = readData.map(_._2).sum
     readData.foreach {
       case (geoId, count) =>
         println(s"$geoId: $count")

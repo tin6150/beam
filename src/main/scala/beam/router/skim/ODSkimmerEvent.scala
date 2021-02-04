@@ -23,8 +23,7 @@ case class ODSkimmerEvent(
     trip: EmbodiedBeamTrip,
     generalizedTimeInHours: Double,
     generalizedCost: Double,
-    energyConsumption: Double,
-    level4CavTravelTimeScalingFactor: Double = 1.0
+    energyConsumption: Double
   ) = {
     import beamServices._
     val mode = trip.tripClassifier
@@ -56,8 +55,7 @@ case class ODSkimmerEvent(
         generalizedCost = generalizedCost,
         distanceInM = if (dist > 0.0) { dist } else { 1.0 },
         cost = correctedTrip.costEstimate,
-        energy = energyConsumption,
-        level4CavTravelTimeScalingFactor = level4CavTravelTimeScalingFactor
+        energy = energyConsumption
       )
     (key, payload)
   }

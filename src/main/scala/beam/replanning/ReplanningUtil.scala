@@ -103,7 +103,7 @@ object ReplanningUtil {
     for (i <- 0 until originalPlan.getPlanElements.size() - 1) {
       newPlan.getPlanElements.add(originalPlan.getPlanElements.get(i))
       if (tripsLength > i) {
-        val newLeg = PopulationUtils.createLeg(trips(i).tripClassifier.value)
+        val newLeg = PopulationUtils.createLeg(trips(i).tripClassifier.matsimMode)
         newPlan.getPlanElements.add(newLeg)
       }
     }

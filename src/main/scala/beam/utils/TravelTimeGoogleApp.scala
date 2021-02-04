@@ -8,21 +8,11 @@ import beam.sim.BeamHelper
 import beam.sim.common.SimpleGeoUtils
 import beam.sim.config.BeamExecutionConfig
 import beam.utils.FileUtils.using
-import com.google.inject.{Injector, Provider}
 import com.typesafe.scalalogging.StrictLogging
-import org.matsim.analysis.{CalcLinkStats, IterationStopWatch, ScoreStats, VolumesAnalyzer}
-import org.matsim.api.core.v01.Scenario
-import org.matsim.core.api.experimental.events.EventsManager
-import org.matsim.core.config.Config
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting
 import org.matsim.core.controler.events.IterationEndsEvent
 import org.matsim.core.controler.listener.ControlerListener
 import org.matsim.core.controler.{MatsimServices, OutputDirectoryHierarchy}
-import org.matsim.core.replanning.StrategyManager
-import org.matsim.core.router.costcalculators.TravelDisutilityFactory
-import org.matsim.core.router.util.{LeastCostPathCalculatorFactory, TravelDisutility, TravelTime}
-import org.matsim.core.router.TripRouter
-import org.matsim.core.scoring.ScoringFunctionFactory
 
 /**
   * Run it using gradle:<br>
@@ -78,37 +68,37 @@ object TravelTimeGoogleApp extends App with StrictLogging {
 }
 
 class SimplifiedMatsimServices(controller: OutputDirectoryHierarchy) extends MatsimServices {
-  override def getStopwatch: IterationStopWatch = ???
+  override def getStopwatch = ???
 
-  override def getLinkTravelTimes: TravelTime = ???
+  override def getLinkTravelTimes = ???
 
-  override def getTripRouterProvider: Provider[TripRouter] = ???
+  override def getTripRouterProvider = ???
 
-  override def createTravelDisutilityCalculator(): TravelDisutility = ???
+  override def createTravelDisutilityCalculator() = ???
 
-  override def getLeastCostPathCalculatorFactory: LeastCostPathCalculatorFactory = ???
+  override def getLeastCostPathCalculatorFactory = ???
 
-  override def getScoringFunctionFactory: ScoringFunctionFactory = ???
+  override def getScoringFunctionFactory = ???
 
-  override def getConfig: Config = ???
+  override def getConfig = ???
 
-  override def getScenario: Scenario = ???
+  override def getScenario = ???
 
-  override def getEvents: EventsManager = ???
+  override def getEvents = ???
 
-  override def getInjector: Injector = ???
+  override def getInjector = ???
 
-  override def getLinkStats: CalcLinkStats = ???
+  override def getLinkStats = ???
 
-  override def getVolumes: VolumesAnalyzer = ???
+  override def getVolumes = ???
 
-  override def getScoreStats: ScoreStats = ???
+  override def getScoreStats = ???
 
-  override def getTravelDisutilityFactory: TravelDisutilityFactory = ???
+  override def getTravelDisutilityFactory = ???
 
-  override def getStrategyManager: StrategyManager = ???
+  override def getStrategyManager = ???
 
-  override def getControlerIO: OutputDirectoryHierarchy = controller
+  override def getControlerIO = controller
 
   override def addControlerListener(controlerListener: ControlerListener): Unit = ???
 

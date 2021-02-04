@@ -10,7 +10,7 @@ import beam.replanning.ModeIterationPlanCleaner
 import beam.router.Modes.BeamMode
 import beam.router.RouteHistory
 import beam.sim.common.GeoUtilsImpl
-import beam.sim.{BeamHelper, BeamMobsim, RideHailFleetInitializerProvider}
+import beam.sim.{BeamHelper, BeamMobsim}
 import beam.utils.SimRunnerForTest
 import beam.utils.TestConfigUtils.testConfig
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
@@ -59,8 +59,7 @@ class AgentsimWithMaximallyBadRouterSpec
         new RouteHistory(services.beamConfig),
         new GeoUtilsImpl(services.beamConfig),
         new ModeIterationPlanCleaner(beamConfig, scenario),
-        services.networkHelper,
-        new RideHailFleetInitializerProvider(services, beamScenario, scenario),
+        services.networkHelper
       )
       mobsim.run()
     }

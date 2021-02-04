@@ -10,7 +10,7 @@ import org.matsim.core.utils.io.IOUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /**
   * Skims csv reader.
@@ -31,22 +31,23 @@ class CsvSkimReader(
       logger.info(s"warmStart skim NO PATH FOUND '$aggregatedSkimsFilePath'")
       Map.empty[AbstractSkimmerKey, AbstractSkimmerInternal]
     } else {
-      val skimsTryMap = Try {
+      Try {
         IOUtils.getBufferedReader(aggregatedSkimsFilePath)
       }.flatMap(tryReadSkims)
-      skimsTryMap match {
-        case Success(skimMap) => skimMap
-        case Failure(ex) =>
-          logger.warn(s"Could not load warmStart skim from '$aggregatedSkimsFilePath': ${ex.getMessage}")
-          Map.empty[AbstractSkimmerKey, AbstractSkimmerInternal]
-      }
+        .recover {
+          case ex: Throwable =>
+            logger.warn(s"Could not load warmStart skim from '$aggregatedSkimsFilePath': ${ex.getMessage}")
+            Map.empty[AbstractSkimmerKey, AbstractSkimmerInternal]
+        }
+        .get
     }
+
   }
 
   def readSkims(reader: BufferedReader): Map[AbstractSkimmerKey, AbstractSkimmerInternal] = {
     tryReadSkims(reader).recover {
       case ex: Throwable =>
-        logger.warn(s"Could not load warmStart skim from '$aggregatedSkimsFilePath': ${ex.getMessage}")
+        logger.warn(s"Could not load warmStart skim from '$aggregatedSkimsFilePath'", ex)
         Map.empty[AbstractSkimmerKey, AbstractSkimmerInternal]
     }.get
   }

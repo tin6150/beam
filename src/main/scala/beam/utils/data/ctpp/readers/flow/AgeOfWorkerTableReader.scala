@@ -9,7 +9,7 @@ class AgeOfWorkerTableReader(
   val residenceToWorkplaceFlowGeography: ResidenceToWorkplaceFlowGeography
 ) extends BaseTableReader(
       dbInfo,
-      Table.AgeOfWorker,
+      Table.Flow.AgeOfWorker,
       Some(residenceToWorkplaceFlowGeography.level)
     ) {
 
@@ -38,7 +38,7 @@ class AgeOfWorkerTableReader(
 
   def read(): Iterable[OD[AgeRange]] = {
     readRaw().flatMap { entry =>
-      val (fromGeoId, toGeoId) = FlowGeoParser.parse(entry.geoId)
+      val (fromGeoId, toGeoId) = FlowGeoParser.parse(entry.geoId).get
       lineNumberToAge.get(entry.lineNumber).map { ageRange =>
         OD(fromGeoId, toGeoId, ageRange, entry.estimate)
       }

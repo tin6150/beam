@@ -50,21 +50,23 @@ object Reader {
     Console.println("fixing overlapped events ...")
     val progress = new ConsoleProgress("events fixed", vehiclesTrips.size + personsTrips.size, 34)
 
-    vehiclesTrips.foreach { vehicleTrip =>
-      progress.step()
-      vehicleTrip match {
-        case trip if trip.trip.size > 1 => pteOverlappingFix(trip.trip)
-        case _                          =>
-      }
-    }
+    if (vehiclesTrips.nonEmpty)
+      vehiclesTrips.foreach(trip => {
+        progress.step()
+        trip match {
+          case trip if trip.trip.size > 1 => pteOverlappingFix(trip.trip)
+          case _                          =>
+        }
+      })
 
-    personsTrips.foreach { vehicleTrip =>
-      progress.step()
-      vehicleTrip match {
-        case trip if trip.trip.size > 1 => pteOverlappingFix(trip.trip)
-        case _                          =>
-      }
-    }
+    if (personsTrips.nonEmpty)
+      personsTrips.foreach(trip => {
+        progress.step()
+        trip match {
+          case trip if trip.trip.size > 1 => pteOverlappingFix(trip.trip)
+          case _                          =>
+        }
+      })
 
     progress.finish()
 

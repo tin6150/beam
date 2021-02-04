@@ -37,7 +37,6 @@ class HouseholdCAVDriverAgent(
   val transportNetwork: TransportNetwork,
   val tollCalculator: TollCalculator
 ) extends DrivesVehicle[HouseholdCAVDriverData] {
-  override val eventBuilderActor: ActorRef = beamServices.eventBuilderActor
   val networkHelper: NetworkHelper = beamServices.networkHelper
   val geo: GeoUtils = beamServices.geo
 
@@ -166,8 +165,8 @@ object HouseholdCAVDriverAgent {
       copy(passengerSchedule = newPassengerSchedule)
 
     override def withCurrentLegPassengerScheduleIndex(
-      newLegPassengerScheduleIndex: Int
-    ): DrivingData = copy(currentLegPassengerScheduleIndex = newLegPassengerScheduleIndex)
+      currentLegPassengerScheduleIndex: Int
+    ): DrivingData = copy(currentLegPassengerScheduleIndex = currentLegPassengerScheduleIndex)
 
     override def hasParkingBehaviors: Boolean = false
 

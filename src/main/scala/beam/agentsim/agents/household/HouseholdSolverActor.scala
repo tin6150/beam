@@ -80,6 +80,7 @@ class HouseholdSolverActor extends Actor with ActorLogging {
       val usedMemStart = (runtime.totalMemory - runtime.freeMemory) / mb
       implicit val lp: MPModel = MPModel(SolverLib.oJSolver)
 
+      var cons = Vector.empty[MPConstraint]
       val variableList: Seq[(MPFloatVar, MPConstraint)] = (1 to numberOfVariables).map(x => {
         val variable = MPFloatVar.positive(s"x_$x")
         (variable, add(variable >:= 0))

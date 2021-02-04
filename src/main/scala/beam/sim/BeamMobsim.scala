@@ -1,6 +1,7 @@
 package beam.sim
 
 import java.util.concurrent.TimeUnit
+
 import akka.actor.Status.Success
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Cancellable, DeadLetter, Props, Terminated}
 import akka.pattern.ask
@@ -10,14 +11,12 @@ import beam.agentsim.agents.ridehail.RideHailManager.{BufferedRideHailRequestsTr
 import beam.agentsim.agents.ridehail.{RideHailIterationHistory, RideHailManager, RideHailSurgePricingManager}
 import beam.agentsim.agents.vehicles.{BeamVehicle, BeamVehicleType, EventsAccumulator, VehicleCategory}
 import beam.agentsim.agents.{BeamAgent, InitializeTrigger, Population, TransitSystem}
-import beam.agentsim.events.eventbuilder.EventBuilderActor.{EventBuilderActorCompleted, FlushEvents}
-import beam.agentsim.infrastructure.taz.TAZ
-import beam.agentsim.infrastructure.{HierarchicalParkingManager, ParallelParkingManager, ZonalParkingManager}
+import beam.agentsim.infrastructure.{ParallelParkingManager, ZonalParkingManager}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger, StartSchedule}
+import beam.cosim.helics.BeamFederate.BeamFederateTrigger
 import beam.replanning.{AddSupplementaryTrips, ModeIterationPlanCleaner, SupplementaryTripGenerator}
 import beam.router.Modes.BeamMode
-import beam.cosim.helics.BeamFederate.BeamFederateTrigger
 import beam.router._
 import beam.router.osm.TollCalculator
 import beam.router.skim.TAZSkimsCollector
@@ -29,6 +28,7 @@ import beam.sim.monitoring.ErrorListener
 import beam.sim.population.AttributesOfIndividual
 import beam.sim.vehiclesharing.Fleets
 import beam.utils._
+import beam.utils.csv.writers.PlansCsvWriter
 import beam.utils.matsim_conversion.ShapeUtils.QuadTreeBounds
 import com.conveyal.r5.transit.TransportNetwork
 import com.google.inject.Inject
@@ -57,8 +57,7 @@ class BeamMobsim @Inject()(
   val routeHistory: RouteHistory,
   val geo: GeoUtils,
   val planCleaner: ModeIterationPlanCleaner,
-  val networkHelper: NetworkHelper,
-  val rideHailFleetInitializerProvider: RideHailFleetInitializerProvider,
+  val networkHelper: NetworkHelper
 ) extends Mobsim
     with LazyLogging
     with MetricsSupport {
@@ -126,7 +125,10 @@ class BeamMobsim @Inject()(
 
     if (beamServices.beamConfig.beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities) {
       logger.info("Filling in secondary trips in plans")
-      fillInSecondaryActivities(beamServices.matsimServices.getScenario.getHouseholds)
+      fillInSecondaryActivities(
+        beamServices.matsimServices.getScenario.getHouseholds,
+        beamServices.matsimServices.getIterationNumber
+      )
     }
 
     val iteration = actorSystem.actorOf(
@@ -136,12 +138,12 @@ class BeamMobsim @Inject()(
           eventsManager,
           rideHailSurgePricingManager,
           rideHailIterationHistory,
-          routeHistory,
-          rideHailFleetInitializerProvider
+          routeHistory
         )
       ),
       "BeamMobsim.iteration"
     )
+
     Await.result(iteration ? "Run!", timeout.duration)
 
     logger.info("Agentsim finished.")
@@ -152,7 +154,12 @@ class BeamMobsim @Inject()(
     logger.info("Processing Agentsim Events (End)")
   }
 
-  private def fillInSecondaryActivities(households: Households): Unit = {
+  private def fillInSecondaryActivities(households: Households, iteration: Int): Unit = {
+    //    PlansCsvWriter.toCsv(
+    //      scenario,
+    //      beamServices.matsimServices.getControlerIO.getIterationFilename(iteration, "plans_before_fill_in.csv.gz")
+    //    )
+
     households.getHouseholds.values.forEach { household =>
       val vehicles = household.getVehicleIds.asScala
         .flatten(vehicleId => beamServices.beamScenario.privateVehicles.get(vehicleId.asInstanceOf[Id[BeamVehicle]]))
@@ -209,7 +216,10 @@ class BeamMobsim @Inject()(
       }
 
     }
-
+    //    PlansCsvWriter.toCsv(
+    //      scenario,
+    //      beamServices.matsimServices.getControlerIO.getIterationFilename(iteration, "plans_after_fill_in.csv.gz")
+    //    )
     logger.info("Done filling in secondary trips in plans")
   }
 
@@ -312,8 +322,7 @@ class BeamMobsimIteration(
   val eventsManager: EventsManager,
   val rideHailSurgePricingManager: RideHailSurgePricingManager,
   val rideHailIterationHistory: RideHailIterationHistory,
-  val routeHistory: RouteHistory,
-  val rideHailFleetInitializerProvider: RideHailFleetInitializerProvider,
+  val routeHistory: RouteHistory
 ) extends Actor
     with ActorLogging
     with MetricsSupport {
@@ -353,54 +362,19 @@ class BeamMobsimIteration(
     log.info(s"Starting parking manager: $managerName")
     val pmProps = managerName match {
       case "DEFAULT" =>
-        val geoLevel = beamConfig.beam.agentsim.taz.parkingManager.level
-        geoLevel.toLowerCase match {
-          case "taz" =>
-            ZonalParkingManager.props(
-              beamScenario.beamConfig,
-              beamScenario.tazTreeMap.tazQuadTree,
-              beamScenario.tazTreeMap.idToTAZMapping,
-              identity[TAZ],
-              geo,
-              beamRouter,
-              envelopeInUTM
-            )
-          case "link" =>
-            ZonalParkingManager.props(
-              beamScenario.beamConfig,
-              beamScenario.linkQuadTree,
-              beamScenario.linkIdMapping,
-              beamScenario.linkToTAZMapping,
-              geo,
-              beamRouter,
-              envelopeInUTM
-            )
-          case _ =>
-            throw new IllegalArgumentException(
-              s"Unsupported parking level type $geoLevel, only TAZ | Link are supported"
-            )
-        }
-      case "HIERARCHICAL" =>
-        HierarchicalParkingManager
-          .props(
-            beamConfig,
-            beamScenario.tazTreeMap,
-            beamScenario.linkQuadTree,
-            beamScenario.linkToTAZMapping,
-            geo,
-            envelopeInUTM
-          )
+        ZonalParkingManager
+          .props(beamScenario.beamConfig, beamScenario.tazTreeMap, geo, beamRouter, envelopeInUTM)
+          .withDispatcher("zonal-parking-manager-pinned-dispatcher")
       case "PARALLEL" =>
         ParallelParkingManager
           .props(beamScenario.beamConfig, beamScenario.tazTreeMap, geo, envelopeInUTM)
+          .withDispatcher("zonal-parking-manager-pinned-dispatcher")
       case unknown @ _ => throw new IllegalArgumentException(s"Unknown parking manager type: $unknown")
     }
-    context.actorOf(pmProps.withDispatcher("zonal-parking-manager-pinned-dispatcher"), "ParkingManager")
+    context.actorOf(pmProps, "ParkingManager")
   }
 
   context.watch(parkingManager)
-
-  private val rideHailFleetInitializer = rideHailFleetInitializerProvider.get()
 
   private val rideHailManager = context.actorOf(
     Props(
@@ -419,8 +393,7 @@ class BeamMobsimIteration(
         activityQuadTreeBounds,
         rideHailSurgePricingManager,
         rideHailIterationHistory.oscillationAdjustedTNCIterationStats,
-        routeHistory,
-        rideHailFleetInitializer
+        routeHistory
       )
     ).withDispatcher("ride-hail-manager-pinned-dispatcher"),
     "RideHailManager"
@@ -455,7 +428,6 @@ class BeamMobsimIteration(
   private val transitSystem = context.actorOf(
     Props(
       new TransitSystem(
-        beamServices,
         beamScenario,
         matsimServices.getScenario,
         beamScenario.transportNetwork,
@@ -560,18 +532,13 @@ class BeamMobsimIteration(
         debugActorWithTimerCancellable.cancel()
         context.stop(debugActorWithTimerActorRef)
       }
-
     case Terminated(_) =>
       if (context.children.isEmpty) {
-        // Await eventBuilder message queue to be processed, before ending iteration
-        beamServices.eventBuilderActor ! FlushEvents
+        context.stop(self)
+        runSender ! Success("Ran.")
       } else {
         log.debug("Remaining: {}", context.children)
       }
-
-    case EventBuilderActorCompleted =>
-      runSender ! Success("Ran.")
-      context.stop(self)
 
     case "Run!" =>
       runSender = sender

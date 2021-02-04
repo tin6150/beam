@@ -31,9 +31,8 @@ class GHRouterSpec extends WordSpecLike with Matchers with BeamHelper {
   lazy val config: Config = ConfigFactory
     .parseString(
       """
-         |beam.actorSystemName = "GHRouterSpec"
-         |beam.routing.carRouter="staticGH"
-      """.stripMargin
+        beam.routing.carRouter="staticGH"
+        """
     )
     .withFallback(testConfig("test/input/beamville/beam.conf"))
     .resolve()
@@ -41,6 +40,7 @@ class GHRouterSpec extends WordSpecLike with Matchers with BeamHelper {
   lazy implicit val system: ActorSystem = ActorSystem("GHRouterSpec", config)
 
   "Static GH" must {
+
     "run successfully" in {
       runBeamWithConfig(config)
     }

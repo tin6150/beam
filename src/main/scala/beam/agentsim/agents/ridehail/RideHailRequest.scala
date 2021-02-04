@@ -1,7 +1,6 @@
 package beam.agentsim.agents.ridehail
 
 import akka.actor.ActorRef
-import beam.agentsim.agents.ridehail.RideHailMatching.CustomerRequest
 import beam.agentsim.agents.vehicles.PersonIdWithActorRef
 import beam.router.BeamRouter.Location
 import beam.sim.BeamServices
@@ -17,9 +16,7 @@ case class RideHailRequest(
   destinationUTM: Location,
   asPooled: Boolean = false,
   groupedWithOtherRequests: List[RideHailRequest] = List(),
-  requestId: Int = RideHailRequestIdGenerator.nextId,
-  requestTime: Option[Int] = None,
-  quotedWaitTime: Option[Int] = None
+  requestId: Int = RideHailRequestIdGenerator.nextId
 ) {
 
   def addSubRequest(subRequest: RideHailRequest): RideHailRequest =
@@ -32,17 +29,6 @@ case class RideHailRequest(
 
 object RideHailRequest {
 
-  def fromCustomerRequest(customerRequest: CustomerRequest, asPooled: Boolean): RideHailRequest = {
-    RideHailRequest(
-      ReserveRide,
-      customerRequest.person,
-      customerRequest.pickup.activity.getCoord,
-      customerRequest.pickup.activity.getEndTime.toInt,
-      customerRequest.dropoff.activity.getCoord,
-      asPooled
-    )
-  }
-
   val DUMMY: RideHailRequest = RideHailRequest(
     RideHailInquiry,
     PersonIdWithActorRef(Id.create("dummy", classOf[Person]), ActorRef.noSender),
@@ -52,11 +38,11 @@ object RideHailRequest {
   )
 
   /**
-    * Converts the request's pickup and drop coordinates from WGS to UTM
+    * Converts the request's pickup and drop coordinates from MATSIM to R5 edge to avoid impression
     * @param request ridehail request
     * @param beamServices an instance of beam services
     */
-  def projectCoordinatesToUtm(request: RideHailRequest, beamServices: BeamServices): RideHailRequest = {
+  def handleImpression(request: RideHailRequest, beamServices: BeamServices): RideHailRequest = {
     val pickUpLocUpdatedUTM = beamServices.geo.wgs2Utm(
       beamServices.geo.snapToR5Edge(
         beamServices.beamScenario.transportNetwork.streetLayer,

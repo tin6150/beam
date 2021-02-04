@@ -1,5 +1,7 @@
 package beam.utils
 import scala.collection.JavaConverters._
+import scala.reflect.ClassTag
+import scala.util.Random
 
 /**
   * Created by sfeygin on 4/10/17.
@@ -49,12 +51,12 @@ object MathUtils {
     * https://github.com/sameersingh/scala-utils/blob/master/misc/src/main/scala/org/sameersingh/utils/misc/Math.scala
     */
 
-  def logSumExp(a: Double, b: Double): Double = {
+  def logSumExp(a: Double, b: Double) = {
     val output: Double =
-      if (a.isNegInfinity) b
-      else if (b.isNegInfinity) a
+      if (a == Double.NegativeInfinity) b
+      else if (b == Double.NegativeInfinity) a
       else if (a < b) b + math.log(1 + math.exp(a - b))
-      else a + math.log(1 + math.exp(b - a))
+      else a + math.log(1 + math.exp(b - a));
     output
   }
 
@@ -63,7 +65,7 @@ object MathUtils {
     * @return log(\sum exp(a_i))
     */
   def logSumExp(a: Double, b: Double, c: Double*): Double = {
-    logSumExp(Array(a, b) ++ c)
+    logSumExp(Array(a, b) ++ c);
   }
 
   /**
@@ -71,13 +73,13 @@ object MathUtils {
     * @return log(\sum exp(a_i))
     */
   def logSumExp(iter: Iterator[Double], max: Double): Double = {
-    var accum = 0.0
+    var accum = 0.0;
     while (iter.hasNext) {
-      val b = iter.next
-      if (!b.isNegInfinity)
-        accum += math.exp(b - max)
+      val b = iter.next;
+      if (b != Double.NegativeInfinity)
+        accum += math.exp(b - max);
     }
-    max + math.log(accum)
+    max + math.log(accum);
   }
 
   /**
@@ -93,24 +95,36 @@ object MathUtils {
         val m = a.max
         if (m.isInfinite) m
         else {
-          var i = 0
-          var accum = 0.0
+          var i = 0;
+          var accum = 0.0;
           a.foreach { x =>
-            accum += math.exp(x - m)
+            accum += math.exp(x - m);
             i += 1;
           }
-          m + math.log(accum)
+          m + math.log(accum);
         }
     }
   }
 
   def roundToFraction(x: Double, fraction: Long): Double = (x * fraction).round.toDouble / fraction
 
-  def formatBytes(v: Long): String = {
-    if (v < 1024) return v + " B"
-    val z = (63 - java.lang.Long.numberOfLeadingZeros(v)) / 10
-    "%.1f %sB".format(v.toDouble / (1L << (z * 10)), " KMGTPE".charAt(z))
+  def selectElementsByProbability[T](
+    rndSeed: Long,
+    elementToProbability: T => Double,
+    xs: Iterable[T]
+  )(implicit ct: ClassTag[T]): Array[T] = {
+    if (xs.isEmpty) Array.empty
+    else {
+      val rnd = new Random(rndSeed)
+      xs.flatMap { person =>
+        val removalProbability = elementToProbability(person)
+        if (removalProbability == 0.0) None
+        else {
+          val isSelected = rnd.nextDouble() < removalProbability
+          if (isSelected) Some(person)
+          else None
+        }
+      }.toArray
+    }
   }
-
-  def nanToZero(x: Double) = if (x.isNaN) { 0.0 } else { x }
 }

@@ -21,8 +21,8 @@ object ParkingSearchFilterPredicates {
     * @param beamVehicleOption
     * @return
     */
-  def testPEVChargeWhenHeadedHome[GEO](
-    zone: ParkingZone[GEO],
+  def testPEVChargeWhenHeadedHome(
+    zone: ParkingZone,
     isPEVAndNeedsToChargeAtHome: Option[Boolean],
     beamVehicleOption: Option[BeamVehicle]
   ): Boolean =
@@ -41,11 +41,11 @@ object ParkingSearchFilterPredicates {
           }
     }
 
-  def rideHailFastChargingOnly[GEO](
-    zone: ParkingZone[GEO],
-    activityTypeLowerCased: String
+  def rideHailFastChargingOnly(
+    zone: ParkingZone,
+    activityType: String
   ): Boolean =
-    activityTypeLowerCased match {
+    activityType.toLowerCase match {
       case "charge" =>
         zone.chargingPointType match {
           case Some(chargingPointType) => ChargingPointType.isFastCharger(chargingPointType)
@@ -55,10 +55,10 @@ object ParkingSearchFilterPredicates {
     }
 
   def requireStallHasCharger(
-    activityTypeLowerCased: String,
+    activityType: String,
     beamVehicleOption: Option[BeamVehicle],
   ): Boolean =
-    activityTypeLowerCased match {
+    activityType.toLowerCase match {
       case "charge" => true
       case "init"   => false
       case _ =>
@@ -72,8 +72,8 @@ object ParkingSearchFilterPredicates {
         }
     }
 
-  def canThisCarParkHere[GEO](
-    parkingZone: ParkingZone[GEO],
+  def canThisCarParkHere(
+    parkingZone: ParkingZone,
     returnSpotsWithChargers: Boolean,
     returnSpotsWithoutChargers: Boolean
   ): Boolean = {

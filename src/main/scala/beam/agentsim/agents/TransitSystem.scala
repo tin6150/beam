@@ -13,7 +13,7 @@ import beam.router.{BeamRouter, Modes, TransitInitializer}
 import beam.router.Modes.BeamMode.{BUS, CABLE_CAR, FERRY, GONDOLA, RAIL, SUBWAY, TRAM}
 import beam.router.model.BeamLeg
 import beam.router.osm.TollCalculator
-import beam.sim.{BeamScenario, BeamServices}
+import beam.sim.BeamScenario
 import beam.sim.common.GeoUtils
 import beam.sim.config.BeamConfig
 import beam.utils.{FileUtils, NetworkHelper}
@@ -24,7 +24,6 @@ import org.matsim.core.api.experimental.events.EventsManager
 import org.matsim.vehicles.Vehicle
 
 class TransitSystem(
-  val beamServices: BeamServices,
   val beamScenario: BeamScenario,
   val scenario: Scenario,
   val transportNetwork: TransportNetwork,
@@ -85,7 +84,6 @@ class TransitSystem(
           val transitDriverId = TransitDriverAgent.createAgentIdFromVehicleId(tripVehId)
           val transitDriverAgentProps = TransitDriverAgent.props(
             scheduler,
-            beamServices,
             beamScenario,
             transportNetwork,
             tollCalculator,
@@ -157,7 +155,7 @@ class TransitVehicleInitializer(val beamConfig: BeamConfig, val vehicleTypes: Ma
       )
       //There has to be a default one defined
       vehicleTypes.getOrElse(
-        Id.create(mode.toString.toUpperCase + "-DEFAULT", classOf[BeamVehicleType]),
+        TransitVehicleInitializer.transitModeToBeamVehicleType(mode),
         vehicleTypes(Id.create("TRANSIT-TYPE-DEFAULT", classOf[BeamVehicleType]))
       )
     }
@@ -174,4 +172,11 @@ class TransitVehicleInitializer(val beamConfig: BeamConfig, val vehicleTypes: Ma
       .mapValues(_.groupBy(_(1)).mapValues(_.head(2)))
   }
 
+}
+
+object TransitVehicleInitializer {
+
+  def transitModeToBeamVehicleType(mode: Modes.BeamMode): Id[BeamVehicleType] = {
+    Id.create(mode.toString.toUpperCase + "-DEFAULT", classOf[BeamVehicleType])
+  }
 }

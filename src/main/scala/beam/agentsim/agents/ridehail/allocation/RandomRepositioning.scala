@@ -168,7 +168,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
       val rideHailVehicleLocation = vehicleSet.get(vehicleIdCoord._1)
       val (x, y) = rideHailVehicleLocation match {
         case Some(rideHailLocation) =>
-          (rideHailLocation.latestUpdatedLocationUTM.loc.getX, rideHailLocation.latestUpdatedLocationUTM.loc.getY)
+          (rideHailLocation.currentLocationUTM.loc.getX, rideHailLocation.currentLocationUTM.loc.getY)
         case None => (0, 0)
       }
       Map(
@@ -226,7 +226,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
             .shuffle(nonRepositioningIdleVehicles)
             .splitAt(numVehiclesToReposition)
             ._1
-            .map(x => (x.vehicleId, x.latestUpdatedLocationUTM.loc))
+            .map(x => (x.vehicleId, x.currentLocationUTM.loc))
             .toVector
           result
         } else {
@@ -235,10 +235,10 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
 
       case 1 =>
         val fleetSize = rideHailManager.fleetSize
-        val newNumVehiclesToReposition = (repoShare * fleetSize).toInt
+        val numVehiclesToReposition = (repoShare * fleetSize).toInt
 
         // Get idle vehicles
-        val idleVehiclesWithoutExcluded = rideHailManager.vehicleManager.getIdleVehiclesAndFilterOutExluded.values
+        val idleVehicles = rideHailManager.vehicleManager.getIdleVehiclesAndFilterOutExluded.values
         // Shuffle only once and split it by `numVehiclesToReposition`
 
         // max reposition diameter: 5000m
@@ -246,13 +246,13 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
         //corxXIdleVehicle + diameter * (rand.nextDouble() - 0.5)
         // check if dest within boudning box of map ->
 
-        val numRepos = if (newNumVehiclesToReposition * 2 >= idleVehiclesWithoutExcluded.size) {
-          idleVehiclesWithoutExcluded.size / 2
+        val numRepos = if (numVehiclesToReposition * 2 >= idleVehicles.size) {
+          idleVehicles.size / 2
         } else {
-          newNumVehiclesToReposition
+          numVehiclesToReposition
         }
 
-        val (src, dst) = rand.shuffle(idleVehiclesWithoutExcluded).splitAt(numRepos)
+        val (src, dst) = rand.shuffle(idleVehicles).splitAt(numRepos)
 
         // e.g. do: RideHailManager.INITIAL_RIDE_HAIL_LOCATION_UNIFORM_RANDOM
 
@@ -261,11 +261,11 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
 
         // Get the destination
         // Make sure we exclude `srcLocations`
-        val dstLocations = dst.take(newNumVehiclesToReposition)
+        val dstLocations = dst.take(numVehiclesToReposition)
 
         val result = srcLocations.zip(dstLocations).map {
           case (s, d) =>
-            (s.vehicleId, d.latestUpdatedLocationUTM.loc)
+            (s.vehicleId, d.currentLocationUTM.loc)
         }
         result.toVector
 
@@ -295,7 +295,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
           val activitiesCoordinates = activitySegment.getActivities(tick + 20 * 60, tick + 3600).map(_.getCoord)
           val vehiclesToReposition = nonRepositioningIdleVehicles.par.flatMap { vehIdAndLoc =>
             val vehicleId = vehIdAndLoc.vehicleId
-            val location = vehIdAndLoc.latestUpdatedLocationUTM
+            val location = vehIdAndLoc.currentLocationUTM
             val nearBy = activitiesCoordinates.filter { actCoord =>
               val distance = rideHailManager.beamServices.geo.distUTMInMeters(actCoord, location.loc)
               distance <= 5000 // distance <= 5000 && distance >= 300
@@ -321,7 +321,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
           logger.whenDebugEnabled {
             result.foreach {
               case (id, coord) =>
-                val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).latestUpdatedLocationUTM.loc
+                val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).currentLocationUTM.loc
                 val distance = rideHailManager.beamServices.geo.distUTMInMeters(coord, vehLoc)
                 logger.debug(s"$tick: Going to reposition $id to $coord which is $distance m away")
             }
@@ -348,7 +348,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
           val activitiesCoordinates = activitySegment.getActivities(tick + 20 * 60, tick + 3600).map(_.getCoord)
           val vehiclesToReposition = nonRepositioningIdleVehicles.par.flatMap { vehIdAndLoc =>
             val vehicleId = vehIdAndLoc.vehicleId
-            val location = vehIdAndLoc.latestUpdatedLocationUTM
+            val location = vehIdAndLoc.currentLocationUTM
             val filtered = activitiesCoordinates.filter { actCoord =>
               val distance = rideHailManager.beamServices.geo.distUTMInMeters(actCoord, location.loc)
               distance <= 40000 && distance >= 10000
@@ -381,7 +381,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
           logger.whenDebugEnabled {
             result.foreach {
               case (id, coord) =>
-                val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).latestUpdatedLocationUTM.loc
+                val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).currentLocationUTM.loc
                 val distance = rideHailManager.beamServices.geo.distUTMInMeters(coord, vehLoc)
                 logger.debug(s"$tick: Going to reposition $id to $coord which is $distance m away")
             }
@@ -398,7 +398,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
         // max distance travel is 20min
         // TODO: use skims to derive radius from it or other way around.
         val fleetSize = rideHailManager.fleetSize
-        val newNumVehiclesToReposition = (repoShare * fleetSize).toInt
+        val numVehiclesToReposition = (repoShare * fleetSize).toInt
         val vehicleSet = rideHailManager.vehicleManager.getIdleVehiclesAndFilterOutExluded
         if (vehicleSet.size >= 2) {
           val nonRepositioningIdleVehicles = vehicleSet.values.filter { ral =>
@@ -413,7 +413,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
             .shuffle(
               nonRepositioningIdleVehicles
                 .flatMap { vehLocation =>
-                  val loc = vehLocation.latestUpdatedLocationUTM.loc
+                  val loc = vehLocation.currentLocationUTM.loc
                   Option(quadTree.getClosest(loc.getX, loc.getY)).map { act =>
                     val distance = rideHailManager.beamServices.geo.distUTMInMeters(act.getCoord, loc)
                     (vehLocation, distance)
@@ -422,10 +422,10 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
                 .toVector
                 .sortBy { case (vehLocation, distance) => -distance }
                 .map(_._1)
-                .splitAt(2 * newNumVehiclesToReposition)
+                .splitAt(2 * numVehiclesToReposition)
                 ._1
             )
-            .splitAt(newNumVehiclesToReposition)
+            .splitAt(numVehiclesToReposition)
             ._1
 
           // We're trying to move idle furthest vehicle to the activities which have no vehicles close to
@@ -437,7 +437,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
           val result = vehiclesToReposition.par
             .map { vehIdAndLoc =>
               val vehicleId = vehIdAndLoc.vehicleId
-              val location = vehIdAndLoc.latestUpdatedLocationUTM
+              val location = vehIdAndLoc.currentLocationUTM
 
               val dest =
                 quadTree
@@ -451,7 +451,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
                     // Measure the distance to vehicle
                     val distance = rideHailManager.beamServices.geo.distUTMInMeters(
                       act.getCoord,
-                      closestIdleRHVehicle.latestUpdatedLocationUTM.loc
+                      closestIdleRHVehicle.currentLocationUTM.loc
                     )
 
                     (act, distance)
@@ -466,7 +466,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
               }
 
             }
-            .filterNot(_._2.getX.equals(Double.MaxValue))
+            .filterNot(_._2.getX == Double.MaxValue)
             .seq
 
           // writeRepositioningToCSV(result, tick)
@@ -557,7 +557,7 @@ class RandomRepositioning(val rideHailManager: RideHailManager)
   def showDistanceStats(result: Vector[(Id[BeamVehicle], Location)]): Unit = {
     val distances = result.map {
       case (id, coord) =>
-        val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).latestUpdatedLocationUTM.loc
+        val vehLoc = rideHailManager.vehicleManager.getRideHailAgentLocation(id).currentLocationUTM.loc
         rideHailManager.beamServices.geo.distUTMInMeters(coord, vehLoc)
     }
     val stats = Statistics.apply(distances)

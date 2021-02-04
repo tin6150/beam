@@ -99,13 +99,9 @@ abstract class AbstractSkimmer(beamConfig: BeamConfig, ioController: OutputDirec
       readOnlySkim.pastSkims.prepend(currentSkim.toMap)
     }
     // aggregate
-    if (beamConfig.beam.routing.overrideNetworkTravelTimesUsingSkims) {
-      logger.warn("skim aggregation is skipped as 'overrideNetworkTravelTimesUsingSkims' enabled")
-    } else {
-      readOnlySkim.aggregatedSkim = (readOnlySkim.aggregatedSkim.keySet ++ currentSkim.keySet).map { key =>
-        key -> aggregateOverIterations(readOnlySkim.aggregatedSkim.get(key), currentSkim.get(key))
-      }.toMap
-    }
+    readOnlySkim.aggregatedSkim = (readOnlySkim.aggregatedSkim.keySet ++ currentSkim.keySet).map { key =>
+      key -> aggregateOverIterations(readOnlySkim.aggregatedSkim.get(key), currentSkim.get(key))
+    }.toMap
     // write
     writeToDisk(event)
     // clear

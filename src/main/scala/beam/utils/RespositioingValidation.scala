@@ -79,7 +79,7 @@ object RepositioningValidation {
               val size = repositioningDurationBuffer.size
               val deadHeading = repositioningDurationBuffer.last
               val repositioning = repositioningDurationBuffer(size - 2)
-              if (deadHeading.repositioningDurationStart.equals(repositioning.repositioningDurationEnd)) {
+              if (deadHeading.repositioningDurationStart == repositioning.repositioningDurationEnd) {
                 println("Found PathTraversal event with start deadheading and end repositioning")
                 option = true
               }

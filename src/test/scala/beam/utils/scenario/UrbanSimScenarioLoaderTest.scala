@@ -135,8 +135,8 @@ class UrbanSimScenarioLoaderTest extends AsyncWordSpec with Matchers with Mockit
       rank = 123,
       age = 30,
       isFemale = false,
-      excludedModes = Seq.empty,
-      valueOfTime = 0.0
+      valueOfTime = 0.0,
+      industry = None
     )
 
   private def assertCarNumbers(

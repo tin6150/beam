@@ -23,10 +23,9 @@ class CarSharingSpec extends FlatSpec with Matchers with BeamHelper {
   private val sharedCarTypeId = org.matsim.api.core.v01.Id.create("sharedCar", classOf[BeamVehicleType])
 
   //clearModes is required for clearing modes defined in population.xml
-  "Running a car-sharing-only scenario with abundant cars" must "result in everybody driving" ignore {
+  "Running a car-sharing-only scenario with abundant cars" must "result in everybody driving" in {
     val config = ConfigFactory
       .parseString("""
-        |beam.actorSystemName = "CarSharingSpec"
         |beam.outputs.events.fileOutputFormats = xml
         |beam.physsim.skipPhysSim = true
         |beam.agentsim.lastIteration = 0
@@ -53,10 +52,9 @@ class CarSharingSpec extends FlatSpec with Matchers with BeamHelper {
   // This test will fail once you add things like maximum number of replanning attempts,
   // or otherwise bailing out of this unusual situation.
   // So please consider making them configurable if you do, if only for the sake of test cases like this one.
-  "Running a car-sharing-only scenario with one car per person at home" must "result in everybody driving" ignore {
+  "Running a car-sharing-only scenario with one car per person at home" must "result in everybody driving" in {
     val config = ConfigFactory
       .parseString("""
-        |beam.actorSystemName = "CarSharingSpec"
         |beam.outputs.events.fileOutputFormats = xml
         |beam.physsim.skipPhysSim = true
         |beam.agentsim.lastIteration = 0
@@ -150,10 +148,9 @@ class CarSharingSpec extends FlatSpec with Matchers with BeamHelper {
   }
 
   // REPOSITION
-  "Reposition scenario" must "results at least a person driving in the second iteration" ignore {
+  "Reposition scenario" must "results at least a person driving in the second iteration" in {
     val config = ConfigFactory
       .parseString("""
-         |beam.actorSystemName = "CarSharingSpec"
          |beam.outputs.events.fileOutputFormats = xml
          |beam.physsim.skipPhysSim = true
          |beam.agentsim.lastIteration = 1

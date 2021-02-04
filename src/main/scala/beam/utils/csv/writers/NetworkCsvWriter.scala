@@ -87,6 +87,4 @@ object NetworkCsvWriter extends ScenarioCsvWriter {
       }
   }
 
-  override def contentIterator[A](elements: Iterator[A]): Iterator[String] = ???
-
 }

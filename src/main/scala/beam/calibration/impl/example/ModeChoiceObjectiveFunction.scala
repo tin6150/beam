@@ -133,7 +133,7 @@ class ModeChoiceObjectiveFunction(benchmarkDataFileLoc: String) {
       modeChoiceStatList.map { stat =>
         stat.mode -> stat.share
       }.toMap
-    }).getOrElse(Map.empty[String, Double])
+    }).get
   }
 
   def getMTCContent(benchmarkDataFileLoc: URI): Try[String] = {
@@ -149,7 +149,7 @@ class ModeChoiceObjectiveFunction(benchmarkDataFileLoc: String) {
 
   def jsonToModechoiceStats(modechoiceJson: Json): Try[List[ModeChoiceStats]] = {
     Try {
-      modechoiceJson.as[List[ModeChoiceStats]].right.getOrElse(List.empty[ModeChoiceStats])
+      modechoiceJson.as[List[ModeChoiceStats]].right.get
     }
   }
 

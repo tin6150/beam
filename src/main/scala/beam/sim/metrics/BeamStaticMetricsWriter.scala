@@ -4,8 +4,7 @@ import java.io.File
 
 import beam.agentsim.infrastructure.charging.ChargingPointType
 import beam.agentsim.infrastructure.charging.ElectricCurrentType.DC
-import beam.agentsim.infrastructure.parking.{ParkingZone, ParkingZoneFileUtils}
-import beam.agentsim.infrastructure.taz.TAZ
+import beam.agentsim.infrastructure.parking.ParkingZoneFileUtils
 import beam.sim.config.BeamConfig
 import beam.sim.metrics.SimulationMetricCollector.{defaultMetricName, SimulationTime}
 import beam.sim.{BeamScenario, BeamServices}
@@ -89,7 +88,7 @@ object BeamStaticMetricsWriter {
         val rand = new Random(beamScenario.beamConfig.matsim.modules.global.randomSeed)
         val parkingStallCountScalingFactor = beamServices.beamConfig.beam.agentsim.taz.parkingStallCountScalingFactor
         val (chargingDepots, _) =
-          ParkingZoneFileUtils.fromFile[TAZ](chargingDepotsFilePath, rand, parkingStallCountScalingFactor)
+          ParkingZoneFileUtils.fromFile(chargingDepotsFilePath, rand, parkingStallCountScalingFactor)
 
         var cntChargingDepots = 0
         var cntChargingDepotsStalls = 0
@@ -106,7 +105,7 @@ object BeamStaticMetricsWriter {
         if (publicFastChargerFilePath.nonEmpty) {
           val rand = new Random(beamScenario.beamConfig.matsim.modules.global.randomSeed)
           val (publicChargers, _) =
-            ParkingZoneFileUtils.fromFile[TAZ](publicFastChargerFilePath, rand, parkingStallCountScalingFactor)
+            ParkingZoneFileUtils.fromFile(publicFastChargerFilePath, rand, parkingStallCountScalingFactor)
 
           publicChargers.foreach(
             publicCharger =>

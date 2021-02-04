@@ -5,8 +5,8 @@ import beam.agentsim.agents.vehicles.BeamVehicle
 import beam.agentsim.infrastructure.parking.ParkingZoneSearch
 
 @Deprecated
-case class ChargingInquiry[GEO](
-  utility: Option[MultinomialLogit[ParkingZoneSearch.ParkingAlternative[GEO], String]],
+case class ChargingInquiry(
+  utility: Option[MultinomialLogit[ParkingZoneSearch.ParkingAlternative, String]],
   plugData: Option[List[ChargingPointType]],
   vehicle: BeamVehicle,
   vot: Double
@@ -14,12 +14,12 @@ case class ChargingInquiry[GEO](
 
 object ChargingInquiry {
 
-  def apply[GEO](
-    utility: Option[MultinomialLogit[ParkingZoneSearch.ParkingAlternative[GEO], String]],
+  def apply(
+    utility: Option[MultinomialLogit[ParkingZoneSearch.ParkingAlternative, String]],
     plugData: Option[List[ChargingPointType]],
     vehicle: BeamVehicle,
     vot: Double
-  ): Some[ChargingInquiry[GEO]] = {
+  ): Some[ChargingInquiry] = {
     Some(new ChargingInquiry(utility, plugData, vehicle, vot))
   }
 

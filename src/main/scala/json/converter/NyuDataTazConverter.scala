@@ -52,7 +52,7 @@ object NyuDataTazConverter extends App with LazyLogging {
     }
   }
 
-  println("Taz Converter")
+  println(s"Taz Converter")
 
   def parseArgs() = {
     args
@@ -94,7 +94,7 @@ object NyuDataTazConverter extends App with LazyLogging {
       TazViz(gid, taz, nhood, sq_mile, geoJsonString)
     }
 
-    println("Res:")
+    println(s"Res:")
     println(s"$featuresRes")
 
     val tazVizJson = Json.toJson(tazVizArray.filter(_.taz > 0l))

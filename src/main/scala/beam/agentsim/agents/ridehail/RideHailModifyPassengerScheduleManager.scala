@@ -6,7 +6,6 @@ import beam.agentsim.agents.HasTickAndTrigger
 import beam.agentsim.agents.modalbehaviors.DrivesVehicle.StopDriving
 import beam.agentsim.agents.ridehail.RideHailAgent._
 import beam.agentsim.agents.ridehail.RideHailManager.{BufferedRideHailRequestsTrigger, RideHailRepositioningTrigger}
-import beam.agentsim.agents.ridehail.RideHailVehicleManager.Refueling
 import beam.agentsim.agents.vehicles.{BeamVehicle, PassengerSchedule}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger}
@@ -191,7 +190,6 @@ class RideHailModifyPassengerScheduleManager(
       case Some(status) =>
         val reply = status.interruptReply.get
         val isRepositioning = waitingToReposition.nonEmpty
-        val isNotRefueling = rideHailManager.vehicleManager.getServiceStatusOf(rideHailVehicleId) != Refueling
         interruptIdToModifyPassengerScheduleStatus.get(reply.interruptId) match {
           case Some(
               RideHailModifyPassengerScheduleStatus(
@@ -206,7 +204,7 @@ class RideHailModifyPassengerScheduleManager(
               )
               ) =>
             reply match {
-              case InterruptedWhileOffline(_, _, _) if isRepositioning && isNotRefueling =>
+              case InterruptedWhileOffline(_, _, _) if isRepositioning =>
                 log.debug(
                   "Cancelling repositioning for {} because {}, interruptId {}, numberPendingModifyPassengerScheduleAcks {}",
                   reply.vehicleId,
@@ -220,7 +218,7 @@ class RideHailModifyPassengerScheduleManager(
                 )
                 rideHailAgentRef ! Resume
                 clearModifyStatusFromCacheWithInterruptId(reply.interruptId)
-              case InterruptedWhileOffline(_, _, _) if isNotRefueling =>
+              case InterruptedWhileOffline(_, _, _) =>
                 log.debug(
                   "Abandoning attempt to modify passenger schedule of vehicle {} @ {} because {}",
                   reply.vehicleId,
@@ -263,9 +261,6 @@ class RideHailModifyPassengerScheduleManager(
                   ),
                   reply.isInstanceOf[InterruptedWhileDriving]
                 )
-                rideHailManager.ridehailManagerCustomizationAPI
-                  .sendNewPassengerScheduleToVehicleWhenSuccessCaseHook(status.vehicleId, passengerSchedule)
-
             }
           case _ =>
             log.error(

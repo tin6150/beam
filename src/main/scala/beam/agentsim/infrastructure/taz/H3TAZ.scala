@@ -30,10 +30,7 @@ case class H3TAZ(network: Network, tazTreeMap: TAZTreeMap, beamConfig: BeamConfi
     network.getNodes.values().asScala.map(n => toH3CoordSystem.transform(n.getCoord))
   )
   private val fillBoxResult: Iterable[String] =
-    ProfilingUtils.timed(
-      s"fillBox for boundingBox $boundingBox with resolution $getResolution",
-      str => logger.info(str)
-    ) {
+    ProfilingUtils.timed(s"fillBox for boundingBox $boundingBox with resolution $getResolution", x => logger.info(x)) {
       fillBox(boundingBox, getResolution)
     }
   logger.info(
@@ -41,7 +38,7 @@ case class H3TAZ(network: Network, tazTreeMap: TAZTreeMap, beamConfig: BeamConfi
   )
 
   private val tazToH3TAZMapping: Map[HexIndex, Id[TAZ]] =
-    ProfilingUtils.timed("Constructed tazToH3TAZMapping", str => logger.info(str)) {
+    ProfilingUtils.timed(s"Constructed tazToH3TAZMapping", str => logger.info(str)) {
       fillBoxResult.par
         .map { hex =>
           val centroid = getCentroid(hex)

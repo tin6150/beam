@@ -51,8 +51,7 @@ class StudyAreaTripFilterTest extends FunSuite with Matchers {
     secondaryFuelConsumed = 0.0,
     endLegPrimaryFuelLevel = 1.0,
     endLegSecondaryFuelLevel = 0.0,
-    amountPaid = 0,
-    Vector.empty
+    amountPaid = 0
   )
 
   test("Should recognize that PTE is inside study area if both start and end are inside of study area") {

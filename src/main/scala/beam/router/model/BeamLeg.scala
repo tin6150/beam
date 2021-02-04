@@ -66,9 +66,8 @@ case class BeamLeg(startTime: Int, mode: BeamMode, duration: Int, travelPath: Be
   }
 
   /**
-    * SubLegThrough
-    * Returns a new BeamLeg composed as if one traversed the original BeamLeg until throughTime, the link travel times
-    * are scaled to ensure overall leg duration is equivalent to throughTime - leg.startTime
+    * SubLegBefore
+    * Returns a new BeamLeg composed as if one traversed the original BeamLeg until throughTime
     */
   def subLegThrough(throughTime: Int, networkHelper: NetworkHelper, geoUtils: GeoUtils): BeamLeg = {
     val linkAtTime = this.travelPath.linkAtTime(throughTime)
@@ -83,15 +82,9 @@ case class BeamLeg(startTime: Int, mode: BeamMode, duration: Int, travelPath: Be
     val newTravelPath = this.travelPath.copy(
       linkIds = this.travelPath.linkIds.take(indexOfNewEndLink + 1),
       linkTravelTime = this.travelPath.linkTravelTime.take(indexOfNewEndLink + 1),
-      endPoint = newEndPoint,
-      distanceInM = this.travelPath.linkIds
-        .take(indexOfNewEndLink + 1)
-        .map(networkHelper.getLink(_).map(_.getLength.toInt).getOrElse(0))
-        .sum
+      endPoint = newEndPoint
     )
-    this
-      .copy(duration = newTravelPath.duration, travelPath = newTravelPath)
-      .scaleToNewDuration(throughTime - this.startTime)
+    this.copy(duration = newTravelPath.duration, travelPath = newTravelPath)
   }
 
   override def toString: String =

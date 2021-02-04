@@ -10,7 +10,6 @@ import beam.agentsim.agents.modalbehaviors.DrivesVehicle.{AlightVehicleTrigger, 
 import beam.agentsim.agents.ridehail.{RideHailRequest, RideHailResponse}
 import beam.agentsim.agents.vehicles.{ReservationResponse, ReserveConfirmInfo, _}
 import beam.agentsim.events._
-import beam.agentsim.infrastructure.taz.TAZ
 import beam.agentsim.infrastructure.{TrivialParkingManager, ZonalParkingManager}
 import beam.agentsim.scheduler.BeamAgentScheduler
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger, SchedulerProps, StartSchedule}
@@ -22,7 +21,6 @@ import beam.router.model.RoutingModel.TransitStopsInfo
 import beam.router.model.{EmbodiedBeamLeg, _}
 import beam.router.osm.TollCalculator
 import beam.router.skim.AbstractSkimmerEvent
-import beam.tags.FlakyTest
 import beam.utils.TestConfigUtils.testConfig
 import beam.utils.{SimRunnerForTest, StuckFinder, TestConfigUtils}
 import com.typesafe.config.{Config, ConfigFactory}
@@ -267,7 +265,7 @@ class PersonAgentSpec
       expectMsgType[CompletionNotice]
     }
 
-    it("should know how to take a walk_transit trip when it's already in its plan", FlakyTest) {
+    it("should know how to take a walk_transit trip when it's already in its plan") {
       val busId = Id.createVehicleId("bus:B3-WEST-1-175")
       val tramId = Id.createVehicleId("train:R2-SOUTH-1-93")
 
@@ -531,7 +529,7 @@ class PersonAgentSpec
       expectMsgType[CompletionNotice]
     }
 
-    it("should also work when the first bus is late", FlakyTest) {
+    it("should also work when the first bus is late") {
       val eventsManager = new EventsManagerImpl()
       val events = new TestProbe(system)
       eventsManager.addHandler(new BasicEventHandler {
@@ -659,15 +657,7 @@ class PersonAgentSpec
       )
 
       val parkingManager = system.actorOf(
-        ZonalParkingManager.props(
-          beamConfig,
-          beamScenario.tazTreeMap.tazQuadTree,
-          beamScenario.tazTreeMap.idToTAZMapping,
-          identity[TAZ],
-          services.geo,
-          services.beamRouter,
-          boundingBox
-        ),
+        ZonalParkingManager.props(beamConfig, beamScenario.tazTreeMap, services.geo, services.beamRouter, boundingBox),
         "ParkingManager"
       )
 
@@ -870,6 +860,7 @@ class PersonAgentSpec
   }
 
   override def afterAll(): Unit = {
+    shutdown()
     super.afterAll()
   }
 

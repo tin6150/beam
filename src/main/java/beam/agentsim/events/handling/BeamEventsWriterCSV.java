@@ -22,14 +22,11 @@ public class BeamEventsWriterCSV extends BeamEventsWriterBase {
     private final Logger log = LoggerFactory.getLogger(BeamEventsWriterCSV.class);
     private final LinkedHashMap<String, Integer> attributeToColumnIndexMapping = new LinkedHashMap<>();
 
-    public BeamEventsWriterCSV(final String outfilename,
-                               final BeamEventsLoggingSettings settings,
-                               final BeamServices beamServices,
-                               final Class<?> eventTypeToLog) {
-        super(outfilename, settings, beamServices, eventTypeToLog);
+    public BeamEventsWriterCSV(String outfilename, BeamEventsLogger eventLogger, BeamServices beamServices, Class<?> eventTypeToLog) {
+        super(outfilename, eventLogger, beamServices, eventTypeToLog);
 
         if (eventTypeToLog == null) {
-            for (Class<?> clazz : settings.getAllEventsToLog()) {
+            for (Class<?> clazz : eventLogger.getAllEventsToLog()) {
                 registerClass(clazz);
             }
         } else {
@@ -70,11 +67,11 @@ public class BeamEventsWriterCSV extends BeamEventsWriterBase {
     }
 
     @Override
-    public void writeEvent(Event event) {
+    protected void writeEvent(Event event) {
 //        if (beamEventLogger.getLoggingLevel(event) == OFF) return;
         String[] row = new String[attributeToColumnIndexMapping.keySet().size()];
         Map<String, String> eventAttributes = event.getAttributes();
-        Set<String> attributeKeys = this.settings.getKeysToWrite(event, eventAttributes);
+        Set<String> attributeKeys = this.beamEventLogger.getKeysToWrite(event, eventAttributes);
         for (String attribute : attributeKeys) {
             if (!attributeToColumnIndexMapping.containsKey(attribute)) {
                 if (this.eventTypeToLog == null || !attribute.equals(Event.ATTRIBUTE_TYPE)) {

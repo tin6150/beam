@@ -123,7 +123,7 @@ class GoogleAdapter(apiKey: String, outputResponseToFile: Option[Path] = None, a
     // and trip duration (response field: duration_in_traffic) that take traffic conditions into account.
     // This option is only available if the request contains a valid API key, or a valid Google Maps Platform Premium Plan client ID and signature.
     // The departure_time must be set to the current time or some time in the future. It cannot be in the past.
-    val durationInTrafficSeconds = (jsObject \ "duration_in_traffic" \ "value").as[Int]
+    val durationInTrafficSeconds = (jsObject \ "duration_in_traffic" \ "value").asOpt[Int]
     val startLocation = parseWgsCoordinate(jsObject \ "start_location")
     val endLocation = parseWgsCoordinate(jsObject \ "end_location")
     Route(startLocation, endLocation, distanceInMeter, durationInSeconds, durationInTrafficSeconds, segments)
@@ -151,7 +151,7 @@ class GoogleAdapter(apiKey: String, outputResponseToFile: Option[Path] = None, a
   }
 
   override def close(): Unit = {
-    implicit val timeOut: Timeout = new Timeout(20L, TimeUnit.SECONDS)
+    implicit val timeOut = new Timeout(20L, TimeUnit.SECONDS)
     fileWriter.foreach { ref =>
       val closed = ref ? ResponseSaverActor.CloseMsg
       Try(Await.result(closed, timeOut.duration))
@@ -218,7 +218,7 @@ object GoogleAdapter {
 }
 
 class ResponseSaverActor(file: File) extends Actor {
-  override def receive: Receive = {
+  override def receive = {
     case jsObject: JsObject =>
       val out = FileUtils.openOutputStream(file)
       val buffer = new BufferedOutputStream(out)

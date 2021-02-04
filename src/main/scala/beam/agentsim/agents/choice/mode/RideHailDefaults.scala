@@ -10,18 +10,18 @@ import beam.router.model.EmbodiedBeamTrip
   */
 object RideHailDefaults {
   val DEFAULT_COST_PER_MILE = 2.00
-  private val zero: Double = 0D
+  val zero: Double = 0
 
   def estimateRideHailCost(alternatives: Seq[EmbodiedBeamTrip]): Seq[Double] = {
     alternatives.map { alt =>
       alt.tripClassifier match {
-        case RIDE_HAIL if alt.costEstimate.equals(zero) =>
+        case RIDE_HAIL if alt.costEstimate == zero =>
           val cost = alt.legs.view
             .filter(_.beamLeg.mode == CAR)
             .map(_.beamLeg.travelPath.distanceInM)
             .sum * DEFAULT_COST_PER_MILE / 1607
           cost
-        case RIDE_HAIL_TRANSIT if alt.costEstimate.equals(zero) =>
+        case RIDE_HAIL_TRANSIT if alt.costEstimate == zero =>
           val cost = alt.legs.view
             .filter(_.beamLeg.mode == CAR)
             .map(_.beamLeg.travelPath.distanceInM)

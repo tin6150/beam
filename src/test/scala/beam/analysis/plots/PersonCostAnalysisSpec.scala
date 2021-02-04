@@ -1,17 +1,9 @@
 package beam.analysis.plots
 
 import beam.analysis.summary.PersonCostAnalysis
-import com.typesafe.config.{Config, ConfigFactory}
 import org.scalatest.Matchers
 
 class PersonCostAnalysisSpec extends GenericAnalysisSpec with Matchers {
-
-  override protected val extensionConfig: Config = {
-    ConfigFactory
-      .parseString(
-        """beam.agentsim.toll.filePath=${beam.inputDirectory}"/multipleTolls-prices.csv""""
-      )
-  }
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -37,7 +29,8 @@ class PersonCostAnalysisSpec extends GenericAnalysisSpec with Matchers {
     }
 
     "calculate total car toll" in {
-      summaryStats.get("totalToll_car") should not be 0
+      val result = summaryStats.get("totalToll_car")
+      result should not be 0
     }
   }
 }

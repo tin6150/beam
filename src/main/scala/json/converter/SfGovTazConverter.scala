@@ -71,7 +71,7 @@ object SfGovTazConverter extends App with LazyLogging {
     }
   }
 
-  println("Taz Converter")
+  println(s"Taz Converter")
 
   def parseArgs() = {
     args

@@ -3,6 +3,7 @@ package beam.agentsim.infrastructure
 import java.util.concurrent.TimeUnit
 
 import scala.annotation.tailrec
+
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
 import akka.util.Timeout
@@ -20,7 +21,6 @@ import org.matsim.api.core.v01.{Coord, Id}
 import org.matsim.core.utils.collections.QuadTree
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 import org.scalatestplus.mockito.MockitoSugar
-
 import scala.io.Source
 import scala.util.Random
 
@@ -93,8 +93,7 @@ class ZonalParkingManagerSpec
             inquiry.destinationUtm.getY + 2000,
             inquiry.destinationUtm.getY - 2000
           ),
-          new Random(randomSeed),
-          geoId = TAZ.EmergencyTAZId,
+          new Random(randomSeed)
         )
 
         zonalParkingManager ! inquiry
@@ -139,7 +138,6 @@ class ZonalParkingManagerSpec
         val expectedFirstStall =
           ParkingStall(
             Id.create(1, classOf[TAZ]),
-            Id.create(1, classOf[TAZ]),
             0,
             coordCenterOfUTM,
             12.34,
@@ -155,7 +153,7 @@ class ZonalParkingManagerSpec
         zonalParkingManager ! secondInquiry
         expectMsgPF() {
           case res @ ParkingInquiryResponse(stall, responseId)
-              if stall.geoId == TAZ.EmergencyTAZId && responseId == secondInquiry.requestId =>
+              if stall.tazId == TAZ.EmergencyTAZId && responseId == secondInquiry.requestId =>
             res
         }
       }
@@ -194,7 +192,6 @@ class ZonalParkingManagerSpec
         val expectedTAZId = Id.create(1, classOf[TAZ])
         val expectedStall =
           ParkingStall(
-            expectedTAZId,
             expectedTAZId,
             expectedParkingZoneId,
             coordCenterOfUTM,
@@ -261,7 +258,7 @@ class ZonalParkingManagerSpec
           _ = zonalParkingManager ! req
           counted = expectMsgPF[Int]() {
             case res @ ParkingInquiryResponse(_, _) =>
-              if (res.stall.geoId != TAZ.EmergencyTAZId) 1 else 0
+              if (res.stall.tazId != TAZ.EmergencyTAZId) 1 else 0
           }
         } yield {
           counted
@@ -287,9 +284,7 @@ class ZonalParkingManagerSpec
         Props(
           ZonalParkingManager(
             parkingDescription,
-            tazMap.tazQuadTree,
-            tazMap.idToTAZMapping,
-            identity[TAZ](_),
+            tazMap,
             geo,
             new Random(randomSeed),
             minSearchRadius,
@@ -319,9 +314,8 @@ class ZonalParkingManagerSpec
   ) = {
     val inquiry = ParkingInquiry(coord, "init")
     zpm ! inquiry
-    val tazId1 = Id.create(tazId, classOf[TAZ])
     val expectedStall =
-      ParkingStall(tazId1, tazId1, parkingZoneId, coord, 0.0, None, Some(pricingModel), parkingType)
+      ParkingStall(Id.create(tazId, classOf[TAZ]), parkingZoneId, coord, 0.0, None, Some(pricingModel), parkingType)
     expectMsg(ParkingInquiryResponse(expectedStall, inquiry.requestId))
   }
 
@@ -344,9 +338,7 @@ object ZonalParkingManagerSpec {
     val zonalParkingManagerProps = Props(
       ZonalParkingManager(
         parkingDescription,
-        tazTreeMap.tazQuadTree,
-        tazTreeMap.idToTAZMapping,
-        identity[TAZ](_),
+        tazTreeMap,
         geo,
         random,
         minSearchRadius,
@@ -354,7 +346,7 @@ object ZonalParkingManagerSpec {
         boundingBox
       )
     )
-    TestActorRef[ZonalParkingManager[TAZ]](zonalParkingManagerProps)
+    TestActorRef[ZonalParkingManager](zonalParkingManagerProps)
   }
 
   /**
@@ -419,10 +411,10 @@ object ZonalParkingManagerSpec {
     result
   }
 
-  def makeParkingZones(treeMap: TAZTreeMap, zones: List[Int]): Array[ParkingZone[TAZ]] = {
+  def makeParkingZones(treeMap: TAZTreeMap, zones: List[Int]): Array[ParkingZone] = {
     val result = treeMap.getTAZs
       .zip(zones)
-      .foldLeft(List.empty[ParkingZone[TAZ]]) {
+      .foldLeft(List.empty[ParkingZone]) {
         case (acc, (taz, numZones)) =>
           val parkingZones = (0 until numZones)
             .map(i => ParkingZone(acc.size + i, taz.tazId, ParkingType.Workplace, 5, None, Some(FlatFee(3.0))))

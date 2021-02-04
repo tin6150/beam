@@ -34,10 +34,9 @@ import scala.util.control.NonFatal
 class SkimmerSpec extends FlatSpec with Matchers with BeamHelper {
   import SkimmerSpec._
 
-  "Skimmer" must "write skims to hard drive" in {
+  "Skimmers" must "results at skims being collected written on disk" in {
     val config = ConfigFactory
       .parseString("""
-         |beam.actorSystemName = "SkimmerSpec"
          |beam.outputs.events.fileOutputFormats = xml
          |beam.physsim.skipPhysSim = true
          |beam.agentsim.lastIteration = 1
@@ -270,8 +269,6 @@ object SkimmerSpec extends LazyLogging {
         distanceInM = row("distanceInM").toDouble,
         cost = row("cost").toDouble,
         energy = Option(row("energy")).map(_.toDouble).getOrElse(0.0),
-        level4CavTravelTimeScalingFactor =
-          Option(row("level4CavTravelTimeScalingFactor")).map(_.toDouble).getOrElse(1.0),
         observations = row("observations").toInt,
         iterations = row("iterations").toInt,
       )

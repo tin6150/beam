@@ -1,7 +1,5 @@
 package beam.router.skim
 
-import java.io.File
-
 import beam.agentsim.agents.vehicles.BeamVehicleType
 import beam.agentsim.events.SpaceTime
 import beam.router.Modes.BeamMode.WALK_TRANSIT
@@ -21,8 +19,7 @@ class TransitCrowdingSkimsTest extends FlatSpec with Matchers with BeamHelper {
     services => new TransitCrowdingSkimmer(services.matsimServices, services.beamScenario, services.beamConfig)
 
   "TransitCrowdingSkims" should "calculate occupancy level correctly" in {
-    val basePath = System.getenv("PWD")
-    val inputFilePath = s"$basePath/test/test-resources/beam/router/skim/transit-crowding-test-data.csv"
+    val inputFilePath = getClass.getResource("/files/transit-crowding-test-data.csv").getFile
     val skimmer: TransitCrowdingSkimmer = ODSkimmerTest.createSkimmer(inputFilePath, constr)
 
     val trip = EmbodiedBeamTrip(IndexedSeq(createLeg("SF:7678110"), createLeg("BA:36R11")))

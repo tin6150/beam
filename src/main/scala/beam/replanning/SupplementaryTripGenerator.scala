@@ -86,8 +86,20 @@ class SupplementaryTripGenerator(
       case List(prev, curr, next) =>
         if (curr.getType.equalsIgnoreCase("temp")) {
           anyChanges = true
-          val newActivities =
-            generateSubtour(updatedPreviousActivity, curr, next, modeMNL, destinationMNL, tripMNL, modes)
+          val newActivities = prev.getType match {
+            case "Work" =>
+              generateSubtour(
+                updatedPreviousActivity,
+                curr,
+                next,
+                modeMNL,
+                destinationMNL,
+                tripMNL,
+                modes.filter(_ != BeamMode.CAR)
+              )
+            case _ =>
+              generateSubtour(updatedPreviousActivity, curr, next, modeMNL, destinationMNL, tripMNL, modes)
+          }
           newActivities.foreach { x =>
             activityAccumulator.lastOption match {
               case Some(lastTrip) =>
@@ -284,8 +296,6 @@ class SupplementaryTripGenerator(
     val activityDuration = additionalActivity.getEndTime - additionalActivity.getStartTime
     val desiredDepartTimeBin = secondsToIndex(additionalActivity.getStartTime)
     val desiredReturnTimeBin = secondsToIndex(additionalActivity.getEndTime)
-    val vehicleType = beamServices.beamScenario.vehicleTypes.values.head // TODO: FIX WITH REAL VEHICLE
-    val fuelPrice = beamServices.beamScenario.fuelTypePrices(vehicleType.primaryFuelType)
 
     val modeToTimeAndCosts: Map[BeamMode, DestinationChoiceModel.TimesAndCost] =
       modes.map { mode =>
@@ -295,9 +305,7 @@ class SupplementaryTripGenerator(
             additionalActivity.getCoord,
             desiredDepartTimeBin,
             mode,
-            vehicleType.id,
-            vehicleType,
-            fuelPrice,
+            beamServices.beamScenario.vehicleTypes.keys.head, // TODO: FIX WITH REAL VEHICLE
             beamServices.beamScenario
           )
         val egressTripSkim =
@@ -306,9 +314,7 @@ class SupplementaryTripGenerator(
             alternativeActivity.getCoord,
             desiredReturnTimeBin,
             mode,
-            vehicleType.id,
-            vehicleType,
-            fuelPrice,
+            beamServices.beamScenario.vehicleTypes.keys.head, // TODO: FIX
             beamServices.beamScenario
           )
         val startingOverlap =
