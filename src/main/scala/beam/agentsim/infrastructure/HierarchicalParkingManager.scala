@@ -3,6 +3,7 @@ package beam.agentsim.infrastructure
 import akka.actor.{ActorLogging, Props}
 import akka.event.Logging
 import beam.agentsim.Resource.ReleaseParkingStall
+import beam.agentsim.agents.vehicles.VehicleManagerType
 import beam.agentsim.infrastructure.HierarchicalParkingManager._
 import beam.agentsim.infrastructure.ZonalParkingManager.{loadParkingZones, mnlMultiplierParametersFromConfig}
 import beam.agentsim.infrastructure.charging.ChargingPointType
@@ -13,6 +14,7 @@ import beam.agentsim.infrastructure.taz.{TAZ, TAZTreeMap}
 import beam.router.BeamRouter.Location
 import beam.sim.common.GeoUtils
 import beam.sim.config.BeamConfig
+import beam.sim.vehiclesharing.VehicleManager
 import com.vividsolutions.jts.geom.Envelope
 import org.matsim.api.core.v01.Id
 import org.matsim.api.core.v01.network.Link
@@ -231,6 +233,8 @@ object HierarchicalParkingManager {
     */
   case class ParkingZoneDescription(
     parkingType: ParkingType,
+    reservedFor: Option[VehicleManagerType],
+    vehicleManagerId: Option[Id[VehicleManager]],
     chargingPointType: Option[ChargingPointType],
     pricingModel: Option[PricingModel]
   )
@@ -238,7 +242,13 @@ object HierarchicalParkingManager {
   object ParkingZoneDescription {
 
     def describeParkingZone(zone: ParkingZone[_]): ParkingZoneDescription = {
-      new ParkingZoneDescription(zone.parkingType, zone.chargingPointType, zone.pricingModel)
+      new ParkingZoneDescription(
+        zone.parkingType,
+        zone.reservedFor,
+        zone.vehicleManagerId,
+        zone.chargingPointType,
+        zone.pricingModel
+      )
     }
   }
 
@@ -275,7 +285,8 @@ object HierarchicalParkingManager {
     linkQuadTree: QuadTree[Link],
     linkToTAZMapping: Map[Link, TAZ],
     geo: GeoUtils,
-    boundingBox: Envelope
+    boundingBox: Envelope,
+    parkingFilePaths: Map[Id[VehicleManager], String],
   ): Props = {
     Props(
       HierarchicalParkingManager(
@@ -285,6 +296,7 @@ object HierarchicalParkingManager {
         linkToTAZMapping,
         geo,
         boundingBox,
+        parkingFilePaths,
       )
     )
   }
@@ -295,10 +307,10 @@ object HierarchicalParkingManager {
     linkQuadTree: QuadTree[Link],
     linkToTAZMapping: Map[Link, TAZ],
     geo: GeoUtils,
-    boundingBox: Envelope
+    boundingBox: Envelope,
+    parkingFilePaths: Map[Id[VehicleManager], String],
   ): HierarchicalParkingManager = {
 
-    val parkingFilePath: String = beamConfig.beam.agentsim.taz.parkingFilePath
     val parkingStallCountScalingFactor = beamConfig.beam.agentsim.taz.parkingStallCountScalingFactor
     val parkingCostScalingFactor = beamConfig.beam.agentsim.taz.parkingCostScalingFactor
 
@@ -312,7 +324,7 @@ object HierarchicalParkingManager {
     }
 
     val (parkingZones, _) =
-      loadParkingZones(parkingFilePath, linkQuadTree, parkingStallCountScalingFactor, parkingCostScalingFactor, rand)
+      loadParkingZones(parkingFilePaths, linkQuadTree, parkingStallCountScalingFactor, parkingCostScalingFactor, rand)
 
     new HierarchicalParkingManager(
       tazMap,
@@ -358,6 +370,8 @@ object HierarchicalParkingManager {
           parkingType = description.parkingType,
           stallsAvailable = numStalls,
           maxStalls = numStalls,
+          reservedFor = description.reservedFor,
+          vehicleManagerId = description.vehicleManagerId,
           chargingPointType = description.chargingPointType,
           pricingModel = description.pricingModel,
           parkingZoneName = None, // FIXME ?!
@@ -420,6 +434,8 @@ object HierarchicalParkingManager {
             parkingType = description.parkingType,
             stallsAvailable = numStalls,
             maxStalls = numStalls,
+            reservedFor = description.reservedFor,
+            vehicleManagerId = description.vehicleManagerId,
             chargingPointType = description.chargingPointType,
             pricingModel = description.pricingModel,
             parkingZoneName = None, // FIXME ?!
