@@ -9,12 +9,7 @@ import beam.agentsim.agents.vehicles.BeamVehicle
 import beam.agentsim.infrastructure.ParkingStall
 import beam.agentsim.infrastructure.charging.ChargingPointType
 import beam.agentsim.infrastructure.charging.ChargingPointType.CustomChargingPoint
-import beam.agentsim.infrastructure.parking.ParkingMNL.ParkingMNLConfig
-import beam.agentsim.infrastructure.parking.ParkingZoneSearch.{
-  ParkingAlternative,
-  ParkingZoneSearchConfiguration,
-  ParkingZoneSearchParams
-}
+import beam.agentsim.infrastructure.parking.ParkingZoneSearch.{ParkingAlternative, ParkingZoneSearchConfiguration, ParkingZoneSearchParams}
 import beam.agentsim.infrastructure.parking._
 import beam.agentsim.infrastructure.taz.{TAZ, TAZTreeMap}
 import beam.agentsim.scheduler.BeamAgentScheduler.ScheduleTrigger
@@ -30,10 +25,10 @@ import org.matsim.api.core.v01.{Coord, Id}
 import org.matsim.core.controler.OutputDirectoryHierarchy
 import org.matsim.core.utils.collections.QuadTree
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Random, Success, Try}
-import scala.collection.JavaConverters._
 
 /**
   * Manages the parking/charging depots for the RideHailManager. Depots can contain heterogeneous [[ChargingPlugTypes]]
