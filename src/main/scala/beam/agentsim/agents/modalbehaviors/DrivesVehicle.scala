@@ -607,6 +607,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
                 val msg = s"*** 604 WaitingToDrive DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${theStall}"
                 parkingManager ! ReleaseParkingStall(theStall, msg)
                 currentBeamVehicle.unsetParkingStall()
+              case _ =>
             }
           case None =>
         }
