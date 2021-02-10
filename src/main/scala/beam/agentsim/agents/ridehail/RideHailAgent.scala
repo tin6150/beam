@@ -14,7 +14,7 @@ import beam.agentsim.agents.modalbehaviors.DrivesVehicle
 import beam.agentsim.agents.modalbehaviors.DrivesVehicle._
 import beam.agentsim.agents.ridehail.RideHailAgent._
 import beam.agentsim.agents.ridehail.RideHailManager.MarkVehicleBatteryDepleted
-import beam.agentsim.agents.ridehail.RideHailVehicleManager.RideHailAgentLocation
+import beam.agentsim.agents.ridehail.RideHailManagerHelper.RideHailAgentLocation
 import beam.agentsim.agents.vehicles.VehicleProtocol.StreetVehicle
 import beam.agentsim.agents.vehicles.{BeamVehicle, PassengerSchedule}
 import beam.agentsim.agents.{BeamAgent, InitializeTrigger}
@@ -421,7 +421,7 @@ class RideHailAgent(
       waitingForDoneRefuelingAndOutOfServiceReply = false
       val (tick, localTriggerId) = releaseTickAndTriggerId()
       assert(localTriggerId == triggerId)
-      if (newTriggers.headOption.map(_.trigger.tick < tick).getOrElse(false)) {
+      if (newTriggers.headOption.exists(_.trigger.tick < tick)) {
         log.error(
           s"agent({}) state(RideHailingAgent.Offline): NotifyVehicleDoneRefuelingAndOutOfServiceReply detected trigger {} with tick before the one about to be completed {}",
           id,
@@ -891,7 +891,7 @@ class RideHailAgent(
         if (!vehicle.isCAV) {
           val msg = s"*** 891 handleEndRefuel RideHailAgent vehicle ${vehicle} from stall ${vehicle.stall}"
           val stall = vehicle.stall.get
-          parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId, msg)
+          parkingManager ! ReleaseParkingStall(stall, msg)
         }
         val currentLocation = parkingStall.locationUTM
         if (!vehicle.isCAV) vehicle.unsetParkingStall()

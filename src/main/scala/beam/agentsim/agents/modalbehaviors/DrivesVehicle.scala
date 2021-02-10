@@ -602,11 +602,12 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
               currentBeamVehicle.id == currentVehicleUnderControl,
               currentBeamVehicle.id + " " + currentVehicleUnderControl
             )
-            val msg = s"*** 604 WaitingToDrive DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
-            currentBeamVehicle.stall.foreach { theStall =>
-              parkingManager ! ReleaseParkingStall(theStall.parkingZoneId, theStall.geoId, msg)
+            currentBeamVehicle.stall match {
+              case Some(theStall) if !currentBeamVehicle.isCAV =>
+                val msg = s"*** 604 WaitingToDrive DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${theStall}"
+                parkingManager ! ReleaseParkingStall(theStall, msg)
+                currentBeamVehicle.unsetParkingStall()
             }
-            currentBeamVehicle.unsetParkingStall()
           case None =>
         }
         val triggerToSchedule: Vector[ScheduleTrigger] = data.passengerSchedule
@@ -932,8 +933,8 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
 
     vehicle.stall match {
       case Some(stall) =>
-        val msg = s"*** 934 handleEndCharging DrivesVehicle unsetting vehicle ${vehicle} from stall ${vehicle.stall}"
-        parkingManager ! ReleaseParkingStall(stall.parkingZoneId, stall.geoId, msg)
+        val msg = s"*** 934 handleEndCharging DrivesVehicle unsetting vehicle ${vehicle} from stall ${stall}"
+        parkingManager ! ReleaseParkingStall(stall, msg)
         vehicle.unsetParkingStall()
       case None =>
         log.error("Vehicle {} has no stall while ending charging event", vehicle)

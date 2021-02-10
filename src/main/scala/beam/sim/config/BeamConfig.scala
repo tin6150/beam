@@ -736,7 +736,8 @@ object BeamConfig {
           refuelThresholdInMeters: scala.Double,
           repositioningManager: BeamConfig.Beam.Agentsim.Agents.RideHail.RepositioningManager,
           rideHailManager: BeamConfig.Beam.Agentsim.Agents.RideHail.RideHailManager,
-          surgePricing: BeamConfig.Beam.Agentsim.Agents.RideHail.SurgePricing
+          surgePricing: BeamConfig.Beam.Agentsim.Agents.RideHail.SurgePricing,
+          vehicleManagerId: java.lang.String
         )
 
         object RideHail {
@@ -1345,7 +1346,9 @@ object BeamConfig {
               surgePricing = BeamConfig.Beam.Agentsim.Agents.RideHail.SurgePricing(
                 if (c.hasPathOrNull("surgePricing")) c.getConfig("surgePricing")
                 else com.typesafe.config.ConfigFactory.parseString("surgePricing{}")
-              )
+              ),
+              vehicleManagerId =
+                if (c.hasPathOrNull("vehicleManagerId")) c.getString("vehicleManagerId") else "ride-hail-default"
             )
           }
         }
