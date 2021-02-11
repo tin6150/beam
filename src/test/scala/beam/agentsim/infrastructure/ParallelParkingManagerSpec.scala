@@ -51,6 +51,10 @@ class ParallelParkingManagerSpec
   val beamConfig: BeamConfig = BeamConfig(system.settings.config)
   val geo = new GeoUtilsImpl(beamConfig)
 
+  private val managers = Map[Id[VehicleManager], VehicleManager](
+    VehicleManager.privateVehicleManager.managerId -> VehicleManager.privateVehicleManager
+  )
+
   describe("ParallelParkingManager with no parking") {
     it("should return a response with an emergency stall") {
 
@@ -72,6 +76,7 @@ class ParallelParkingManagerSpec
           geo,
           randomSeed,
           boundingBox,
+          managers
         )
       } {
 
@@ -109,6 +114,7 @@ class ParallelParkingManagerSpec
         geo,
         randomSeed,
         boundingBox,
+        managers
       )
 
       val inquiry = ParkingInquiry(coordCenterOfUTM, "work")
@@ -147,7 +153,12 @@ class ParallelParkingManagerSpec
             |
           """.stripMargin.split("\n").toIterator
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[TAZ](oneParkingOption, random)
+        parking = ParkingZoneFileUtils
+          .fromIterator[TAZ](
+            oneParkingOption,
+            random,
+            vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+          )
         parkingManager = ParallelParkingManager.init(
           beamConfig,
           tazTreeMap,
@@ -157,6 +168,7 @@ class ParallelParkingManagerSpec
           geo,
           randomSeed,
           boundingBox,
+          managers
         )
       } {
 
@@ -184,7 +196,6 @@ class ParallelParkingManagerSpec
         // since only stall is in use, the second inquiry will be handled with the emergency stall
         val secondInquiry = ParkingInquiry(coordCenterOfUTM, "work")
         val response2 = parkingManager.processParkingInquiry(secondInquiry)
-
         response2 match {
           case Some(res @ ParkingInquiryResponse(stall, responseId))
               if stall.geoId == TAZ.EmergencyTAZId && responseId == secondInquiry.requestId =>
@@ -212,7 +223,11 @@ class ParallelParkingManagerSpec
           |
           """.stripMargin.split("\n").toIterator
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[TAZ](oneParkingOption, random)
+        parking = ParkingZoneFileUtils.fromIterator[TAZ](
+          oneParkingOption,
+          random,
+          vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+        )
         parkingManager = ParallelParkingManager.init(
           beamConfig,
           tazTreeMap,
@@ -222,6 +237,7 @@ class ParallelParkingManagerSpec
           geo,
           randomSeed,
           boundingBox,
+          managers
         )
 
       } {
@@ -294,7 +310,11 @@ class ParallelParkingManagerSpec
         split = ZonalParkingManagerSpec.randomSplitOfMaxStalls(numStalls, 4, random1)
         parkingConfiguration: Iterator[String] = ZonalParkingManagerSpec.makeParkingConfiguration(split)
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[TAZ](parkingConfiguration, random)
+        parking = ParkingZoneFileUtils.fromIterator[TAZ](
+          parkingConfiguration,
+          random,
+          vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+        )
         parkingManager = ParallelParkingManager.init(
           beamConfig,
           tazTreeMap,
@@ -304,6 +324,7 @@ class ParallelParkingManagerSpec
           geo,
           randomSeed,
           boundingBox,
+          managers
         )
       } {
 
@@ -350,6 +371,7 @@ class ParallelParkingManagerSpec
           geo,
           randomSeed,
           boundingBox,
+          managers
         )
 
       assertParkingResponse(zpm, new Coord(170308.0, 2964.0), "4", 105, Block(0.0, 3600), ParkingType.Residential)

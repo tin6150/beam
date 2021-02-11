@@ -1,5 +1,6 @@
 package beam.agentsim.infrastructure.power
 
+import beam.agentsim.agents.vehicles.VehicleManager
 import beam.agentsim.infrastructure.ChargingNetwork
 import beam.agentsim.infrastructure.ChargingNetwork.{ChargingCycle, ChargingStation, ChargingVehicle}
 import beam.agentsim.infrastructure.ChargingNetworkManager.ChargingZone
@@ -8,13 +9,14 @@ import beam.router.skim.event
 import beam.sim.BeamServices
 import cats.Eval
 import com.typesafe.scalalogging.LazyLogging
+import org.matsim.api.core.v01.Id
 
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future, TimeoutException}
 
-class SitePowerManager(chargingNetworkMap: TrieMap[String, ChargingNetwork], beamServices: BeamServices)
+class SitePowerManager(chargingNetworkMap: TrieMap[Id[VehicleManager], ChargingNetwork], beamServices: BeamServices)
     extends LazyLogging {
   import SitePowerManager._
 
@@ -94,14 +96,18 @@ class SitePowerManager(chargingNetworkMap: TrieMap[String, ChargingNetwork], bea
     physicalBounds: Map[ChargingStation, PhysicalBounds]
   ): (ChargingDurationInSec, EnergyInJoules) = {
     assume(timeInterval >= 0, "timeInterval should not be negative!")
-    val ChargingVehicle(vehicle, _, _, station, _, _) = chargingVehicle
+    val ChargingVehicle(vehicle, _, station, _, _) = chargingVehicle
     // dispatch
     val maxZoneLoad = physicalBounds(station).maxLoad
     val maxUnlimitedZoneLoad = unlimitedPhysicalBounds(station).maxLoad
     val chargingPointLoad =
       ChargingPointType.getChargingPointInstalledPowerInKw(station.zone.chargingPointType)
     val chargingPowerLimit = maxZoneLoad * chargingPointLoad / maxUnlimitedZoneLoad
-    vehicle.refuelingSessionDurationAndEnergyInJoules(Some(timeInterval), Some(chargingPowerLimit))
+    vehicle.refuelingSessionDurationAndEnergyInJoules(
+      sessionDurationLimit = Some(timeInterval),
+      stateOfChargeLimit = None,
+      chargingPowerLimit = Some(chargingPowerLimit)
+    )
   }
 
   /**
@@ -113,7 +119,11 @@ class SitePowerManager(chargingNetworkMap: TrieMap[String, ChargingNetwork], bea
     import chargingSession._
     import chargingVehicle._
     // Collect data on load demand
-    val (chargingDuration, requiredEnergy) = vehicle.refuelingSessionDurationAndEnergyInJoules(Some(duration))
+    val (chargingDuration, requiredEnergy) = vehicle.refuelingSessionDurationAndEnergyInJoules(
+      sessionDurationLimit = Some(duration),
+      stateOfChargeLimit = None,
+      chargingPowerLimit = None
+    )
     beamServices.matsimServices.getEvents.processEvent(
       event.TAZSkimmerEvent(
         cnmConfig.timeStepInSeconds * (startTime / cnmConfig.timeStepInSeconds),

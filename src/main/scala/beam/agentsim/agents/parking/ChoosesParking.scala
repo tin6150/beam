@@ -7,15 +7,15 @@ import beam.agentsim.agents.PersonAgent._
 import beam.agentsim.agents._
 import beam.agentsim.agents.modalbehaviors.DrivesVehicle.StartLegTrigger
 import beam.agentsim.agents.parking.ChoosesParking._
-import beam.agentsim.agents.vehicles.PassengerSchedule
 import beam.agentsim.agents.vehicles.VehicleProtocol.StreetVehicle
+import beam.agentsim.agents.vehicles.{PassengerSchedule, VehicleManager}
 import beam.agentsim.events.{LeavingParkingEvent, SpaceTime}
 import beam.agentsim.infrastructure.ChargingNetworkManager.{
   ChargingUnplugRequest,
   EndingRefuelSession,
   UnhandledVehicle
 }
-import beam.agentsim.infrastructure.{ChargingNetworkManager, ParkingInquiry, ParkingInquiryResponse}
+import beam.agentsim.infrastructure.{ParkingInquiry, ParkingInquiryResponse}
 import beam.agentsim.scheduler.BeamAgentScheduler.{CompletionNotice, ScheduleTrigger}
 import beam.agentsim.scheduler.Trigger.TriggerWithId
 import beam.router.BeamRouter.{RoutingRequest, RoutingResponse}
@@ -84,7 +84,7 @@ trait ChoosesParking extends {
               chargingNetworkManager ? ChargingUnplugRequest(
                 tick,
                 currentBeamVehicle,
-                ChargingNetworkManager.defaultVehicleManager
+                VehicleManager.privateVehicleManager.managerId
               ),
               atMost = 1.minute
             ) match {
@@ -101,7 +101,8 @@ trait ChoosesParking extends {
 
       val stallForLeavingParkingEvent = currentBeamVehicle.stall match {
         case Some(stall) =>
-          val msg = s"*** 104 ReleasingParkingSpot ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
+          val msg =
+            s"*** 104 ReleasingParkingSpot ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
           parkingManager ! ReleaseParkingStall(stall, msg)
           currentBeamVehicle.unsetParkingStall()
           stall
@@ -123,7 +124,8 @@ trait ChoosesParking extends {
 
     case Event(StateTimeout, data) =>
       val stall = currentBeamVehicle.stall.get
-      val msg = s"*** 126 StateTimeout ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
+      val msg =
+        s"*** 126 StateTimeout ChoosesParking unsetting vehicle ${currentBeamVehicle} from stall ${currentBeamVehicle.stall}"
       parkingManager ! ReleaseParkingStall(stall, msg)
       currentBeamVehicle.unsetParkingStall()
       releaseTickAndTriggerId()

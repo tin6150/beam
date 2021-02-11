@@ -107,9 +107,7 @@ class TransitSystem(
   }
 }
 
-object TransitSystem {
-  val VEHICLE_MANAGER_ID: Id[VehicleManager] = Id.create("transit-system", classOf[VehicleManager])
-}
+object TransitSystem {}
 
 class TransitVehicleInitializer(val beamConfig: BeamConfig, val vehicleTypes: Map[Id[BeamVehicleType], BeamVehicleType])
     extends ExponentialLazyLogging {
@@ -136,7 +134,7 @@ class TransitVehicleInitializer(val beamConfig: BeamConfig, val vehicleTypes: Ma
           beamVehicleId,
           powertrain,
           vehicleType,
-          Some(VehicleManager.transitVehicleManager.managerId),
+          managerId = VehicleManager.transitVehicleManager.managerId,
           randomSeed
         ) // TODO: implement fuel level later as needed
         Some(vehicle)

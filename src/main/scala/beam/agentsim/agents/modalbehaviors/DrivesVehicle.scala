@@ -392,7 +392,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
                         chargingNetworkManager ? ChargingPlugRequest(
                           tick,
                           currentBeamVehicle,
-                          ChargingNetworkManager.defaultVehicleManager
+                          VehicleManager.privateVehicleManager.managerId
                         ),
                         atMost = 1.minute
                       ) match {
@@ -604,7 +604,8 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
             )
             currentBeamVehicle.stall match {
               case Some(theStall) if !currentBeamVehicle.isCAV =>
-                val msg = s"*** 604 WaitingToDrive DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${theStall}"
+                val msg =
+                  s"*** 604 WaitingToDrive DrivesVehicle unsetting vehicle ${currentBeamVehicle} from stall ${theStall}"
                 parkingManager ! ReleaseParkingStall(theStall, msg)
                 currentBeamVehicle.unsetParkingStall()
               case _ =>

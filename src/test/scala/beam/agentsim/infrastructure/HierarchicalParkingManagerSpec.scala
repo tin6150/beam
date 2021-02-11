@@ -55,6 +55,10 @@ class HierarchicalParkingManagerSpec
   val beamConfig: BeamConfig = BeamConfig(system.settings.config)
   val geo = new GeoUtilsImpl(beamConfig)
 
+  private val managers = Map[Id[VehicleManager], VehicleManager](
+    VehicleManager.privateVehicleManager.managerId -> VehicleManager.privateVehicleManager
+  )
+
   describe("HierarchicalParkingManager with no parking") {
     it("should return a response with an emergency stall") {
 
@@ -78,6 +82,7 @@ class HierarchicalParkingManagerSpec
           boundingBox,
           ZonalParkingManager.mnlMultiplierParametersFromConfig(beamConfig),
           checkThatNumberOfStallsMatch = true,
+          managers
         )
       } {
 
@@ -118,6 +123,7 @@ class HierarchicalParkingManagerSpec
           boundingBox,
           ZonalParkingManager.mnlMultiplierParametersFromConfig(beamConfig),
           checkThatNumberOfStallsMatch = true,
+          managers
         )
 
       val inquiry = ParkingInquiry(coordCenterOfUTM, "work")
@@ -156,7 +162,11 @@ class HierarchicalParkingManagerSpec
             |
           """.stripMargin.split("\n").toIterator
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[Link](oneParkingOption, random)
+        parking = ParkingZoneFileUtils.fromIterator[Link](
+          oneParkingOption,
+          random,
+          vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+        )
         parkingManager = HierarchicalParkingManager.init(
           tazTreeMap,
           HierarchicalParkingManagerSpec.mockLinks(tazTreeMap),
@@ -168,6 +178,7 @@ class HierarchicalParkingManagerSpec
           boundingBox,
           ZonalParkingManager.mnlMultiplierParametersFromConfig(beamConfig),
           checkThatNumberOfStallsMatch = true,
+          managers
         )
       } {
 
@@ -222,7 +233,12 @@ class HierarchicalParkingManagerSpec
           |
           """.stripMargin.split("\n").toIterator
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[Link](oneParkingOption, random)
+        parking = ParkingZoneFileUtils
+          .fromIterator[Link](
+            oneParkingOption,
+            random,
+            vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+          )
         parkingManager = HierarchicalParkingManager.init(
           tazTreeMap,
           HierarchicalParkingManagerSpec.mockLinks(tazTreeMap),
@@ -234,6 +250,7 @@ class HierarchicalParkingManagerSpec
           boundingBox,
           ZonalParkingManager.mnlMultiplierParametersFromConfig(beamConfig),
           checkThatNumberOfStallsMatch = true,
+          managers
         )
       } {
         // note: ParkingInquiry constructor has a side effect of creating a new (unique) request id
@@ -305,7 +322,11 @@ class HierarchicalParkingManagerSpec
         split = ZonalParkingManagerSpec.randomSplitOfMaxStalls(numStalls, 4, random1)
         parkingConfiguration: Iterator[String] = ZonalParkingManagerSpec.makeParkingConfiguration(split)
         random = new Random(randomSeed)
-        parking = ParkingZoneFileUtils.fromIterator[Link](parkingConfiguration, random)
+        parking = ParkingZoneFileUtils.fromIterator[Link](
+          parkingConfiguration,
+          random,
+          vehicleManagerId = VehicleManager.privateVehicleManager.managerId
+        )
         parkingManager = HierarchicalParkingManager.init(
           tazTreeMap,
           HierarchicalParkingManagerSpec.mockLinks(tazTreeMap),
@@ -317,6 +338,7 @@ class HierarchicalParkingManagerSpec
           boundingBox,
           ZonalParkingManager.mnlMultiplierParametersFromConfig(beamConfig),
           checkThatNumberOfStallsMatch = true,
+          managers
         )
       } {
 
@@ -366,6 +388,7 @@ class HierarchicalParkingManagerSpec
         // the number of stalls on TAZ and link levels will not match because of big number of stalls
         // which don't fit into Int precision
         checkThatNumberOfStallsMatch = false,
+        managers
       )
 
       assertParkingResponse(zpm, new Coord(170308.0, 2964.0), "4", 4033, Block(0.0, 3600), ParkingType.Residential)
@@ -387,7 +410,8 @@ class HierarchicalParkingManagerSpec
     val inquiry = ParkingInquiry(coord, "init")
     val response = spm.processParkingInquiry(inquiry)
     response match {
-      case Some(rsp @ ParkingInquiryResponse(stall, _)) if stall.tazId should be(Id.create(tazId, classOf[TAZ])) =>
+      case Some(rsp @ ParkingInquiryResponse(stall, _)) =>
+        rsp.stall.tazId should be(Id.create(tazId, classOf[TAZ]))
         val dist = GeoUtils.distFormula(coord, rsp.stall.locationUTM)
         dist should be <= 400.0
       case _ =>
