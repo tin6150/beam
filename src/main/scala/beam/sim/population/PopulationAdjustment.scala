@@ -63,29 +63,30 @@ trait PopulationAdjustment extends LazyLogging {
     * @param population population from the scenario
     */
   protected final def logModes(population: MPopulation): MPopulation = {
-
-    // initialize all excluded modes to empty array
-    var allExcludedModes: Array[String] = Array.empty
+    val excludeModeToCounts: collection.mutable.HashMap[String, Int] = collection.mutable.HashMap[String, Int]()
 
 // check if excluded modes is defined for all individuals
     val allAgentsHaveAttributes = population.getPersons.asScala.forall { entry =>
       val personExcludedModes = Option(
         population.getPersonAttributes.getAttribute(entry._1.toString, PopulationAdjustment.EXCLUDED_MODES)
       ).map(_.toString)
-      // if excluded modes is defined for the person add it to the cumulative list
-      if (personExcludedModes.isDefined && personExcludedModes.get.nonEmpty)
-        allExcludedModes = allExcludedModes ++ personExcludedModes.get.split(",")
+
+      personExcludedModes.foreach { excludeModes =>
+        excludeModes.split(",").foreach { excludeMode =>
+          val prevCount = excludeModeToCounts.getOrElse(excludeMode, 0)
+          excludeModeToCounts.update(excludeMode, prevCount + 1)
+        }
+      }
       personExcludedModes.isDefined
     }
 
-    if (allExcludedModes.nonEmpty) {
+    if (excludeModeToCounts.nonEmpty) {
       logger.info("Modes excluded:")
     }
 
     // count the number of excluded modes for each mode type
-    allExcludedModes
-      .groupBy(x => x)
-      .foreach(t => logger.info(s"${t._1} -> ${t._2.length}"))
+    excludeModeToCounts
+      .foreach(t => logger.info(s"${t._1} -> ${t._2}"))
 
     // log error if excluded modes attributes is missing for at least one person in the population
     if (!allAgentsHaveAttributes) {
