@@ -18,7 +18,8 @@ class UrbanSimScenarioSource(
   val scenarioSrc: String,
   val rdr: UrbanSimScenarioReader,
   val geoUtils: GeoUtils,
-  val shouldConvertWgs2Utm: Boolean
+  val shouldConvertWgs2Utm: Boolean,
+  val chanceOfRemovingWorkActivity: Double
 ) extends ScenarioSource
     with ExponentialLazyLogging {
   val fileExt: String = rdr.inputType.toFileExt
@@ -53,32 +54,40 @@ class UrbanSimScenarioSource(
       )
     }
 
-    planElements.map { plan: DataExchange.PlanElement =>
-      val coord = convertLocation(plan)
-      PlanElement(
-        personId = PersonId(plan.personId),
-        planIndex = 0, // TODO FIXME!
-        planElementType = plan.planElement,
-        planElementIndex = plan.planElementIndex,
-        planScore = 0, // TODO: DataExchange.PlanElement does not have score
-        planSelected = false, // TODO: DataExchange.PlanElement does not have planSelected
-        activityType = plan.activityType,
-        activityLocationX = coord.map(_.getX),
-        activityLocationY = coord.map(_.getY),
-        activityEndTime = plan.endTime,
-        legMode = plan.mode,
-        // TODO: DataExchange.PlanElement does not have the following leg information
-        legDepartureTime = None,
-        legTravelTime = None,
-        legRouteType = None,
-        legRouteStartLink = None,
-        legRouteEndLink = None,
-        legRouteTravelTime = None,
-        legRouteDistance = None,
-        legRouteLinks = Seq.empty,
-        geoId = None
-      )
-    }
+    val rnd = scala.util.Random
+    planElements
+      .filter { plan: DataExchange.PlanElement =>
+        plan.activityType match {
+          case Some("Work") if chanceOfRemovingWorkActivity >= rnd.nextDouble() => false
+          case _                                                                => true
+        }
+      }
+      .map { plan: DataExchange.PlanElement =>
+        val coord = convertLocation(plan)
+        PlanElement(
+          personId = PersonId(plan.personId),
+          planIndex = 0, // TODO FIXME!
+          planElementType = plan.planElement,
+          planElementIndex = plan.planElementIndex,
+          planScore = 0, // TODO: DataExchange.PlanElement does not have score
+          planSelected = false, // TODO: DataExchange.PlanElement does not have planSelected
+          activityType = plan.activityType,
+          activityLocationX = coord.map(_.getX),
+          activityLocationY = coord.map(_.getY),
+          activityEndTime = plan.endTime,
+          legMode = plan.mode,
+          // TODO: DataExchange.PlanElement does not have the following leg information
+          legDepartureTime = None,
+          legTravelTime = None,
+          legRouteType = None,
+          legRouteStartLink = None,
+          legRouteEndLink = None,
+          legRouteTravelTime = None,
+          legRouteDistance = None,
+          legRouteLinks = Seq.empty,
+          geoId = None
+        )
+      }
   }
 
   override def getHousehold: Iterable[HouseholdInfo] = {

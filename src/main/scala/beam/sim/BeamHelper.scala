@@ -919,7 +919,8 @@ trait BeamHelper extends LazyLogging {
       scenarioSrc = beamConfig.beam.exchange.scenario.folder,
       rdr = scenarioReader,
       geoUtils = geo,
-      shouldConvertWgs2Utm = beamConfig.beam.exchange.scenario.convertWgs2Utm
+      shouldConvertWgs2Utm = beamConfig.beam.exchange.scenario.convertWgs2Utm,
+      beamConfig.beam.exchange.scenario.urbansim.chanceOfRemovingWorkActivity
     )
   }
 }
