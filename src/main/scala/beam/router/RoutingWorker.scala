@@ -12,6 +12,7 @@ import beam.agentsim.agents.vehicles._
 import beam.agentsim.events.SpaceTime
 import beam.router.BeamRouter._
 import beam.router.Modes.BeamMode.{CAR, WALK}
+import beam.router.cch.CchWrapper
 import beam.router.graphhopper.{CarGraphHopperWrapper, GraphHopperWrapper, WalkGraphHopperWrapper}
 import beam.router.gtfs.FareCalculator
 import beam.router.model.{EmbodiedBeamTrip, _}
@@ -69,14 +70,14 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
     context.system.scheduler.scheduleWithFixedDelay(2.seconds, 10.seconds, self, "tick")(context.dispatcher)
   private var msgs = 0
   private var firstMsgTime: Option[ZonedDateTime] = None
-  log.info("R5RoutingWorker_v2[{}] `{}` is ready", hashCode(), self.path)
+  log.info("RoutingWorker[{}] `{}` is ready", hashCode(), self.path)
   log.info(
     "Num of available processors: {}. Will use: {}",
     Runtime.getRuntime.availableProcessors(),
     numOfThreads
   )
 
-  private def getNameAndHashCode: String = s"R5RoutingWorker_v2[${hashCode()}], Path: `${self.path}`"
+  private def getNameAndHashCode: String = s"RoutingWorker[${hashCode()}], Path: `${self.path}`"
 
   private var workAssigner: ActorRef = context.parent
 
@@ -90,6 +91,7 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
   private val carGraphHopperDir: String = Paths.get(graphHopperDir, "car").toString
   private var binToCarGraphHopper: Map[Int, GraphHopperWrapper] = _
   private var walkGraphHopper: GraphHopperWrapper = _
+  private var cchWrapper: CchWrapper = _
 
   private val linksBelowMinCarSpeed =
     workerParams.networkHelper.allLinks
@@ -106,8 +108,15 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
       new Directory(new File(graphHopperDir)).deleteRecursively()
       createWalkGraphHopper()
       createCarGraphHoppers(new FreeFlowTravelTime)
-      askForMoreWork()
+    } else if (carRouter == "nativeCCH") {
+      log.info("Init CchNative")
+      val s = System.currentTimeMillis()
+      cchWrapper = new CchWrapper(workerParams)
+      val e = System.currentTimeMillis()
+      log.info(s"Cch native built in ${e - s} ms")
     }
+
+    askForMoreWork()
   }
 
   override def postStop(): Unit = {
@@ -187,6 +196,32 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
                 )
             }
             response
+          } else if (!request.withTransit && carRouter == "nativeCCH") {
+            val cchResponse = calcCarNativeCCHRoute(request)
+
+            // FIXME same code
+            val modesToExclude = calcExcludeModes(
+              cchResponse.exists(_.itineraries.nonEmpty),
+              successfulWalkResponse = false
+            )
+
+            val response = if (modesToExclude.isEmpty) {
+              r5.calcRoute(request)
+            } else {
+              val filteredStreetVehicles = request.streetVehicles.filter(it => !modesToExclude.contains(it.mode))
+              val r5Response = if (filteredStreetVehicles.isEmpty) {
+                None
+              } else {
+                Some(r5.calcRoute(request.copy(streetVehicles = filteredStreetVehicles)))
+              }
+              cchResponse
+                .getOrElse(r5Response.get)
+                .copy(
+                  cchResponse.map(_.itineraries).getOrElse(Seq.empty) ++
+                  r5Response.map(_.itineraries).getOrElse(Seq.empty)
+                )
+            }
+            response
           } else {
             r5.calcRoute(request)
           }
@@ -202,6 +237,8 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
     case UpdateTravelTimeLocal(newTravelTime) =>
       if (carRouter == "quasiDynamicGH") {
         createCarGraphHoppers(newTravelTime)
+      } else if (carRouter == "nativeCCH") {
+        rebuildNativeCCHWeights(newTravelTime)
       }
 
       r5 = new R5Wrapper(
@@ -217,6 +254,8 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
         TravelTimeCalculatorHelper.CreateTravelTimeCalculator(workerParams.beamConfig.beam.agentsim.timeBinSize, map)
       if (carRouter == "quasiDynamicGH") {
         createCarGraphHoppers(newTravelTime)
+      } else if (carRouter == "nativeCCH") {
+        rebuildNativeCCHWeights(newTravelTime)
       }
 
       r5 = new R5Wrapper(
@@ -246,6 +285,7 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
     if (workAssigner != null) workAssigner ! GimmeWork //Master will retry if it hasn't heard
 
   private def createWalkGraphHopper(): Unit = {
+    log.info("Init GH Walk")
     GraphHopperWrapper.createWalkGraphDirectoryFromR5(
       workerParams.transportNetwork,
       new OSM(workerParams.beamConfig.beam.routing.r5.osmMapdbFile),
@@ -256,6 +296,7 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
   }
 
   private def createCarGraphHoppers(travelTime: TravelTime): Unit = {
+    log.info("Init GH Car")
     // Clean up GHs variable and than calculate new ones
     binToCarGraphHopper = Map()
     new Directory(new File(carGraphHopperDir)).deleteRecursively()
@@ -269,10 +310,10 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
 
         val wayId2TravelTime = workerParams.networkHelper.allLinks.toSeq
           .map(
-            l =>
-              l.getId.toString.toLong ->
+            link =>
+              link.getId.toString.toLong ->
               carWeightCalculator.calcTravelTime(
-                l.getId.toString.toInt,
+                link.getId.toString.toInt,
                 travelTime,
                 i * workerParams.beamConfig.beam.agentsim.timeBinSize
             )
@@ -303,6 +344,33 @@ class RoutingWorker(workerParams: R5Parameters) extends Actor with ActorLogging 
     binToCarGraphHopper = Await.result(Future.sequence(futures), 20.minutes).toMap
     val e = System.currentTimeMillis()
     log.info(s"GH built in ${e - s} ms")
+  }
+
+  private def rebuildNativeCCHWeights(newTravelTime: TravelTime): Unit = {
+    val s = System.currentTimeMillis()
+    cchWrapper.rebuildNativeCCHWeights(newTravelTime)
+    val e = System.currentTimeMillis()
+    log.info(s"Cch native rebuilt weights in ${e - s} ms")
+  }
+
+  def escapeHTML(s: String): String = {
+    val out = new StringBuilder(Math.max(16, s.length))
+    for (i <- 0 until s.length) {
+      val c = s.charAt(i)
+      if (c > 127 || c == '"' || c == '\'' || c == '<' || c == '>' || c == '&') {
+        out.append("&#")
+        out.append(c.toInt)
+        out.append(';')
+      } else out.append(c)
+    }
+    out.toString
+  }
+
+  private def calcCarNativeCCHRoute(req: RoutingRequest) = {
+    val mode = Modes.BeamMode.CAR
+    if (req.streetVehicles.exists(_.mode == mode)) {
+      Some(cchWrapper.calcRoute(req.copy(streetVehicles = req.streetVehicles.filter(_.mode == mode))))
+    } else Some(RoutingResponse(Seq(), req.requestId, Some(req), isEmbodyWithCurrentTravelTime = false))
   }
 
   private def calcCarGhRoute(request: RoutingRequest): Option[RoutingResponse] = {
