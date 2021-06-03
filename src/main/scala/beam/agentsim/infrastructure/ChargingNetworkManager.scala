@@ -333,7 +333,7 @@ class ChargingNetworkManager(
             )
         }
         currentSenderMaybe.foreach(_ ! EndingRefuelSession(tick, vehicle.id, triggerId))
-        chargingNetwork.processWaitingLine(tick, cv.chargingStation).foreach(handleStartCharging(tick, _))
+        chargingNetwork.processWaitingLine(tick, cv.chargingStation).foreach(handleStartCharging(tick, _, triggerId))
       case None =>
         log.error(
           s"Vehicle ${chargingVehicle.vehicle} failed to disconnect. Check the debug logs if it has been already disconnected. Otherwise something is broken!!"
