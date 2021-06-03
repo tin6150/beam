@@ -16,6 +16,7 @@ object BeamConfig {
     debug: BeamConfig.Beam.Debug,
     exchange: BeamConfig.Beam.Exchange,
     experimental: BeamConfig.Beam.Experimental,
+    input: BeamConfig.Beam.Input,
     inputDirectory: java.lang.String,
     logger: BeamConfig.Beam.Logger,
     metrics: BeamConfig.Beam.Metrics,
@@ -673,10 +674,23 @@ object BeamConfig {
 
         case class Plans(
           inputPersonAttributesFilePath: java.lang.String,
-          inputPlansFilePath: java.lang.String
+          inputPlansFilePath: java.lang.String,
+          merge: BeamConfig.Beam.Agentsim.Agents.Plans.Merge
         )
 
         object Plans {
+          case class Merge(
+            fraction: scala.Double
+          )
+
+          object Merge {
+
+            def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Agentsim.Agents.Plans.Merge = {
+              BeamConfig.Beam.Agentsim.Agents.Plans.Merge(
+                fraction = if (c.hasPathOrNull("fraction")) c.getDouble("fraction") else 0.0
+              )
+            }
+          }
 
           def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Agentsim.Agents.Plans = {
             BeamConfig.Beam.Agentsim.Agents.Plans(
@@ -685,7 +699,11 @@ object BeamConfig {
                 else "/test/input/beamville/populationAttributes.xml.gz",
               inputPlansFilePath =
                 if (c.hasPathOrNull("inputPlansFilePath")) c.getString("inputPlansFilePath")
-                else "/test/input/beamville/population.xml.gz"
+                else "/test/input/beamville/population.xml.gz",
+              merge = BeamConfig.Beam.Agentsim.Agents.Plans.Merge(
+                if (c.hasPathOrNull("merge")) c.getConfig("merge")
+                else com.typesafe.config.ConfigFactory.parseString("merge{}")
+              )
             )
           }
         }
@@ -2201,6 +2219,7 @@ object BeamConfig {
       debugActorTimerIntervalInSec: scala.Int,
       debugEnabled: scala.Boolean,
       memoryConsumptionDisplayTimeoutInSec: scala.Int,
+      messageLogging: scala.Boolean,
       secondsToWaitToClearRoutedOutstandingWork: scala.Int,
       stuckAgentDetection: BeamConfig.Beam.Debug.StuckAgentDetection,
       triggerMeasurer: BeamConfig.Beam.Debug.TriggerMeasurer,
@@ -2363,6 +2382,7 @@ object BeamConfig {
             if (c.hasPathOrNull("memoryConsumptionDisplayTimeoutInSec"))
               c.getInt("memoryConsumptionDisplayTimeoutInSec")
             else 0,
+          messageLogging = c.hasPathOrNull("messageLogging") && c.getBoolean("messageLogging"),
           secondsToWaitToClearRoutedOutstandingWork =
             if (c.hasPathOrNull("secondsToWaitToClearRoutedOutstandingWork"))
               c.getInt("secondsToWaitToClearRoutedOutstandingWork")
@@ -2464,6 +2484,21 @@ object BeamConfig {
             if (c.hasPathOrNull("optimizer")) c.getConfig("optimizer")
             else com.typesafe.config.ConfigFactory.parseString("optimizer{}")
           )
+        )
+      }
+    }
+
+    case class Input(
+      lastBaseOutputDir: java.lang.String,
+      simulationPrefix: java.lang.String
+    )
+
+    object Input {
+
+      def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Input = {
+        BeamConfig.Beam.Input(
+          lastBaseOutputDir = if (c.hasPathOrNull("lastBaseOutputDir")) c.getString("lastBaseOutputDir") else "output",
+          simulationPrefix = if (c.hasPathOrNull("simulationPrefix")) c.getString("simulationPrefix") else "beamville"
         )
       }
     }
@@ -3930,6 +3965,10 @@ object BeamConfig {
         experimental = BeamConfig.Beam.Experimental(
           if (c.hasPathOrNull("experimental")) c.getConfig("experimental")
           else com.typesafe.config.ConfigFactory.parseString("experimental{}")
+        ),
+        input = BeamConfig.Beam.Input(
+          if (c.hasPathOrNull("input")) c.getConfig("input")
+          else com.typesafe.config.ConfigFactory.parseString("input{}")
         ),
         inputDirectory =
           if (c.hasPathOrNull("inputDirectory")) c.getString("inputDirectory") else "/test/input/beamville",

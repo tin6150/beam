@@ -30,7 +30,8 @@ class UrbanSimScenarioLoader(
   var scenario: MutableScenario,
   val beamScenario: BeamScenario,
   val scenarioSource: ScenarioSource,
-  val geo: GeoUtils
+  val geo: GeoUtils,
+  val previousRunPlanMerger: Option[PreviousRunPlanMerger] = None,
 ) extends LazyLogging {
 
   private implicit val ex: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
@@ -99,9 +100,11 @@ class UrbanSimScenarioLoader(
       }
       householdsInsideBoundingBox
     }
-    val plans = Await.result(plansF, 5000.seconds)
+    val inputPlans = Await.result(plansF, 5000.seconds)
     val persons = Await.result(personsF, 5000.seconds)
     val households = Await.result(householdsF, 5000.seconds)
+
+    val plans = previousRunPlanMerger.map(_.merge(inputPlans)).getOrElse(inputPlans)
 
     val householdIds = households.map(_.householdId.id).toSet
 
