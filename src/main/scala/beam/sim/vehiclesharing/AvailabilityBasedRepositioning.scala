@@ -85,7 +85,8 @@ case class AvailabilityBasedRepositioning(
           now,
           BeamMode.CAR,
           Id.create( // FIXME Vehicle type borrowed from ridehail -- pass the vehicle type of the car sharing fleet instead
-            beamServices.beamConfig.beam.agentsim.agents.rideHail.initialization.procedural.vehicleTypeId,
+            beamServices.beamConfig.beam.agentsim.agents.vehicles.dummySharedBike.vehicleTypeId,
+//            beamServices.beamConfig.beam.agentsim.agents.rideHail.initialization.procedural.vehicleTypeId,
             classOf[BeamVehicleType]
           ),
           beamServices.beamScenario
