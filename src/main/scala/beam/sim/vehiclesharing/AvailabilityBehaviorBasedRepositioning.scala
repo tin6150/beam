@@ -124,7 +124,7 @@ case class AvailabilityBehaviorBasedRepositioning(
     var fleetTemp = availableFleet
     ODs.foreach { case (org, dst, tt, fleetSizeToReposition) =>
       //arrivalTime = now
-      val arrivalTime = now + tt
+      val arrivalTime = now
       val vehiclesForRepositionTemp =
         mutable.ListBuffer.empty[(BeamVehicle, SpaceTime, Id[TAZ], SpaceTime, Id[TAZ])]
       fleetTemp
