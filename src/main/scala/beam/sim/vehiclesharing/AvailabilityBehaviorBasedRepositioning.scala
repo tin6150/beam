@@ -123,6 +123,7 @@ case class AvailabilityBehaviorBasedRepositioning(
     val rand = new scala.util.Random(System.currentTimeMillis())
     var fleetTemp = availableFleet
     ODs.foreach { case (org, dst, tt, fleetSizeToReposition) =>
+      //arrivalTime = now
       val arrivalTime = now + tt
       val vehiclesForRepositionTemp =
         mutable.ListBuffer.empty[(BeamVehicle, SpaceTime, Id[TAZ], SpaceTime, Id[TAZ])]
