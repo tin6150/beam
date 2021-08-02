@@ -201,11 +201,11 @@ class ChargingNetworkManager(
       val chargingNetwork = chargingNetworkMap(vehicleManager)
       chargingNetwork.lookupVehicle(vehicle.id) match { // not taking into consideration vehicles waiting in line
         case Some(chargingVehicle) if chargingVehicle.chargingSessions.nonEmpty =>
-          val currentTime = currentTimeBin(tick)
-          val prevStartTime = chargingVehicle.chargingSessions.last.startTime
-          val startTime = Math.max(currentTime, prevStartTime)
-          val duration = tick - startTime
-          val (chargeDurationAtTick, energyToChargeAtTick) = dispatchEnergy(duration, chargingVehicle, physicalBounds)
+          val unplugTimeBin = currentTimeBin(tick)
+          val latestTimeBin = chargingVehicle.chargingSessions.last.startTime
+          val (startTime, endTime) = if (tick < latestTimeBin) (unplugTimeBin, tick) else (latestTimeBin, tick)
+          val (chargeDurationAtTick, energyToChargeAtTick) =
+            dispatchEnergy(endTime - startTime, chargingVehicle, physicalBounds)
           chargingVehicle.processChargingCycle(startTime, startTime + chargeDurationAtTick, energyToChargeAtTick) match {
             case None =>
               log.debug(

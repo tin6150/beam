@@ -224,11 +224,16 @@ object ChargingNetwork {
       */
     def processChargingCycle(startTime: Int, endTime: Int, energy: Double): Option[ChargingCycle] = {
       val addNewChargingCycle = chargingSessions.lastOption match {
-        case None                                                                                        => true
+        // first charging cycle
+        case None => true
+        // either a new cycle or an unplug cycle arriving in the middle of the current cycle
         case Some(latestCycle) if startTime >= latestCycle.endTime && connectionStatus.last == Connected => true
+        // an unplug request arrived right before the new cycle started
+        // or vehicle finished charging right before unplug requests arrived
         case Some(latestCycle) if endTime < latestCycle.endTime =>
           chargingSessions.remove(chargingSessions.length - 1)
           true
+        // other cases where an unnecessary charging session happens when a vehicle is already charged or unplugged
         case _ => false
       }
       if (addNewChargingCycle) {
