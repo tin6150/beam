@@ -298,8 +298,6 @@ class ZonalParkingManagerFunctions[GEO: GeoLevel](
               s"somehow have a ParkingZone with geoId ${zone.geoId} which is not found in the idToGeoMapping"
             )
             new Coord()
-          case Some(_) if zone.parkingType != ParkingType.Public =>
-            inquiry.destinationUtm
           case Some(taz) =>
             GeoLevel[GEO].geoSampling(rand, inquiry.destinationUtm, taz, zone.availability)
         }
