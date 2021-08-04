@@ -123,7 +123,13 @@ class ChargingNetworkManager(
                 timeBin + chargingDuration
               )
               None
-            case Some(cycle) if cycle.endTime >= nextTimeBin(timeBin) =>
+            case Some(cycle) if cycle.endTime < nextTimeBin(timeBin) && chargingVehicle.isFullyCharged =>
+              handleEndCharging(timeBin, chargingVehicle)
+              None
+            case Some(cycle) if cycle.endTime < nextTimeBin(timeBin) =>
+              // charging is going to end during this current session
+              Some(ScheduleTrigger(ChargingTimeOutTrigger(cycle.endTime, vehicle.id, stall.managerId), self))
+            case Some(cycle) =>
               log.debug(
                 "Ending refuel cycle of vehicle {}. Stall: {}. Provided energy: {} J. Remaining: {} J",
                 vehicle.id,
@@ -132,12 +138,6 @@ class ChargingNetworkManager(
                 energyToCharge
               )
               None
-            case Some(cycle) if chargingVehicle.isFullyCharged =>
-              handleEndCharging(timeBin, chargingVehicle)
-              None
-            case Some(cycle) if cycle.endTime < nextTimeBin(timeBin) =>
-              // charging is going to end during this current session
-              Some(ScheduleTrigger(ChargingTimeOutTrigger(cycle.endTime, vehicle.id, stall.managerId), self))
           }
       }
 
