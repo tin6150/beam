@@ -108,38 +108,36 @@ class ChargingNetworkManager(
         case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _, _)) =>
           // Refuel
           handleRefueling(chargingVehicle)
-          //
-          if (chargingVehicle.isFullyCharged) {
-            handleEndCharging(timeBin, chargingVehicle)
-            None
-          } else {
-            // Calculate the energy to charge each vehicle connected to the a charging station
-            val (chargingDuration, energyToCharge) =
-              dispatchEnergy(cnmConfig.timeStepInSeconds, chargingVehicle, physicalBounds)
-            chargingVehicle.processChargingCycle(timeBin, timeBin + chargingDuration, energyToCharge) match {
-              case None =>
-                log.debug(
-                  "Vehicle {} at Stall: {} had been disconnected before the charging cycle." +
-                  "last charging cycle end time was {} while the current charging cycle end time is {}",
-                  vehicle.id,
-                  stall,
-                  chargingVehicle.latestChargingCycle.map(_.endTime).getOrElse(-1),
-                  timeBin + chargingDuration
-                )
-                None
-              case Some(cycle) if cycle.endTime >= nextTimeBin(timeBin) =>
-                log.debug(
-                  "Ending refuel cycle of vehicle {}. Stall: {}. Provided energy: {} J. Remaining: {} J",
-                  vehicle.id,
-                  stall,
-                  cycle.energy,
-                  energyToCharge
-                )
-                None
-              case Some(cycle) if cycle.endTime < nextTimeBin(timeBin) =>
-                // charging is going to end during this current session
-                Some(ScheduleTrigger(ChargingTimeOutTrigger(cycle.endTime, vehicle.id, stall.managerId), self))
-            }
+          // Calculate the energy to charge each vehicle connected to the a charging station
+          val (chargingDuration, energyToCharge) =
+            dispatchEnergy(cnmConfig.timeStepInSeconds, chargingVehicle, physicalBounds)
+          // update charging vehicle with dispatched energy and schedule ChargingTimeOutScheduleTrigger
+          chargingVehicle.processChargingCycle(timeBin, timeBin + chargingDuration, energyToCharge) match {
+            case None =>
+              log.debug(
+                "Vehicle {} at Stall: {} had been disconnected before the charging cycle." +
+                "last charging cycle end time was {} while the current charging cycle end time is {}",
+                vehicle.id,
+                stall,
+                chargingVehicle.latestChargingCycle.map(_.endTime).getOrElse(-1),
+                timeBin + chargingDuration
+              )
+              None
+            case Some(cycle) if cycle.endTime >= nextTimeBin(timeBin) =>
+              log.debug(
+                "Ending refuel cycle of vehicle {}. Stall: {}. Provided energy: {} J. Remaining: {} J",
+                vehicle.id,
+                stall,
+                cycle.energy,
+                energyToCharge
+              )
+              None
+            case Some(cycle) if chargingVehicle.isFullyCharged =>
+              handleEndCharging(timeBin, chargingVehicle)
+              None
+            case Some(cycle) if cycle.endTime < nextTimeBin(timeBin) =>
+              // charging is going to end during this current session
+              Some(ScheduleTrigger(ChargingTimeOutTrigger(cycle.endTime, vehicle.id, stall.managerId), self))
           }
       }
 

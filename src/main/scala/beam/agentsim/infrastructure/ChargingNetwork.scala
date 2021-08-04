@@ -266,6 +266,5 @@ object ChargingNetwork {
       )
       dur == 0
     }
-
   }
 }
