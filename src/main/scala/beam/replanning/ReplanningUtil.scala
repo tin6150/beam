@@ -2,6 +2,7 @@ package beam.replanning
 
 import beam.router.model.EmbodiedBeamTrip
 import beam.utils.DebugLib
+import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.population._
 import org.matsim.core.config.groups.PlanCalcScoreConfigGroup
 import org.matsim.core.population.PopulationUtils
@@ -9,7 +10,7 @@ import org.matsim.core.replanning.selectors.RandomPlanSelector
 
 import scala.collection.JavaConverters._
 
-object ReplanningUtil {
+object ReplanningUtil extends LazyLogging {
 
   def makeExperiencedMobSimCompatible[T <: Plan, I](person: HasPlansAndId[T, I]): Unit = {
     val experiencedPlan = person.getSelectedPlan.getCustomAttributes
@@ -21,10 +22,20 @@ object ReplanningUtil {
       for (i <- 0 until (experiencedPlan.getPlanElements.size() - 1)) {
         experiencedPlan.getPlanElements.get(i) match {
           case leg: Leg =>
-            // Make sure it is not `null`
-            Option(x = person.getSelectedPlan.getPlanElements.get(i).getAttributes.getAttribute("vehicles")).foreach {
-              attibValue =>
+            try {
+              val planElements = person.getSelectedPlan.getPlanElements
+              val selectedPlanElement = planElements.get(i)
+              val vehiclesOfSelectedPlanElement = selectedPlanElement.getAttributes.getAttribute("vehicles")
+              // Make sure it is not `null`
+              Option(x = vehiclesOfSelectedPlanElement).foreach { attibValue =>
                 leg.getAttributes.putAttribute("vehicles", attibValue)
+              }
+            } catch {
+              case ex: Throwable =>
+                val text1 = s"Selected size: ${person.getSelectedPlan.getPlanElements.size()}"
+                val text2 = s"Experienced size: ${experiencedPlan.getPlanElements.size()}"
+                logger.error(s"Length of selected plans less than experienced plans. $text1. $text2.")
+                logger.error(s"The exception: ${ex.toString}")
             }
           case _ =>
         }
