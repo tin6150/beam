@@ -35,6 +35,13 @@ class ChargingNetwork(managerId: Id[VehicleManager], chargingStationsQTree: Quad
     chargingZoneKeyToChargingStationMap.flatMap(_._2.connectedVehicles)
 
   /**
+    * all vehicles waiting in line at a charging point
+    * @return
+    */
+  def waitingLineVehicles: Map[Id[BeamVehicle], ChargingVehicle] =
+    chargingZoneKeyToChargingStationMap.flatMap(_._2.waitingLineVehicles)
+
+  /**
     *
     * @return all vehicles, connected, and the ones waiting in line
     */
@@ -197,7 +204,11 @@ object ChargingNetwork {
     override def hashCode: Int = this.zone.hashCode()
   }
 
-  final case class ChargingCycle(startTime: Int, endTime: Int, energy: Double)
+  final case class ChargingCycle(startTime: Int, endTime: Int, energy: Double, maxDuration: Int) {
+    def didChargingAlreadyComplete: Boolean = (endTime - startTime) == 0
+    def willChargingCompleteDuringThisCycle: Boolean = (endTime - startTime) < maxDuration
+    def isChargingNotGoingToCompleteDuringThisCycle: Boolean = (endTime - startTime) >= maxDuration
+  }
 
   final case class ChargingVehicle(
     vehicle: BeamVehicle,
@@ -222,7 +233,7 @@ object ChargingNetwork {
       * @param duration duration of charging
       * @return boolean value expressing if the charging cycle has been added
       */
-    def processChargingCycle(startTime: Int, endTime: Int, energy: Double): Option[ChargingCycle] = {
+    def processChargingCycle(startTime: Int, endTime: Int, energy: Double, maxDuration: Int): Option[ChargingCycle] = {
       val addNewChargingCycle = chargingSessions.lastOption match {
         // first charging cycle
         case None => true
@@ -234,10 +245,24 @@ object ChargingNetwork {
           chargingSessions.remove(chargingSessions.length - 1)
           true
         // other cases where an unnecessary charging session happens when a vehicle is already charged or unplugged
-        case _ => false
+        case _ =>
+          logger.debug(
+            "Either Vehicle {} at Stall: {} had been disconnected before the charging cycle." +
+            "last charging cycle end time was {} while the current charging cycle end time is {}",
+            vehicle.id,
+            stall,
+            latestChargingCycle.map(_.endTime).getOrElse(-1),
+            endTime
+          )
+          logger.debug(
+            "Or the unplug request event for Vehicle {} arrived after it finished charging at time {}",
+            vehicle.id,
+            endTime
+          )
+          false
       }
       if (addNewChargingCycle) {
-        val newCycle = ChargingCycle(startTime, endTime, energy)
+        val newCycle = ChargingCycle(startTime, endTime, energy, maxDuration)
         chargingSessions.append(newCycle)
         Some(newCycle)
       } else None
@@ -266,6 +291,5 @@ object ChargingNetwork {
       )
       dur == 0
     }
-
   }
 }
