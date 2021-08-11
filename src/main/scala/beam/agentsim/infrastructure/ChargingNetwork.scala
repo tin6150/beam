@@ -8,6 +8,7 @@ import beam.agentsim.infrastructure.parking.ParkingType
 import beam.agentsim.infrastructure.taz.TAZ
 import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.Id
+import org.matsim.api.core.v01.population.Person
 import org.matsim.core.utils.collections.QuadTree
 
 import scala.collection.JavaConverters._
@@ -79,11 +80,16 @@ class ChargingNetwork(managerId: Id[VehicleManager], chargingStationsQTree: Quad
     * @param vehicle vehicle to charge
     * @return a tuple of the status of the charging vehicle and the connection status
     */
-  def attemptToConnectVehicle(tick: Int, vehicle: BeamVehicle, theSender: ActorRef): Option[ChargingVehicle] = {
+  def attemptToConnectVehicle(
+    tick: Int,
+    vehicle: BeamVehicle,
+    theSender: ActorRef,
+    personId: Id[Person]
+  ): Option[ChargingVehicle] = {
     vehicle.stall match {
       case Some(stall) =>
         lookupStation(stall.tazId, stall.parkingType, stall.chargingPointType.get) match {
-          case Some(station) => Some(station.connect(tick, vehicle, stall, theSender))
+          case Some(station) => Some(station.connect(tick, vehicle, stall, theSender, personId))
           case _ =>
             logger.error(
               s"CNM cannot find a $managerId station identified with tazId ${stall.tazId}, parkingType ${stall.parkingType} and chargingPointType ${stall.chargingPointType.get}. Attention required!"
@@ -146,14 +152,16 @@ object ChargingNetwork {
       tick: Int,
       vehicle: BeamVehicle,
       stall: ParkingStall,
-      theSender: ActorRef
+      theSender: ActorRef,
+      personId: Id[Person]
     ): ChargingVehicle = this.synchronized {
       if (numAvailableChargers > 0) {
-        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, tick, theSender, ListBuffer(Connected))
+        val chargingVehicle =
+          ChargingVehicle(vehicle, stall, this, tick, tick, theSender, personId, ListBuffer(Connected))
         connectedVehiclesInternal.put(vehicle.id, chargingVehicle)
         chargingVehicle
       } else {
-        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, -1, theSender, ListBuffer(Waiting))
+        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, -1, theSender, personId, ListBuffer(Waiting))
         waitingLineInternal.enqueue(chargingVehicle)
         chargingVehicle
       }
@@ -206,6 +214,7 @@ object ChargingNetwork {
     arrivalTime: Int,
     sessionStartTime: Int,
     theSender: ActorRef,
+    personId: Id[Person],
     connectionStatus: ListBuffer[ConnectionStatus.ConnectionStatus],
     chargingSessions: ListBuffer[ChargingCycle] = ListBuffer.empty[ChargingCycle]
   ) extends LazyLogging {
