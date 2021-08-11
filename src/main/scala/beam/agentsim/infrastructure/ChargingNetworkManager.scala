@@ -266,7 +266,7 @@ class ChargingNetworkManager(
         case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _, status, _)) =>
           if (status.last == Connected) {
             val (duration, energy) =
-              dispatchEnergy(Int.MaxValue, chargingVehicle, physicalBounds)
+              dispatchEnergy(cnmConfig.timeStepInSeconds, chargingVehicle, physicalBounds)
             chargingVehicle.processChargingCycle(tick, energy, duration)
           }
           ScheduleTrigger(
