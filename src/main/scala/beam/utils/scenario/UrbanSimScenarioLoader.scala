@@ -8,6 +8,7 @@ import beam.sim.common.GeoUtils
 import beam.sim.vehicles.VehiclesAdjustment
 import beam.utils.SequenceUtils
 import beam.utils.plan.sampling.AvailableModeUtils
+import beam.utils.scenario.urbansim.HOVModeTransformer
 import com.typesafe.scalalogging.LazyLogging
 import org.apache.commons.math3.distribution.UniformRealDistribution
 import org.matsim.api.core.v01.population.Population
@@ -103,7 +104,10 @@ class UrbanSimScenarioLoader(
     val persons = Await.result(personsF, 500.seconds)
     val households = Await.result(householdsF, 500.seconds)
 
-    val (plans, plansMerged) = previousRunPlanMerger.map(_.merge(inputPlans)).getOrElse(inputPlans -> false)
+    val (mergedPlans, plansMerged) = previousRunPlanMerger.map(_.merge(inputPlans)).getOrElse(inputPlans -> false)
+
+    HOVModeTransformer.reseedRandomGenerator(beamScenario.beamConfig.matsim.modules.global.randomSeed)
+    val plans = HOVModeTransformer.transformHOVtoHOVCARorHOVTeleportation(mergedPlans, persons, households)
 
     val householdIds = households.map(_.householdId.id).toSet
 
@@ -270,7 +274,7 @@ class UrbanSimScenarioLoader(
         None
     }
     val planTripStats = planElements.toSeq
-      .filter(_.planElementType == "activity")
+      .filter(_.planElementType == PlanElement.Activity)
       .sliding(2)
       .flatMap {
         case Seq(firstElement, secondElement, _*) =>
@@ -562,14 +566,14 @@ class UrbanSimScenarioLoader(
           person.setSelectedPlan(plan)
         }
         val planElement = planInfo.planElementType
-        if (planElement.equalsIgnoreCase("leg")) {
+        if (planElement == PlanElement.Leg) {
           planInfo.legMode match {
             case Some(mode) =>
               PopulationUtils.createAndAddLeg(plan, mode)
             case None =>
               PopulationUtils.createAndAddLeg(plan, "")
           }
-        } else if (planElement.equalsIgnoreCase("activity")) {
+        } else if (planElement == PlanElement.Activity) {
           assert(
             planInfo.activityLocationX.isDefined,
             s"planElement is `activity`, but `x` is None! planInfo: $planInfo"
