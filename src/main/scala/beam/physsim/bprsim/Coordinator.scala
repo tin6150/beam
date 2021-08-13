@@ -76,7 +76,7 @@ class Coordinator(
 
   var seqFuture: Future[Unit] = Future.successful(())
   private def asyncFlushEvents(events: Vector[Event]): Unit = {
-    logger.info(s"Going to flush ${events.size} events into events manager.")
+//    logger.info(s"Going to flush ${events.size} events into events manager.")
     seqFuture = seqFuture.flatMap(
       _ =>
         Future {
