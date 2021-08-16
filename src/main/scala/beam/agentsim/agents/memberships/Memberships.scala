@@ -47,7 +47,11 @@ object Memberships {
         * Members sorted by rank.
         */
       override val rankedMembers: Vector[MemberWithRank[Person]] = members.toVector
-        .map(mbr => MemberWithRank(mbr.getId, lookupMemberRank(mbr.getId)))
+        .map(member => {
+          assert(member != null)
+          val memberId = member.getId
+          MemberWithRank(memberId, lookupMemberRank(memberId))
+        })
         .sortWith(sortByRank)
 
     }
