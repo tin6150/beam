@@ -16,7 +16,6 @@ import beam.utils.TestConfigUtils.testConfig
 import beam.utils.{BeamVehicleUtils, TestConfigUtils}
 import com.typesafe.config.ConfigFactory
 import org.matsim.api.core.v01.Id
-import org.matsim.api.core.v01.population.Person
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting
 import org.matsim.core.utils.collections.QuadTree
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpecLike}
@@ -92,8 +91,6 @@ class SitePowerManagerSpec
 
   private val vehicleTypes = BeamVehicleUtils.readBeamVehicleTypeFile("test/input/beamville/vehicleTypes.csv")
 
-  val personId: Id[Person] = Id.createPersonId("dummyPerson")
-
   val dummyChargingZone: ChargingZone = ChargingZone(
     tazMap.getTAZs.head.tazId,
     ParkingType.Workplace,
@@ -163,7 +160,7 @@ class SitePowerManagerSpec
     "replan horizon and get charging plan per vehicle" in {
       vehiclesList.foreach { v =>
         v.addFuel(v.primaryFuelLevelInJoules * 0.9 * -1)
-        val Some(chargingVehicle) = dummyNetwork.attemptToConnectVehicle(0, v, ActorRef.noSender, personId)
+        val Some(chargingVehicle) = dummyNetwork.attemptToConnectVehicle(0, v, ActorRef.noSender)
         chargingVehicle shouldBe ChargingVehicle(
           v,
           v.stall.get,
@@ -171,7 +168,6 @@ class SitePowerManagerSpec
           0,
           0,
           ActorRef.noSender,
-          personId,
           ListBuffer(ConnectionStatus.Connected)
         )
         sitePowerManager.dispatchEnergy(

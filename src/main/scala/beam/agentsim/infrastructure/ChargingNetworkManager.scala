@@ -24,8 +24,6 @@ import beam.sim.config.BeamConfig
 import beam.utils.DateUtils
 import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.Id
-import org.matsim.api.core.v01.population.Person
-
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.language.postfixOps
@@ -107,7 +105,7 @@ class ChargingNetworkManager(
 
       val allConnectedVehicles = chargingNetworkMap.flatMap(_._2.connectedVehicles)
       val triggers = allConnectedVehicles.par.flatMap {
-        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _, _, _)) =>
+        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _, _)) =>
           // Refuel
           handleRefueling(chargingVehicle)
           // Calculate the energy to charge each vehicle connected to the a charging station
@@ -170,13 +168,13 @@ class ChargingNetworkManager(
       }
       sender ! CompletionNotice(triggerId)
 
-    case ChargingPlugRequest(tick, vehicle, vehicleManager, personId) =>
+    case ChargingPlugRequest(tick, vehicle, vehicleManager) =>
       log.debug(s"ChargingPlugRequest received for vehicle $vehicle at $tick and stall ${vehicle.stall}")
       if (vehicle.isBEV | vehicle.isPHEV) {
         val chargingNetwork = chargingNetworkMap(vehicleManager)
         // connecting the current vehicle
-        chargingNetwork.attemptToConnectVehicle(tick, vehicle, sender, personId) match {
-          case Some(ChargingVehicle(vehicle, _, station, _, _, _, _, status, _)) if status.last == Waiting =>
+        chargingNetwork.attemptToConnectVehicle(tick, vehicle, sender) match {
+          case Some(ChargingVehicle(vehicle, _, station, _, _, _, status, _)) if status.last == Waiting =>
             log.debug(
               s"Vehicle $vehicle is moved to waiting line at $tick in station $station, with {}/{} vehicles connected and {} in waiting line",
               station.connectedVehicles.size,
@@ -263,10 +261,10 @@ class ChargingNetworkManager(
     chargingNetworkMap
       .flatMap(_._2.vehicles)
       .map {
-        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _, status, _)) =>
+        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, status, _)) =>
           if (status.last == Connected) {
             val (duration, energy) =
-              dispatchEnergy(cnmConfig.timeStepInSeconds, chargingVehicle, physicalBounds)
+              dispatchEnergy(Int.MaxValue, chargingVehicle, physicalBounds)
             chargingVehicle.processChargingCycle(tick, energy, duration)
           }
           ScheduleTrigger(
@@ -287,7 +285,7 @@ class ChargingNetworkManager(
     * @param chargingVehicle charging vehicle information
     */
   private def handleStartCharging(tick: Int, chargingVehicle: ChargingVehicle): Unit = {
-    val ChargingVehicle(vehicle, stall, _, _, _, theSender, _, _, _) = chargingVehicle
+    val ChargingVehicle(vehicle, stall, _, _, _, theSender, _, _) = chargingVehicle
     log.debug(s"Starting charging for vehicle $vehicle at $tick")
     val physicalBounds = obtainPowerPhysicalBounds(tick, None)
     vehicle.connectToChargingPoint(tick)
@@ -312,7 +310,7 @@ class ChargingNetworkManager(
     chargingVehicle: ChargingVehicle,
     currentSenderMaybe: Option[ActorRef] = None
   ): Unit = {
-    val ChargingVehicle(vehicle, stall, _, _, _, _, _, _, _) = chargingVehicle
+    val ChargingVehicle(vehicle, stall, _, _, _, _, _, _) = chargingVehicle
     val chargingNetwork = chargingNetworkMap(stall.managerId)
     chargingNetwork.disconnectVehicle(chargingVehicle) match {
       case Some(cv) =>
@@ -394,8 +392,7 @@ class ChargingNetworkManager(
       vehicle.primaryFuelLevelInJoules - chargingVehicle.computeSessionEnergy,
       chargingVehicle.computeSessionDuration,
       vehicle.id,
-      vehicle.beamVehicleType,
-      chargingVehicle.personId
+      vehicle.beamVehicleType
     )
     log.debug(s"RefuelSessionEvent: $refuelSessionEvent")
     beamServices.matsimServices.getEvents.processEvent(refuelSessionEvent)
@@ -418,7 +415,7 @@ object ChargingNetworkManager extends LazyLogging {
   case class PlanEnergyDispatchTrigger(tick: Int) extends Trigger
   case class ChargingTimeOutTrigger(tick: Int, vehicleId: Id[BeamVehicle], managerId: Id[VehicleManager])
       extends Trigger
-  case class ChargingPlugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager], personId: Id[Person])
+  case class ChargingPlugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager])
   case class ChargingUnplugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager])
   case class StartingRefuelSession(tick: Int, vehicleId: Id[BeamVehicle])
   case class EndingRefuelSession(tick: Int, vehicleId: Id[BeamVehicle])

@@ -19,7 +19,6 @@ case class RefuelSessionEvent(
   sessionDuration: Double,
   val vehId: Id[Vehicle],
   vehicleType: BeamVehicleType,
-  personId: Id[Person],
   shiftStatus: ShiftStatus = NotApplicable
 ) extends Event(tick)
     with HasPersonId
@@ -57,7 +56,6 @@ case class RefuelSessionEvent(
     attributes.put(ATTRIBUTE_CHARGING_TYPE, chargingPointString)
     attributes.put(ATTRIBUTE_PARKING_TAZ, stall.tazId.toString)
     attributes.put(ATTRIBUTE_VEHICLE_TYPE, vehicleType.id.toString)
-    attributes.put(ATTRIBUTE_PERSON, personId.toString)
     attributes.put(ATTRIBUTE_SHIFT_STATUS, shiftStatusString)
     attributes
   }

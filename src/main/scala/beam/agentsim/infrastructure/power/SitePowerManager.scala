@@ -49,24 +49,18 @@ class SitePowerManager(chargingNetworkMap: Map[Id[VehicleManager], ChargingNetwo
     physicalBounds: Map[ChargingStation, PhysicalBounds]
   ): (ChargingDurationInSec, EnergyInJoules) = {
     assume(timeInterval >= 0, "timeInterval should not be negative!")
-    val ChargingVehicle(vehicle, _, station, _, _, _, _, _, _) = chargingVehicle
+    val ChargingVehicle(vehicle, _, station, _, _, _, _, _) = chargingVehicle
     // dispatch
     val maxZoneLoad = physicalBounds(station).powerLimitUpper
     val maxUnlimitedZoneLoad = unlimitedPhysicalBounds(station).powerLimitUpper
     val chargingPointLoad =
       ChargingPointType.getChargingPointInstalledPowerInKw(station.zone.chargingPointType)
     val chargingPowerLimit = maxZoneLoad * chargingPointLoad / maxUnlimitedZoneLoad
-    val (chargingDuration, energyToCharge) = vehicle.refuelingSessionDurationAndEnergyInJoules(
+    vehicle.refuelingSessionDurationAndEnergyInJoules(
       sessionDurationLimit = Some(timeInterval),
       stateOfChargeLimit = None,
       chargingPowerLimit = Some(chargingPowerLimit)
     )
-    if ((chargingDuration > 0 && energyToCharge == 0) || chargingDuration == 0 && energyToCharge > 0) {
-      logger.error(
-        s"chargingDuration is $chargingDuration while energyToCharge is $energyToCharge. Something is broken or due to physical bounds!!"
-      )
-    }
-    (chargingDuration, energyToCharge)
   }
 
   /**

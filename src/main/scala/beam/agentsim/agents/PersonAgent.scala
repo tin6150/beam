@@ -1243,7 +1243,7 @@ class PersonAgent(
       log.info(s"PersonAgent: EndRefuelSessionTrigger. tick: $tick, vehicle: $vehicle")
       if (vehicle.isConnectedToChargingPoint()) {
         val sessionDuration = tick - sessionStarted
-        handleEndCharging(tick, vehicle, sessionDuration, fuelAddedInJoule, Id.createPersonId(this.id.toString))
+        handleEndCharging(tick, vehicle, sessionDuration, fuelAddedInJoule)
       }
       stay() replying CompletionNotice(triggerId)
     case ev @ Event(RideHailResponse(_, _, _, _, _), _) =>

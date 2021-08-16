@@ -41,7 +41,6 @@ import org.matsim.api.core.v01.{Coord, Id}
 import org.matsim.core.api.experimental.events.EventsManager
 import org.matsim.core.utils.misc.Time
 import org.matsim.vehicles.Vehicle
-import org.matsim.api.core.v01.population.Person
 
 import scala.collection.mutable
 
@@ -823,7 +822,7 @@ class RideHailAgent(
       log.debug("state(RideHailingAgent.Refueling.EndRefuelTrigger): {}", ev)
       holdTickAndTriggerId(tick, triggerId)
       if (debugEnabled) outgoingMessages += ev
-      handleEndRefuel(energyInJoules, tick, sessionStart.toInt, Id.createPersonId(this.id.toString))
+      handleEndRefuel(energyInJoules, tick, sessionStart.toInt)
       if (isCurrentlyOnShift && !needsToEndShift) {
         goto(Idle)
       } else {
@@ -860,7 +859,7 @@ class RideHailAgent(
     }
   }
 
-  def handleEndRefuel(energyInJoules: Double, tick: Int, sessionStart: Int, personId: Id[Person]): Unit = {
+  def handleEndRefuel(energyInJoules: Double, tick: Int, sessionStart: Int): Unit = {
     vehicle.addFuel(energyInJoules)
     val refuelSessionEvent = new RefuelSessionEvent(
       tick,
@@ -870,7 +869,6 @@ class RideHailAgent(
       tick - sessionStart,
       vehicle.id,
       vehicle.beamVehicleType,
-      personId,
       if (isCurrentlyOnShift) { OnShift } else { OffShift }
     )
     lastLocationOfRefuel = Some(vehicle.stall.get.locationUTM)

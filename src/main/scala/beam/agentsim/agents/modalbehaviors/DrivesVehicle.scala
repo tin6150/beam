@@ -390,8 +390,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
                   chargingNetworkManager ! ChargingPlugRequest(
                     tick,
                     currentBeamVehicle,
-                    VehicleManager.privateVehicleManager.managerId,
-                    Id.createPersonId(this.id.toString)
+                    VehicleManager.privateVehicleManager.managerId
                   )
                   waitForConnectionToChargingPoint = true
                 case None => // this should only happen rarely
@@ -833,7 +832,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
       log.info(s"DrivesVehicle: EndRefuelSessionTrigger. tick: $tick, vehicle: $vehicle")
       if (vehicle.isConnectedToChargingPoint()) {
         val sessionDuration = tick - sessionStarted
-        handleEndCharging(tick, vehicle, sessionDuration, fuelAddedInJoule, Id.createPersonId(this.id.toString))
+        handleEndCharging(tick, vehicle, sessionDuration, fuelAddedInJoule)
       }
       stay() replying CompletionNotice(triggerId)
   }
@@ -890,8 +889,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
     currentTick: Int,
     vehicle: BeamVehicle,
     chargingDuration: Long,
-    energyInJoules: Double,
-    personId: Id[Person]
+    energyInJoules: Double
   ): Unit = {
     log.debug(
       "Ending refuel session for {} in tick {}. Provided {} J. during {}",
@@ -908,8 +906,7 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
       vehicle.primaryFuelLevelInJoules - energyInJoules,
       chargingDuration,
       vehicle.id,
-      vehicle.beamVehicleType,
-      personId
+      vehicle.beamVehicleType
     )
     log.info(s"RefuelSessionEvent: $refuelSessionEvent")
     eventsManager.processEvent(refuelSessionEvent)
