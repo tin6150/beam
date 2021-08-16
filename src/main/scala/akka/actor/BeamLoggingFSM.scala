@@ -10,7 +10,7 @@ trait BeamLoggingFSM[S, D] extends FSM[S, D] { this: Actor =>
 
   def logDepth: Int = 0
 
-  private[akka] override val debugEvent = true // context.system.settings.FsmDebugEvent
+  private[akka] override val debugEvent = context.system.settings.FsmDebugEvent
 
   private val events = new Array[Event](logDepth)
   private val states = new Array[AnyRef](logDepth)
@@ -35,7 +35,7 @@ trait BeamLoggingFSM[S, D] extends FSM[S, D] { this: Actor =>
         case a: ActorRef             => a.toString
         case _                       => "unknown"
       }
-      log.info("###FSM### {} processing {} from {} in state {}", this.self, event, srcstr, stateName)
+      log.debug("###FSM### {} processing {} from {} in state {}", this.self, event, srcstr, stateName)
     }
 
     if (logDepth > 0) {
@@ -49,7 +49,7 @@ trait BeamLoggingFSM[S, D] extends FSM[S, D] { this: Actor =>
     val newState = stateName
 
     if (debugEvent && oldState != newState)
-      log.info("###FSM-transition### actor:" + self.toString() + " transition: " + oldState + " -> " + newState)
+      log.debug("###FSM-transition### actor:" + self.toString() + " transition: " + oldState + " -> " + newState)
   }
 
   /**

@@ -530,7 +530,6 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
       }
     case ev @ Event(Resume, _) =>
       log.debug("state(DrivesVehicle.DrivingInterrupted): {}", ev)
-      logger.info(s"GOTO(DRIVING) because of event $ev")
       goto(Driving)
     case ev @ Event(TriggerWithId(EndLegTrigger(_), _), _) =>
       log.debug("state(DrivesVehicle.DrivingInterrupted): {}", ev)
@@ -635,14 +634,11 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
           .head
           ._1
         val endTime = tick + beamLeg.duration
-        val ldd = LiterallyDrivingData(data, endTime, Some(tick))
-        val cn = CompletionNotice(
+        goto(Driving) using LiterallyDrivingData(data, endTime, Some(tick))
+          .asInstanceOf[T] replying CompletionNotice(
           triggerId,
           triggerToSchedule ++ Vector(ScheduleTrigger(EndLegTrigger(endTime), self))
         )
-        logger.info(s"GOTO(DRIVING) ${ldd.toString} | ${cn.toString}")
-        goto(Driving) using ldd
-          .asInstanceOf[T] replying cn
       }
     case ev @ Event(Interrupt(interruptId, tick), _) =>
       log.debug("state(DrivesVehicle.WaitingToDrive): {}", ev)
