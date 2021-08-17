@@ -98,6 +98,7 @@ class HierarchicalParkingManagerSpec
           new Random(randomSeed),
           tazId = TAZ.EmergencyTAZId,
           geoId = LinkLevelOperations.EmergencyLinkId,
+          activityLocation = inquiry.destinationUtm
         )
 
         val response = parkingManager.processParkingInquiry(inquiry)
@@ -139,6 +140,7 @@ class HierarchicalParkingManagerSpec
         new Random(randomSeed),
         tazId = TAZ.EmergencyTAZId,
         geoId = LinkLevelOperations.EmergencyLinkId,
+        activityLocation = inquiry.destinationUtm
       )
 
       val response = parkingManager.processParkingInquiry(inquiry)
@@ -197,7 +199,8 @@ class HierarchicalParkingManagerSpec
             None,
             Some(PricingModel.FlatFee(12.34)),
             ParkingType.Workplace,
-            VehicleManager.privateVehicleManager.managerId
+            VehicleManager.privateVehicleManager.managerId,
+            activityLocation = firstInquiry.destinationUtm
           )
         val response1 = parkingManager.processParkingInquiry(firstInquiry)
         assert(response1.isDefined, "no response")
@@ -273,6 +276,7 @@ class HierarchicalParkingManagerSpec
             Some(PricingModel.FlatFee(12.34)),
             ParkingType.Workplace,
             VehicleManager.privateVehicleManager.managerId,
+            activityLocation = secondInquiry.destinationUtm
           )
 
         // request the stall

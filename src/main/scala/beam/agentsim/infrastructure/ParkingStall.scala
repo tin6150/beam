@@ -20,7 +20,8 @@ case class ParkingStall(
   chargingPointType: Option[ChargingPointType],
   pricingModel: Option[PricingModel],
   parkingType: ParkingType,
-  managerId: Id[VehicleManager]
+  managerId: Id[VehicleManager],
+  activityLocation: Location
 )
 
 object ParkingStall {
@@ -32,7 +33,7 @@ object ParkingStall {
     * @param coord the location for the stall
     * @return a new parking stall with the default Id[Taz] and parkingZoneId
     */
-  def defaultStall(coord: Coord): ParkingStall = ParkingStall(
+  def defaultStall(coord: Coord, activityLocation: Location): ParkingStall = ParkingStall(
     geoId = TAZ.DefaultTAZId,
     tazId = TAZ.DefaultTAZId,
     parkingZoneId = ParkingZone.DefaultParkingZoneId,
@@ -41,7 +42,8 @@ object ParkingStall {
     chargingPointType = None,
     pricingModel = None,
     parkingType = ParkingType.Public,
-    VehicleManager.privateVehicleManager.managerId
+    VehicleManager.privateVehicleManager.managerId,
+    activityLocation = activityLocation
   )
 
   /**
@@ -58,6 +60,7 @@ object ParkingStall {
     costInDollars: Double = CostOfEmergencyStallInDollars,
     tazId: Id[TAZ] = TAZ.EmergencyTAZId,
     geoId: Id[_],
+    activityLocation: Location
   ): ParkingStall = {
     val x = random.nextDouble() * (boundingBox.getMaxX - boundingBox.getMinX) + boundingBox.getMinX
     val y = random.nextDouble() * (boundingBox.getMaxY - boundingBox.getMinY) + boundingBox.getMinY
@@ -71,7 +74,8 @@ object ParkingStall {
       chargingPointType = None,
       pricingModel = Some { PricingModel.FlatFee(costInDollars.toInt) },
       parkingType = ParkingType.Public,
-      VehicleManager.privateVehicleManager.managerId
+      VehicleManager.privateVehicleManager.managerId,
+      activityLocation = activityLocation
     )
   }
 
@@ -97,7 +101,8 @@ object ParkingStall {
     chargingPointType = None,
     pricingModel = Some { PricingModel.FlatFee(0) },
     parkingType = ParkingType.Residential,
-    VehicleManager.privateVehicleManager.managerId
+    VehicleManager.privateVehicleManager.managerId,
+    activityLocation = locationUTM
   )
 
   /**
@@ -123,7 +128,8 @@ object ParkingStall {
       parkingAlternative.parkingZone.chargingPointType,
       None,
       parkingAlternative.parkingType,
-      vehicleManagerId
+      vehicleManagerId,
+      parkingAlternative.activityLocation
     )
   }
 

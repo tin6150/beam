@@ -390,7 +390,8 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
                   chargingNetworkManager ! ChargingPlugRequest(
                     tick,
                     currentBeamVehicle,
-                    VehicleManager.privateVehicleManager.managerId
+                    VehicleManager.privateVehicleManager.managerId,
+                    Id.createPersonId(this.id.toString)
                   )
                   waitForConnectionToChargingPoint = true
                 case None => // this should only happen rarely
@@ -905,7 +906,8 @@ trait DrivesVehicle[T <: DrivingData] extends BeamAgent[T] with Stash with Expon
       vehicle.primaryFuelLevelInJoules - energyInJoules,
       chargingDuration,
       vehicle.id,
-      vehicle.beamVehicleType
+      vehicle.beamVehicleType,
+      Id.createPersonId(this.id.toString)
     )
     log.info(s"RefuelSessionEvent: $refuelSessionEvent")
     eventsManager.processEvent(refuelSessionEvent)

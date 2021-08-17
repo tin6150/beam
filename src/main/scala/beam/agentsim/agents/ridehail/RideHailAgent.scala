@@ -868,6 +868,7 @@ class RideHailAgent(
       tick - sessionStart,
       vehicle.id,
       vehicle.beamVehicleType,
+      Id.createPersonId(this.id.toString),
       if (isCurrentlyOnShift) { OnShift } else { OffShift }
     )
     lastLocationOfRefuel = Some(vehicle.stall.get.locationUTM)

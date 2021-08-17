@@ -100,7 +100,8 @@ object ParkingZoneSearch {
     parkingType: ParkingType,
     parkingZone: ParkingZone[GEO],
     coord: Coord,
-    costInDollars: Double
+    costInDollars: Double,
+    activityLocation: Location
   )
 
   /**
@@ -175,7 +176,14 @@ object ParkingZoneSearch {
                   PricingModel.evaluateParkingTicket(pricingModel, params.parkingDuration.toInt)
               }
             val parkingAlternative: ParkingAlternative[GEO] =
-              ParkingAlternative(zone, parkingType, parkingZone, stallLocation, stallPriceInDollars)
+              ParkingAlternative(
+                zone,
+                parkingType,
+                parkingZone,
+                stallLocation,
+                stallPriceInDollars,
+                params.destinationUTM
+              )
             val parkingAlternativeUtility: Map[ParkingMNL.Parameters, Double] =
               parkingZoneMNLParamsFunction(parkingAlternative)
             ParkingSearchAlternative(
@@ -210,7 +218,8 @@ object ParkingZoneSearch {
             )
 
           mnl.sampleAlternative(alternativesToSample, params.random).map { result =>
-            val ParkingAlternative(taz, parkingType, parkingZone, coordinate, costInDollars) = result.alternativeType
+            val ParkingAlternative(taz, parkingType, parkingZone, coordinate, costInDollars, activityLocationUTM) =
+              result.alternativeType
 
             // create a new stall instance. you win!
             val parkingStall = ParkingStall(
@@ -222,7 +231,8 @@ object ParkingZoneSearch {
               parkingZone.chargingPointType,
               parkingZone.pricingModel,
               parkingType,
-              parkingZone.vehicleManagerId
+              parkingZone.vehicleManagerId,
+              activityLocationUTM
             )
 
             val theseParkingZoneIds: List[Int] = alternatives.map { _.parkingAlternative.parkingZone.parkingZoneId }

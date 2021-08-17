@@ -5,7 +5,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import beam.agentsim.agents.vehicles.EnergyEconomyAttributes.Powertrain
 import beam.agentsim.agents.vehicles.{BeamVehicle, BeamVehicleType, VehicleManager}
 import beam.agentsim.infrastructure.ChargingNetwork.{ChargingStation, ChargingVehicle, ConnectionStatus}
-import beam.agentsim.infrastructure.ChargingNetworkManager.ChargingZone
+import beam.agentsim.infrastructure.ChargingNetworkManager.{ChargingPlugRequest, ChargingZone}
 import beam.agentsim.infrastructure.charging.ChargingPointType
 import beam.agentsim.infrastructure.parking.{ParkingType, PricingModel}
 import beam.agentsim.infrastructure.{ChargingNetwork, ParkingStall}
@@ -16,6 +16,7 @@ import beam.utils.TestConfigUtils.testConfig
 import beam.utils.{BeamVehicleUtils, TestConfigUtils}
 import com.typesafe.config.ConfigFactory
 import org.matsim.api.core.v01.Id
+import org.matsim.api.core.v01.population.Person
 import org.matsim.core.controler.OutputDirectoryHierarchy.OverwriteFileSetting
 import org.matsim.core.utils.collections.QuadTree
 import org.scalatest.{BeforeAndAfterEach, Matchers, WordSpecLike}
@@ -108,6 +109,7 @@ class SitePowerManagerSpec
       Some(dummyChargingZone.pricingModel),
       dummyChargingZone.parkingType,
       managerId = VehicleManager.privateVehicleManager.managerId,
+      tazMap.getTAZ(dummyChargingZone.tazId).get.coord
     )
     val v1 = new BeamVehicle(
       Id.createVehicleId("id1"),
@@ -115,15 +117,17 @@ class SitePowerManagerSpec
       vehicleTypes(Id.create("PHEV", classOf[BeamVehicleType])),
       managerId = VehicleManager.privateVehicleManager.managerId
     )
+    val person1: Id[Person] = Id.createPersonId("dummyPerson1")
     val v2 = new BeamVehicle(
       Id.createVehicleId("id2"),
       new Powertrain(0.0),
       vehicleTypes(Id.create("BEV", classOf[BeamVehicleType])),
       managerId = VehicleManager.privateVehicleManager.managerId
     )
+    val person2: Id[Person] = Id.createPersonId("dummyPerson2")
     v1.useParkingStall(parkingStall1)
     v2.useParkingStall(parkingStall1.copy())
-    List(v1, v2)
+    List((v1, person1), (v2, person2))
   }
 
   val zoneTree = new QuadTree[ChargingZone](
@@ -148,30 +152,33 @@ class SitePowerManagerSpec
       )
     }
     "get power over planning horizon greater than 0.0 for discharged vehicles" in {
-      val vehiclesMap = Map(vehiclesList.map(v => v.id -> v): _*)
+      val vehiclesMap = Map(vehiclesList.map { case (v, _) => v.id -> v }: _*)
       vehiclesMap.foreach(_._2.addFuel(-10000))
       sitePowerManager.requiredPowerInKWOverNextPlanningHorizon(300) shouldBe Map(
         ChargingStation(dummyChargingZone) -> 0.0
       )
     }
     "replan horizon and get charging plan per vehicle" in {
-      vehiclesList.foreach { v =>
-        v.addFuel(v.primaryFuelLevelInJoules * 0.9 * -1)
-        val chargingVehicle = dummyNetwork.attemptToConnectVehicle(0, v, ActorRef.noSender)
-        chargingVehicle.status shouldBe ConnectionStatus.Connected
-        chargingVehicle shouldBe ChargingVehicle(
-          v,
-          v.stall.get,
-          dummyStation,
-          0,
-          0,
-          ActorRef.noSender
-        )
-        sitePowerManager.dispatchEnergy(
-          300,
-          chargingVehicle,
-          SitePowerManager.getUnlimitedPhysicalBounds(Seq(dummyStation)).value
-        ) should (be((1, 250000.0)) or be((300, 7.5E7)))
+      vehiclesList.foreach {
+        case (v, person) =>
+          v.addFuel(v.primaryFuelLevelInJoules * 0.9 * -1)
+          val req = ChargingPlugRequest(0, v, VehicleManager.privateVehicleManager.managerId, person)
+          val chargingVehicle = dummyNetwork.attemptToConnectVehicle(req, ActorRef.noSender)
+          chargingVehicle.status shouldBe ConnectionStatus.Connected
+          chargingVehicle shouldBe ChargingVehicle(
+            v,
+            v.stall.get,
+            dummyStation,
+            0,
+            0,
+            person,
+            ActorRef.noSender
+          )
+          sitePowerManager.dispatchEnergy(
+            300,
+            chargingVehicle,
+            SitePowerManager.getUnlimitedPhysicalBounds(Seq(dummyStation)).value
+          ) should (be((1, 250000.0)) or be((300, 7.5E7)))
       }
 
     }

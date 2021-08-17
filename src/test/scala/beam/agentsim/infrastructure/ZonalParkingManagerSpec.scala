@@ -99,6 +99,7 @@ class ZonalParkingManagerSpec
           ),
           new Random(randomSeed),
           geoId = TAZ.EmergencyTAZId,
+          activityLocation = inquiry.destinationUtm
         )
 
         val response = zonalParkingManager.processParkingInquiry(inquiry)
@@ -153,7 +154,8 @@ class ZonalParkingManagerSpec
             None,
             Some(PricingModel.FlatFee(12.34)),
             ParkingType.Workplace,
-            VehicleManager.privateVehicleManager.managerId
+            VehicleManager.privateVehicleManager.managerId,
+            activityLocation = firstInquiry.destinationUtm
           )
         val response1 = zonalParkingManager.processParkingInquiry(firstInquiry)
         assert(response1.isDefined, "no response")
@@ -219,7 +221,8 @@ class ZonalParkingManagerSpec
             Some(xfcChargingPoint),
             Some(PricingModel.FlatFee(12.34)),
             ParkingType.Workplace,
-            VehicleManager.privateVehicleManager.managerId
+            VehicleManager.privateVehicleManager.managerId,
+            activityLocation = firstInquiry.destinationUtm
           )
         val response1 = zonalParkingManager.processParkingInquiry(firstInquiry)
         assert(response1.isDefined, "no response")
@@ -286,7 +289,8 @@ class ZonalParkingManagerSpec
             None,
             Some(PricingModel.FlatFee(12.34)),
             ParkingType.Workplace,
-            VehicleManager.privateVehicleManager.managerId
+            VehicleManager.privateVehicleManager.managerId,
+            activityLocation = secondInquiry.destinationUtm
           )
 
         // request the stall
@@ -519,7 +523,8 @@ class ZonalParkingManagerSpec
         None,
         Some(pricingModel),
         parkingType,
-        vehicleManagerId
+        vehicleManagerId,
+        activityLocation = inquiry.destinationUtm
       )
     assert(response.isDefined, "no response")
     assert(response.get == ParkingInquiryResponse(expectedStall, inquiry.requestId), "something is wildly broken")

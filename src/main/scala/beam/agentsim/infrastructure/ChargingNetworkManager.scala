@@ -22,6 +22,7 @@ import beam.sim.BeamServices
 import beam.sim.config.BeamConfig
 import beam.utils.DateUtils
 import org.matsim.api.core.v01.Id
+import org.matsim.api.core.v01.population.Person
 
 import java.util.concurrent.TimeUnit
 import scala.language.postfixOps
@@ -103,7 +104,7 @@ class ChargingNetworkManager(
 
       val allConnectedVehicles = chargingNetworkMap.flatMap(_._2.connectedVehicles)
       val triggers = allConnectedVehicles.par.flatMap {
-        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _)) =>
+        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _)) =>
           // Refuel
           handleRefueling(chargingVehicle)
           // Calculate the energy to charge each vehicle connected to the a charging station
@@ -155,13 +156,14 @@ class ChargingNetworkManager(
       }
       sender ! CompletionNotice(triggerId)
 
-    case ChargingPlugRequest(tick, vehicle, vehicleManager) =>
+    case request @ ChargingPlugRequest(tick, vehicle, vehicleManager, _) =>
       log.debug(s"ChargingPlugRequest received for vehicle $vehicle at $tick and stall ${vehicle.stall}")
       if (vehicle.isBEV | vehicle.isPHEV) {
         val chargingNetwork = chargingNetworkMap(vehicleManager)
         // connecting the current vehicle
-        chargingNetwork.attemptToConnectVehicle(tick, vehicle, sender) match {
-          case chargingVehicle @ ChargingVehicle(vehicle, _, station, _, _, _) if chargingVehicle.status == Waiting =>
+        chargingNetwork.attemptToConnectVehicle(request, sender) match {
+          case chargingVehicle @ ChargingVehicle(vehicle, _, station, _, _, _, _)
+              if chargingVehicle.status == Waiting =>
             log.debug(
               s"Vehicle $vehicle is moved to waiting line at $tick in station $station, with {}/{} vehicles connected and {} in waiting line",
               station.connectedVehicles.size,
@@ -243,7 +245,7 @@ class ChargingNetworkManager(
     chargingNetworkMap
       .flatMap(_._2.vehicles)
       .map {
-        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _)) =>
+        case (_, chargingVehicle @ ChargingVehicle(vehicle, stall, _, _, _, _, _)) =>
           if (chargingVehicle.status == Connected) {
             val (duration, energy) =
               dispatchEnergy(Int.MaxValue, chargingVehicle, physicalBounds)
@@ -267,7 +269,7 @@ class ChargingNetworkManager(
     * @param chargingVehicle charging vehicle information
     */
   private def handleStartCharging(tick: Int, chargingVehicle: ChargingVehicle): Unit = {
-    val ChargingVehicle(vehicle, stall, _, _, _, theSender) = chargingVehicle
+    val ChargingVehicle(vehicle, stall, _, _, _, _, theSender) = chargingVehicle
     log.debug(s"Starting charging for vehicle $vehicle at $tick")
     val physicalBounds = obtainPowerPhysicalBounds(tick, None)
     vehicle.connectToChargingPoint(tick)
@@ -293,7 +295,7 @@ class ChargingNetworkManager(
     currentSenderMaybe: Option[ActorRef] = None,
     synchronize: Boolean
   ): Unit = {
-    val ChargingVehicle(vehicle, stall, _, _, _, _) = chargingVehicle
+    val ChargingVehicle(vehicle, stall, _, _, _, _, _) = chargingVehicle
     val chargingNetwork = chargingNetworkMap(stall.managerId)
     (if (synchronize) {
        chargingNetwork.synchronized {
@@ -366,7 +368,8 @@ class ChargingNetworkManager(
       vehicle.primaryFuelLevelInJoules - chargingVehicle.computeSessionEnergy,
       chargingVehicle.computeSessionDuration,
       vehicle.id,
-      vehicle.beamVehicleType
+      vehicle.beamVehicleType,
+      chargingVehicle.personId
     )
     log.debug(s"RefuelSessionEvent: $refuelSessionEvent")
     beamServices.matsimServices.getEvents.processEvent(refuelSessionEvent)
@@ -388,7 +391,7 @@ object ChargingNetworkManager {
   case class PlanEnergyDispatchTrigger(tick: Int) extends Trigger
   case class ChargingTimeOutTrigger(tick: Int, vehicleId: Id[BeamVehicle], managerId: Id[VehicleManager])
       extends Trigger
-  case class ChargingPlugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager])
+  case class ChargingPlugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager], personId: Id[Person])
   case class ChargingUnplugRequest(tick: Int, vehicle: BeamVehicle, managerId: Id[VehicleManager])
   case class StartingRefuelSession(tick: Int, vehicleId: Id[BeamVehicle])
   case class EndingRefuelSession(tick: Int, vehicleId: Id[BeamVehicle])

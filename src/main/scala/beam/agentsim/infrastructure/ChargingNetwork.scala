@@ -2,9 +2,10 @@ package beam.agentsim.infrastructure
 
 import akka.actor.ActorRef
 import beam.agentsim.agents.vehicles.{BeamVehicle, VehicleManager}
-import beam.agentsim.infrastructure.ChargingNetworkManager.ChargingZone
+import beam.agentsim.infrastructure.ChargingNetworkManager.{ChargingPlugRequest, ChargingZone}
 import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.Id
+import org.matsim.api.core.v01.population.Person
 import org.matsim.core.utils.collections.QuadTree
 
 import scala.collection.JavaConverters._
@@ -67,10 +68,13 @@ class ChargingNetwork(managerId: Id[VehicleManager], chargingStationsQTree: Quad
     * @param vehicle vehicle to charge
     * @return a tuple of the status of the charging vehicle and the connection status
     */
-  def attemptToConnectVehicle(tick: Int, vehicle: BeamVehicle, theSender: ActorRef): ChargingVehicle = {
-    vehicle.stall match {
-      case Some(stall) => lookupStation(stall).map(station => station.connect(tick, vehicle, stall, theSender)).get
-      case _           => throw new RuntimeException(s"Vehicle $vehicle doesn't have a stall!")
+  def attemptToConnectVehicle(request: ChargingPlugRequest, theSender: ActorRef): ChargingVehicle = {
+    request.vehicle.stall match {
+      case Some(stall) =>
+        lookupStation(stall)
+          .map(station => station.connect(request.tick, request.vehicle, stall, request.personId, theSender))
+          .get
+      case _ => throw new RuntimeException(s"Vehicle ${request.vehicle} doesn't have a stall!")
     }
   }
 
@@ -130,15 +134,16 @@ object ChargingNetwork {
       tick: Int,
       vehicle: BeamVehicle,
       stall: ParkingStall,
+      personId: Id[Person],
       theSender: ActorRef
     ): ChargingVehicle = {
       if (numAvailableChargers > 0) {
-        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, tick, theSender)
+        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, tick, personId, theSender)
         chargingVehicle.updateStatus(Connected)
         connectedVehiclesInternal.put(vehicle.id, chargingVehicle)
         chargingVehicle
       } else {
-        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, -1, theSender)
+        val chargingVehicle = ChargingVehicle(vehicle, stall, this, tick, -1, personId, theSender)
         chargingVehicle.updateStatus(Waiting)
         waitingLineInternal.enqueue(chargingVehicle)
         chargingVehicle
@@ -185,6 +190,7 @@ object ChargingNetwork {
     chargingStation: ChargingStation,
     arrivalTime: Int,
     sessionStartTime: Int,
+    personId: Id[Person],
     theSender: ActorRef
   ) extends LazyLogging {
     import ConnectionStatus._
