@@ -1348,7 +1348,7 @@ object BeamConfig {
                 else com.typesafe.config.ConfigFactory.parseString("surgePricing{}")
               ),
               vehicleManagerId =
-                if (c.hasPathOrNull("vehicleManagerId")) c.getString("vehicleManagerId") else "ride-hail-default"
+                if (c.hasPathOrNull("vehicleManagerId")) c.getString("vehicleManagerId") else "GlobalRHM"
             )
           }
         }
@@ -2372,14 +2372,47 @@ object BeamConfig {
     }
 
     case class Exchange(
+      output: BeamConfig.Beam.Exchange.Output,
       scenario: BeamConfig.Beam.Exchange.Scenario
     )
 
     object Exchange {
+      case class Output(
+        activitySimSkimsEnabled: scala.Boolean,
+        geo: BeamConfig.Beam.Exchange.Output.Geo
+      )
+
+      object Output {
+        case class Geo(
+          filePath: scala.Option[java.lang.String]
+        )
+
+        object Geo {
+
+          def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Exchange.Output.Geo = {
+            BeamConfig.Beam.Exchange.Output.Geo(
+              filePath = if (c.hasPathOrNull("filePath")) Some(c.getString("filePath")) else None
+            )
+          }
+        }
+
+        def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Exchange.Output = {
+          BeamConfig.Beam.Exchange.Output(
+            activitySimSkimsEnabled = c.hasPathOrNull("activitySimSkimsEnabled") && c.getBoolean(
+              "activitySimSkimsEnabled"
+            ),
+            geo = BeamConfig.Beam.Exchange.Output.Geo(
+              if (c.hasPathOrNull("geo")) c.getConfig("geo") else com.typesafe.config.ConfigFactory.parseString("geo{}")
+            )
+          )
+        }
+      }
+
       case class Scenario(
         convertWgs2Utm: scala.Boolean,
         fileFormat: java.lang.String,
         folder: java.lang.String,
+        modeMap: scala.Option[scala.List[java.lang.String]],
         source: java.lang.String,
         urbansim: BeamConfig.Beam.Exchange.Scenario.Urbansim
       )
@@ -2403,6 +2436,7 @@ object BeamConfig {
             convertWgs2Utm = c.hasPathOrNull("convertWgs2Utm") && c.getBoolean("convertWgs2Utm"),
             fileFormat = if (c.hasPathOrNull("fileFormat")) c.getString("fileFormat") else "xml",
             folder = if (c.hasPathOrNull("folder")) c.getString("folder") else "",
+            modeMap = if (c.hasPathOrNull("modeMap")) scala.Some($_L$_str(c.getList("modeMap"))) else None,
             source = if (c.hasPathOrNull("source")) c.getString("source") else "Beam",
             urbansim = BeamConfig.Beam.Exchange.Scenario.Urbansim(
               if (c.hasPathOrNull("urbansim")) c.getConfig("urbansim")
@@ -2414,6 +2448,10 @@ object BeamConfig {
 
       def apply(c: com.typesafe.config.Config): BeamConfig.Beam.Exchange = {
         BeamConfig.Beam.Exchange(
+          output = BeamConfig.Beam.Exchange.Output(
+            if (c.hasPathOrNull("output")) c.getConfig("output")
+            else com.typesafe.config.ConfigFactory.parseString("output{}")
+          ),
           scenario = BeamConfig.Beam.Exchange.Scenario(
             if (c.hasPathOrNull("scenario")) c.getConfig("scenario")
             else com.typesafe.config.ConfigFactory.parseString("scenario{}")

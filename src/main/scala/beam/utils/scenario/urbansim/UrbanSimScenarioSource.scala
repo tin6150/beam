@@ -85,10 +85,12 @@ class UrbanSimScenarioSource(
     val householdInfo = rdr.readHouseholdsFile(householdFilePath)
     val householdIdToCoord = getHouseholdIdToCoord(householdInfo)
     householdInfo.map { householdInfo =>
-      val coord = householdIdToCoord.getOrElse(householdInfo.householdId, {
-        logger.warn("Could not find coordinate for `householdId` '{}'", householdInfo.householdId)
-        new Coord(0, 0)
-      })
+      val coord = householdIdToCoord.getOrElse(
+        householdInfo.householdId, {
+          logger.warn("Could not find coordinate for `householdId` '{}'", householdInfo.householdId)
+          new Coord(0, 0)
+        }
+      )
       HouseholdInfo(
         householdId = HouseholdId(householdInfo.householdId),
         cars = householdInfo.cars,
@@ -108,10 +110,12 @@ class UrbanSimScenarioSource(
     }
     householdsWithMembers.map { hh =>
       // Coordinates already converted, so we should not use `wgs2Utm` again
-      val coord = unitIdToCoord.getOrElse(hh.unitId, {
-        logger.warn(s"Could not find coordinate for `household` ${hh.householdId} and `unitId`'${hh.unitId}'")
-        new Coord(0, 0)
-      })
+      val coord = unitIdToCoord.getOrElse(
+        hh.unitId, {
+          logger.warn(s"Could not find coordinate for `household` ${hh.householdId} and `unitId`'${hh.unitId}'")
+          new Coord(0, 0)
+        }
+      )
       hh.householdId -> coord
     }.toMap
   }
@@ -140,10 +144,12 @@ class UrbanSimScenarioSource(
       case (unitId, buildingId) =>
         val coord = buildingId2ToParcelId.get(buildingId) match {
           case Some(parcelId) =>
-            parcelIdToCoord.getOrElse(parcelId, {
-              logger.warn(s"Could not find coordinate for `parcelId` '$parcelId'")
-              new Coord(0, 0)
-            })
+            parcelIdToCoord.getOrElse(
+              parcelId, {
+                logger.warn(s"Could not find coordinate for `parcelId` '$parcelId'")
+                new Coord(0, 0)
+              }
+            )
           case None =>
             logger.warn(s"Could not find `parcelId` for `building_id` '$buildingId'")
             new Coord(0, 0)
@@ -156,11 +162,11 @@ class UrbanSimScenarioSource(
     val correctPlanElements = rawPlans
       .groupBy(x => x.personId)
       .filter {
-        case (k, v) =>
+        case (_, v) =>
           val isCorrupted = v.exists(x => x.planElementIndex == 1 && x.endTime.isEmpty)
           !isCorrupted
       }
-      .flatMap { case (k, v) => v.sortBy(x => x.planElementIndex) }
+      .flatMap { case (_, v) => v.sortBy(x => x.planElementIndex) }
       .toArray
     correctPlanElements
   }

@@ -50,7 +50,8 @@ object BeamConfigUtils {
       }
 
       unprocessedPaths.foldLeft(processedPaths + path) {
-        case (accumulator, unprocessed) => getIncludedPathsRecursively(unprocessed, accumulator)
+        case (accumulator, unprocessed) =>
+          getIncludedPathsRecursively(unprocessed, accumulator)
       }
     }
 
@@ -60,7 +61,6 @@ object BeamConfigUtils {
       val allIncludedPaths = getIncludedPathsRecursively(confFileLocationNormalized)
 
       val confNameToPaths = (allIncludedPaths - confFileLocationNormalized)
-        .map(_.toString)
         .foldLeft(Map("beam.conf" -> confFileLocationNormalized)) {
           case (fileNameToPath, confFilePath) =>
             val confFileName = getName(confFilePath)
@@ -91,6 +91,16 @@ object BeamConfigUtils {
     val lines = source.getLines.toArray
     source.close()
     lines
+  }
+
+  def parseListToMap(mapEntries: List[String]): Map[String, String] = {
+    mapEntries.map { entry =>
+      val keySeparatorValue = entry.split("\\s+")
+      require(keySeparatorValue.size >= 2, "Map entry must contain key value pair")
+      val key = keySeparatorValue.head
+      val value = keySeparatorValue.last
+      key -> value
+    }.toMap
   }
 
 }
