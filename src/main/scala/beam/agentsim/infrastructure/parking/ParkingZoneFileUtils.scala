@@ -363,14 +363,6 @@ object ParkingZoneFileUtils extends LazyLogging {
           } else {
             floorNumberOfStalls
           }
-          val vehicleManagerType: Option[VehicleManagerType] =
-            (if (reservedForString == null) "" else reservedForString).trim match {
-              //we had Any and RideHailManager in the taz-parking.csv files
-              //allow the users not to modify existing files
-              case "" | "Any"        => None
-              case "RideHailManager" => Some(VehicleManagerType.Ridehail)
-              case trimmed @ _       => Some(VehicleManagerType.withNameInsensitive(trimmed))
-            }
 
           // parse this row from the source file
           val taz = GeoLevel[GEO].parseId(tazString.toUpperCase)
@@ -405,7 +397,8 @@ object ParkingZoneFileUtils extends LazyLogging {
             throw new java.io.IOException(s"Failed to load parking data from row with contents '$csvRow'.", e)
         }
       case _ =>
-        throw new java.io.IOException(s"Failed to match row of parking configuration '$csvRow' to expected schema")
+        logger.error(s"Failed to match row of parking configuration '$csvRow' to expected schema")
+        None
     }
   }
 
