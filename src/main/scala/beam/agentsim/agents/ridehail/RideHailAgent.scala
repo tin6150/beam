@@ -399,8 +399,13 @@ class RideHailAgent(
       isOnWayToParkAtStall = Some(stall)
       beamServices.beamRouter ! veh2StallRequest
       stay
-    case Event(RoutingResponse(itineraries, _, _, _), data) =>
+    case Event(RoutingResponse(itineraries, _, request, _), data) =>
       log.debug("Received routing response, initiating trip to parking stall")
+      if (itineraries.isEmpty) {
+        log.error(s"There are no itineraries. Request: $request")
+      } else if (itineraries.head.beamLegs.isEmpty) {
+        log.error(s"There are no beamLegs in itineraries.head. Request: $request")
+      }
       val theLeg = itineraries.head.beamLegs.head
       val updatedPassengerSchedule = PassengerSchedule().addLegs(Seq(theLeg))
       val (tick, triggerId) = releaseTickAndTriggerId()
