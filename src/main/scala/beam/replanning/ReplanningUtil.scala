@@ -36,6 +36,7 @@ object ReplanningUtil extends LazyLogging {
                 val text2 = s"Experienced size: ${experiencedPlan.getPlanElements.size()}"
                 logger.error(s"Length of selected plans less than experienced plans. $text1. $text2.")
                 logger.error(s"The exception: ${ex.toString}")
+                throw ex
             }
           case _ =>
         }
