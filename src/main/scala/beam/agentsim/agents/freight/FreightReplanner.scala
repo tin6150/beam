@@ -107,9 +107,10 @@ class FreightReplanner(
         activity.service.capacity,
         freightRequestType,
         activity.service.location,
+        payloadPlan.operationDurationInSec,
         activity.arrivalTime,
-        payloadPlan.arrivalTimeWindowInSec,
-        payloadPlan.operationDurationInSec
+        payloadPlan.arrivalTimeLowerBoundInSec,
+        payloadPlan.arrivalTimeUpperBoundInSec
       )
     }
     (tour, plans)

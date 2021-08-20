@@ -37,9 +37,10 @@ case class PayloadPlan(
   weight: Double,
   requestType: FreightRequestType,
   location: Coord,
-  estimatedTimeOfArrivalInSec: Int,
-  arrivalTimeWindowInSec: Int,
-  operationDurationInSec: Int
+  operationDurationInSec: Int,
+  arrivalTimeEstimateInSec: Int,
+  arrivalTimeLowerBoundInSec: Int,
+  arrivalTimeUpperBoundInSec: Int
 )
 
 case class FreightCarrier(

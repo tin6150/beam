@@ -9,36 +9,45 @@ import beam.router.Modes.BeamMode
 import beam.sim.common.GeoUtils
 import beam.utils.csv.GenericCsvReader
 import beam.utils.matsim_conversion.MatsimPlanConversion.IdOps
+import com.typesafe.scalalogging.LazyLogging
 import org.matsim.api.core.v01.population._
 import org.matsim.api.core.v01.{Coord, Id}
 import org.matsim.core.population.PopulationUtils
 import org.matsim.households.{Household, HouseholdsFactory, Income, IncomeImpl}
 import org.matsim.vehicles.Vehicle
 
-import scala.util.Random
+import scala.util.{Failure, Random, Success, Try}
 
 /**
   * @author Dmitry Openkov
   */
-object PayloadPlansConverter {
+object PayloadPlansConverter extends LazyLogging {
 
   def readFreightTours(path: String, tazTree: TAZTreeMap, rnd: Random): Map[Id[FreightTour], FreightTour] = {
-    GenericCsvReader
-      .readAsSeq[FreightTour](path) { row =>
-        //tourId,departureTimeInSec,departureLocationX,departureLocationY,maxTourDurationInSec
-        val tourId: Id[FreightTour] = row.get("tourId").createId[FreightTour]
-        val departureTimeInSec = row.get("departureTimeInSec").toInt
-        val departureLocationTAZ = row.get("departureLocationTAZ") // TODO: THIS SHOULD LOOK BE SAME AS WAREHOUSE
-        val maxTourDurationInSec = row.get("maxTourDurationInSec").toInt
-        FreightTour(
-          tourId,
-          departureTimeInSec,
-          getDistributedTazLocation(departureLocationTAZ, tazTree, rnd),
-          maxTourDurationInSec
-        )
-      }
-      .groupBy(_.tourId)
-      .mapValues(_.head)
+    Try {
+      GenericCsvReader
+        .readAsSeq[FreightTour](path) { row =>
+          //tourId,departureTimeInSec,departureZone,maxTourDurationInSec
+          val tourId: Id[FreightTour] = row.get("tourId").createId[FreightTour]
+          val departureTimeInSec = row.get("departureTimeInSec").toInt
+          // TODO: THIS SHOULD LOOK BE SAME AS WAREHOUSE
+          val departureLocation = row.get("departureZone")
+          val maxTourDurationInSec = row.get("maxTourDurationInSec").toInt
+          FreightTour(
+            tourId,
+            departureTimeInSec,
+            getDistributedTazLocation(departureLocation, tazTree, rnd),
+            maxTourDurationInSec
+          )
+        }
+        .groupBy(_.tourId)
+        .mapValues(_.head)
+    } match {
+      case Success(result) => result
+      case Failure(e) =>
+        logger.error(s"Failed to read freight tours from file $path, because of $e")
+        Map.empty[Id[FreightTour], FreightTour]
+    }
   }
 
   private def getDistributedTazLocation(tazId: String, tazTree: TAZTreeMap, rnd: Random): Coord =
@@ -48,24 +57,46 @@ object PayloadPlansConverter {
     }
 
   def readPayloadPlans(path: String, tazTree: TAZTreeMap, rnd: Random): Map[Id[PayloadPlan], PayloadPlan] = {
-    GenericCsvReader
-      .readAsSeq[PayloadPlan](path) { row =>
-        //payloadId,sequenceRank,tourId,payloadType,weightInKg,requestType,locationX,locationY,estimatedTimeOfArrivalInSec,arrivalTimeWindowInSec,operationDurationInSec
-        PayloadPlan(
-          row.get("payloadId").createId,
-          row.get("sequenceRank").toInt,
-          row.get("tourId").createId,
-          row.get("payloadType").createId[PayloadType],
-          row.get("weightInKg").toDouble,
-          FreightRequestType.withNameInsensitive(row.get("requestType")),
-          getDistributedTazLocation(row.get("taz"), tazTree, rnd),
-          row.get("estimatedTimeOfArrivalInSec").toInt,
-          row.get("arrivalTimeWindowInSec").toInt,
-          row.get("operationDurationInSec").toInt
-        )
-      }
-      .groupBy(_.payloadId)
-      .mapValues(_.head)
+    Try {
+      GenericCsvReader
+        .readAsSeq[PayloadPlan](path) { row =>
+          // payloadId,sequenceRank,tourId,payloadType,weightInKg,requestType,zone,operationDurationInSec,arrivalTimeEstimateInSec,arrivalTimeLowerBoundInSec,arrivalTimeUpperBoundInSec
+          // or "weightInlb" instead of "weightInKg
+          val payloadId = row.get("payloadId").createId[PayloadPlan]
+          val sequenceRank = row.get("sequenceRank").toInt
+          val tourId = row.get("tourId").createId[FreightTour]
+          val payloadType = row.get("payloadType").createId[PayloadType]
+          val weightInKg =
+            if (row.containsKey("weightInKg")) row.get("weightInKg").toDouble
+            else row.get("weightInlb").toDouble / 2.20462
+          val requestType = FreightRequestType.withNameInsensitive(row.get("requestType"))
+          val location = getDistributedTazLocation(row.get("zone"), tazTree, rnd)
+          val operationDurationInSec = row.get("operationDurationInSec").toInt
+          val arrivalTimeEstimateInSec = row.get("arrivalTimeEstimateInSec").toInt
+          val arrivalTimeLowerBoundInSec = row.get("arrivalTimeLowerBoundInSec").toInt
+          val arrivalTimeUpperBoundInSec = row.get("arrivalTimeUpperBoundInSec").toInt
+          PayloadPlan(
+            payloadId,
+            sequenceRank,
+            tourId,
+            payloadType,
+            weightInKg,
+            requestType,
+            location,
+            operationDurationInSec,
+            arrivalTimeEstimateInSec,
+            arrivalTimeLowerBoundInSec,
+            arrivalTimeUpperBoundInSec
+          )
+        }
+        .groupBy(_.payloadId)
+        .mapValues(_.head)
+    } match {
+      case Success(result) => result
+      case Failure(e) =>
+        logger.error(s"Failed to read payload plans from file $path, because of $e")
+        Map.empty[Id[PayloadPlan], PayloadPlan]
+    }
   }
 
   def readFreightCarriers(
@@ -82,7 +113,7 @@ object PayloadPlansConverter {
       tourId: Id[FreightTour],
       vehicleId: Id[BeamVehicle],
       vehicleTypeId: Id[BeamVehicleType],
-      warehouseTaz: String
+      warehouseZone: String
     )
 
     def createCarrierVehicles(
@@ -111,7 +142,7 @@ object PayloadPlansConverter {
     }
 
     def createCarrier(carrierId: Id[FreightCarrier], carrierRows: IndexedSeq[FreightCarrierRow]) = {
-      val warehouseLocation: Coord = getDistributedTazLocation(carrierRows.head.warehouseTaz, tazTree, rnd)
+      val warehouseLocation: Coord = getDistributedTazLocation(carrierRows.head.warehouseZone, tazTree, rnd)
       val vehicles: scala.IndexedSeq[BeamVehicle] = createCarrierVehicles(carrierId, carrierRows, warehouseLocation)
       val vehicleMap: Map[Id[BeamVehicle], BeamVehicle] = vehicles.map(vehicle => vehicle.id -> vehicle).toMap
 
@@ -135,13 +166,13 @@ object PayloadPlansConverter {
     }
 
     val rows = GenericCsvReader.readAsSeq[FreightCarrierRow](path) { row =>
-      //carrierId,tourId,vehicleId,vehicleTypeId,warehouseTAZ
+      //carrierId,tourId,vehicleId,vehicleTypeId,warehouseZone
       val carrierId: Id[FreightCarrier] = row.get("carrierId").createId
       val tourId: Id[FreightTour] = row.get("tourId").createId
       val vehicleId: Id[BeamVehicle] = Id.createVehicleId(row.get("vehicleId"))
       val vehicleTypeId: Id[BeamVehicleType] = row.get("vehicleTypeId").createId
-      val warehouseTaz = row.get("warehouseTAZ")
-      FreightCarrierRow(carrierId, tourId, vehicleId, vehicleTypeId, warehouseTaz)
+      val warehouseZone = row.get("warehouseZone")
+      FreightCarrierRow(carrierId, tourId, vehicleId, vehicleTypeId, warehouseZone)
     }
     rows
       .groupBy(_.carrierId)
@@ -230,7 +261,7 @@ object PayloadPlansConverter {
       val plans: IndexedSeq[PayloadPlan] =
         plansPerTour.getOrElse(tour.tourId, throw new IllegalArgumentException(s"Tour ${tour.tourId} has no plans"))
       val planElements: IndexedSeq[PlanElement] = plans.flatMap { plan =>
-        val activityEndTime = plan.estimatedTimeOfArrivalInSec + plan.operationDurationInSec
+        val activityEndTime = plan.arrivalTimeEstimateInSec + plan.operationDurationInSec
         val activityType = plan.requestType.toString
         val activity = createActivity(activityType, plan.location, activityEndTime, geoConverter)
         val leg: Leg = createLeg(activityEndTime)
