@@ -1,13 +1,15 @@
 current time is
-Tue Sep 28 18:15:46 PDT 2021
-Wed Sep 29 01:15:46 CUT 2021
+Tue Sep 28 21:07:01 PDT 2021
+Wed Sep 29 04:07:01 CUT 2021
 Singularity image already cached
 **^ beyond singularity pull step ^**
 SINGULARITY_WORKDIR=/global/scratch/tin/cacheDir
 SINGULARITY_TMPDIR=/global/scratch/tin/cacheDir
 SINGULARITY_CACHEDIR=/global/scratch/tin/cacheDir
 SINGULARITY_BINDPATH=/global/scratch/tin/tin-gh/beam/:/mnt
-Starting Singularity run as: SINGULARITYENV_JAVA_OPTS='-Xmx90g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/test/input/beamville/beam.conf  2>&1 
+i/o set to /global/scratch/tin/tin-gh/beam/ /global/scratch/tin/tin-gh/beam//output
+config set to production/sfbay/gemini/gemini-base-2035.conf
+Starting Singularity run as: SINGULARITYENV_JAVA_OPTS='-Xmx1390g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/production/sfbay/gemini/gemini-base-2035.conf  2>&1 
 
   ________
   ___  __ )__________ _______ ___
@@ -18,21 +20,17 @@ Starting Singularity run as: SINGULARITYENV_JAVA_OPTS='-Xmx90g' singularity run 
  _____________________________________
 
     
-Received 2 arguments: List(--config, /app/test/input/beamville/beam.conf)
+Received 2 arguments: List(--config, /app/production/sfbay/gemini/gemini-base-2035.conf)
 Java version: 1.8.0_222
-JVM args: List(-Xmx90g)
-Heap size: 1.4 GB
-Heap max memory: 80.0 GB
-Heap free memory: 1.3 GB
-01:15:51.174 INFO  beam.sim.RunBeam$ - 
+JVM args: List(-Xmx1390g)
+Heap size: 1.9 GB
+Heap max memory: 1.2 TB
+Heap free memory: 1.8 GB
+04:07:06.873 INFO  beam.sim.RunBeam$ - 
 ****************************************************************************************************************************  
 ** Config File Consistency Check
 **  
 ** Testing your config file against what BEAM is expecting.
-**  
-** Found the following duplicate config keys from your config file:
-**  
-**  beam.outputs.baseOutputDirectory
 **  
 ** Found the following deprecated parameters, you can safely remove them from your config file:
 **  
@@ -40,8 +38,31 @@ Heap free memory: 1.3 GB
 **  beam.agentsim.agents.households.inputFilePath
 **  beam.agentsim.agents.households.inputHouseholdAttributesFilePath
 **  beam.agentsim.agents.modalBehaviors.defaultValueOfTime
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.highCongestion.highwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.highCongestion.highwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.highCongestion.nonHighwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.highCongestion.nonHighwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.lowCongestion.highwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.lowCongestion.highwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.lowCongestion.nonHighwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.highTimeSensitivity.lowCongestion.nonHighwayFactor.LevelLE2
 **  beam.agentsim.agents.modalBehaviors.lccm.filePath
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.highCongestion.highwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.highCongestion.highwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.highCongestion.nonHighwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.highCongestion.nonHighwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.lowCongestion.highwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.lowCongestion.highwayFactor.LevelLE2
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.lowCongestion.nonHighwayFactor.Level3
+**  beam.agentsim.agents.modalBehaviors.lowTimeSensitivity.lowCongestion.nonHighwayFactor.LevelLE2
 **  beam.agentsim.agents.modalBehaviors.modeChoiceClass
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.CAV
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.bike
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.drive
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.rideHail
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.transit
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.waiting
+**  beam.agentsim.agents.modalBehaviors.modeVotMultiplier.walk
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.bike_intercept
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.car_intercept
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.drive_transit_intercept
@@ -51,16 +72,20 @@ Heap free memory: 1.3 GB
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.transfer
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.walk_intercept
 **  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.walk_transit_intercept
-**  beam.agentsim.agents.modalBehaviors.overrideAutomationForVOTT
-**  beam.agentsim.agents.modalBehaviors.overrideAutomationLevel
-**  beam.agentsim.agents.modeIncentive.filePath
+**  beam.agentsim.agents.modalBehaviors.poolingMultiplier.Level3
+**  beam.agentsim.agents.modalBehaviors.poolingMultiplier.Level4
+**  beam.agentsim.agents.modalBehaviors.poolingMultiplier.Level5
+**  beam.agentsim.agents.modalBehaviors.poolingMultiplier.LevelLE2
+**  beam.agentsim.agents.parking.mulitnomialLogit.params.distanceMultiplier
+**  beam.agentsim.agents.parking.mulitnomialLogit.params.homeActivityPrefersResidentialParkingMultiplier
+**  beam.agentsim.agents.parking.mulitnomialLogit.params.parkingPriceMultiplier
+**  beam.agentsim.agents.parking.mulitnomialLogit.params.rangeAnxietyMultiplier
 **  beam.agentsim.agents.plans.inputPersonAttributesFilePath
 **  beam.agentsim.agents.plans.inputPlansFilePath
-**  beam.agentsim.agents.ptFare.filePath
-**  beam.agentsim.agents.rideHail.allocationManager.alonsoMora.maxRequestsPerVehicle
-**  beam.agentsim.agents.rideHail.allocationManager.matchingAlgorithm
-**  beam.agentsim.agents.rideHail.allocationManager.maxExcessRideTime
-**  beam.agentsim.agents.rideHail.allocationManager.maxWaitingTimeInSec
+**  beam.agentsim.agents.population.useVehicleSampling
+**  beam.agentsim.agents.rideHail.allocationManager.alonsoMora.solutionSpaceSizePerVehicle
+**  beam.agentsim.agents.rideHail.allocationManager.alonsoMora.travelTimeDelayAsFraction
+**  beam.agentsim.agents.rideHail.allocationManager.alonsoMora.waitingTimeInSec
 **  beam.agentsim.agents.rideHail.allocationManager.name
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.allowIncreasingRadiusIfDemandInRadiusLow
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.demandWeight
@@ -68,74 +93,95 @@ Heap free memory: 1.3 GB
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.keepMaxTopNScores
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minDemandPercentageInRadius
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minScoreThresholdForRepositioning
-**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minimumNumberOfIdlingVehiclesThresholdForRepositioning
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.percentageOfVehiclesToReposition
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.produceDebugImages
-**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.repositionCircleRadiusInMeters
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.repositioningMethod
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.timeWindowSizeInSecForDecidingAboutRepositioning
 **  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.waitingTimeWeight
 **  beam.agentsim.agents.rideHail.allocationManager.requestBufferTimeoutInSeconds
+**  beam.agentsim.agents.rideHail.charging.vehicleChargingManager.defaultVehicleChargingManager.mulitnomialLogit.params.chargingTimeMultiplier
+**  beam.agentsim.agents.rideHail.charging.vehicleChargingManager.defaultVehicleChargingManager.mulitnomialLogit.params.drivingTimeMultiplier
+**  beam.agentsim.agents.rideHail.charging.vehicleChargingManager.defaultVehicleChargingManager.mulitnomialLogit.params.insufficientRangeMultiplier
+**  beam.agentsim.agents.rideHail.charging.vehicleChargingManager.defaultVehicleChargingManager.mulitnomialLogit.params.queueingTimeMultiplier
+**  beam.agentsim.agents.rideHail.charging.vehicleChargingManager.name
+**  beam.agentsim.agents.rideHail.defaultBaseCost
 **  beam.agentsim.agents.rideHail.defaultCostPerMile
 **  beam.agentsim.agents.rideHail.defaultCostPerMinute
-**  beam.agentsim.agents.rideHail.initialization.filePath
 **  beam.agentsim.agents.rideHail.initialization.initType
+**  beam.agentsim.agents.rideHail.initialization.parking.filePath
 **  beam.agentsim.agents.rideHail.initialization.procedural.fractionOfInitialVehicleFleet
 **  beam.agentsim.agents.rideHail.initialization.procedural.initialLocation.home.radiusInMeters
 **  beam.agentsim.agents.rideHail.initialization.procedural.initialLocation.name
 **  beam.agentsim.agents.rideHail.initialization.procedural.vehicleTypeId
 **  beam.agentsim.agents.rideHail.iterationStats.timeBinSizeInSec
+**  beam.agentsim.agents.rideHail.linkFleetStateAcrossIterations
+**  beam.agentsim.agents.rideHail.pooledBaseCost
+**  beam.agentsim.agents.rideHail.pooledCostPerMile
+**  beam.agentsim.agents.rideHail.pooledCostPerMinute
 **  beam.agentsim.agents.rideHail.refuelLocationType
 **  beam.agentsim.agents.rideHail.refuelThresholdInMeters
+**  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.fractionOfClosestClustersToConsider
 **  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.numberOfClustersForDemand
 **  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.sensitivityOfRepositioningToDemand
+**  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.sensitivityOfRepositioningToDemandForCAVs
 **  beam.agentsim.agents.rideHail.repositioningManager.name
 **  beam.agentsim.agents.rideHail.repositioningManager.timeout
 **  beam.agentsim.agents.rideHail.rideHailManager.radiusInMeters
 **  beam.agentsim.agents.rideHail.surgePricing.minimumSurgeLevel
 **  beam.agentsim.agents.rideHail.surgePricing.priceAdjustmentStrategy
 **  beam.agentsim.agents.rideHail.surgePricing.surgeLevelAdaptionStep
-**  beam.agentsim.agents.rideHailTransit.modesToConsider
+**  beam.agentsim.agents.rideHail.vehicleManagerId
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.activity_file_path
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.additional_trip_utility
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.destination_nest_scale_factor
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.intercept_file_path
-**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.max_destination_choice_set_size
-**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.max_destination_distance_meters
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.mode_nest_scale_factor
 **  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.trip_nest_scale_factor
+**  beam.agentsim.agents.vehicles.fractionOfInitialVehicleFleet
 **  beam.agentsim.agents.vehicles.fuelTypesFilePath
-**  beam.agentsim.agents.vehicles.linkToGradePercentFilePath
+**  beam.agentsim.agents.vehicles.meanPrivateVehicleStartingSOC
+**  beam.agentsim.agents.vehicles.meanRidehailVehicleStartingSOC
 **  beam.agentsim.agents.vehicles.sharedFleets
+**  beam.agentsim.agents.vehicles.vehicleAdjustmentMethod
 **  beam.agentsim.agents.vehicles.vehicleTypesFilePath
 **  beam.agentsim.agents.vehicles.vehiclesFilePath
+**  beam.agentsim.chargingNetworkManager.chargingPoint.thresholdDCFCinKW
+**  beam.agentsim.chargingNetworkManager.chargingPoint.thresholdXFCinKW
+**  beam.agentsim.chargingNetworkManager.helics.bufferSize
+**  beam.agentsim.chargingNetworkManager.helics.connectionEnabled
+**  beam.agentsim.chargingNetworkManager.helics.dataInStreamPoint
+**  beam.agentsim.chargingNetworkManager.helics.dataOutStreamPoint
+**  beam.agentsim.chargingNetworkManager.helics.federateName
+**  beam.agentsim.chargingNetworkManager.timeStepInSeconds
 **  beam.agentsim.endTime
 **  beam.agentsim.firstIteration
+**  beam.agentsim.fractionOfPlansWithSingleActivity
 **  beam.agentsim.lastIteration
 **  beam.agentsim.populationAdjustment
+**  beam.agentsim.scheduleMonitorTask.initialDelay
+**  beam.agentsim.scheduleMonitorTask.interval
 **  beam.agentsim.schedulerParallelismWindow
 **  beam.agentsim.simulationName
-**  beam.agentsim.startTime
 **  beam.agentsim.taz.filePath
 **  beam.agentsim.taz.parkingFilePath
-**  beam.agentsim.thresholdForMakingParkingChoiceInMeters
+**  beam.agentsim.taz.parkingStallCountScalingFactor
 **  beam.agentsim.thresholdForWalkingInMeters
-**  beam.agentsim.timeBinSize
-**  beam.agentsim.toll.filePath
 **  beam.agentsim.tuning.rideHailPrice
 **  beam.agentsim.tuning.tollPrice
 **  beam.agentsim.tuning.transitCapacity
 **  beam.agentsim.tuning.transitPrice
+**  beam.beamskimmer.writeAllModeSkimsForPeakNonPeakPeriodsInterval
+**  beam.beamskimmer.writeFullSkimsInterval
+**  beam.beamskimmer.writeObservedSkimsInterval
+**  beam.beamskimmer.writeObservedSkimsPlusInterval
 **  beam.calibration.counts.averageCountsOverIterations
 **  beam.calibration.counts.countsScaleFactor
 **  beam.calibration.counts.writeCountsInterval
 **  beam.calibration.mode.benchmarkFilePath
 **  beam.calibration.objectiveFunction
-**  beam.cosim.helics.federateName
-**  beam.cosim.helics.timeStep
-**  beam.debug.actor.logDepth
-**  beam.debug.debugActorTimerIntervalInSec
+**  beam.calibration.roadNetwork.travelTimes.zoneBoundariesFilePath
+**  beam.calibration.roadNetwork.travelTimes.zoneODTravelTimesFilePath
 **  beam.debug.debugEnabled
 **  beam.debug.stuckAgentDetection.checkIntervalMs
 **  beam.debug.stuckAgentDetection.checkMaxNumberOfMessagesEnabled
@@ -143,6 +189,10 @@ Heap free memory: 1.3 GB
 **  beam.debug.stuckAgentDetection.enabled
 **  beam.debug.stuckAgentDetection.overallSimulationTimeoutMs
 **  beam.debug.stuckAgentDetection.thresholds
+**  beam.exchange.scenario.convertWgs2Utm
+**  beam.exchange.scenario.fileFormat
+**  beam.exchange.scenario.folder
+**  beam.exchange.scenario.source
 **  beam.inputDirectory
 **  beam.metrics.level
 **  beam.outputs.addTimestampToOutputDirectory
@@ -150,18 +200,16 @@ Heap free memory: 1.3 GB
 **  beam.outputs.defaultWriteInterval
 **  beam.outputs.events.eventsToWrite
 **  beam.outputs.events.fileOutputFormats
+**  beam.outputs.generalizedLinkStats.endTime
+**  beam.outputs.generalizedLinkStats.startTime
+**  beam.outputs.generalizedLinkStatsInterval
 **  beam.outputs.stats.binSize
-**  beam.outputs.writeAnalysis
 **  beam.outputs.writeEventsInterval
-**  beam.outputs.writeLinkTraversalInterval
 **  beam.outputs.writePlansInterval
 **  beam.physsim.flowCapacityFactor
 **  beam.physsim.inputNetworkFilePath
 **  beam.physsim.jdeqsim.agentSimPhysSimInterfaceDebugger.enabled
 **  beam.physsim.jdeqsim.cacc.enabled
-**  beam.physsim.jdeqsim.cacc.minRoadCapacity
-**  beam.physsim.jdeqsim.cacc.minSpeedMetersPerSec
-**  beam.physsim.jdeqsim.cacc.speedAdjustmentFactor
 **  beam.physsim.linkStatsWriteInterval
 **  beam.physsim.ptSampleSize
 **  beam.physsim.quick_fix_minCarSpeedInMetersPerSecond
@@ -170,6 +218,7 @@ Heap free memory: 1.3 GB
 **  beam.physsim.writeEventsInterval
 **  beam.physsim.writeMATSimNetwork
 **  beam.physsim.writePlansInterval
+**  beam.physsim.writeRouteHistoryInterval
 **  beam.replanning.ModuleProbability_1
 **  beam.replanning.ModuleProbability_2
 **  beam.replanning.ModuleProbability_3
@@ -178,14 +227,12 @@ Heap free memory: 1.3 GB
 **  beam.replanning.Module_2
 **  beam.replanning.Module_3
 **  beam.replanning.Module_4
-**  beam.replanning.cleanNonCarModesInIteration
-**  beam.replanning.fractionOfIterationsToDisableInnovation
 **  beam.replanning.maxAgentPlanMemorySize
-**  beam.router.skim.collectFullCarSkimsInterval
 **  beam.router.skim.h3Resolution
 **  beam.router.skim.keepKLatestSkims
 **  beam.router.skim.origin_destination_skimmer.fileBaseName
 **  beam.router.skim.origin_destination_skimmer.name
+**  beam.router.skim.origin_destination_skimmer.poolingTravelTimeOveheadFactor
 **  beam.router.skim.origin_destination_skimmer.writeAllModeSkimsForPeakNonPeakPeriodsInterval
 **  beam.router.skim.origin_destination_skimmer.writeFullSkimsInterval
 **  beam.router.skim.taz-skimmer.fileBaseName
@@ -201,15 +248,18 @@ Heap free memory: 1.3 GB
 **  beam.routing.r5.mNetBuilder.toCRS
 **  beam.routing.r5.osmFile
 **  beam.routing.r5.osmMapdbFile
-**  beam.routing.startingIterationForTravelTimesMSA
 **  beam.routing.transitOnStreetNetwork
 **  beam.sim.metric.collector.influxDbSimulationMetricCollector.connectionString
 **  beam.sim.metric.collector.influxDbSimulationMetricCollector.database
 **  beam.sim.metric.collector.metrics
+**  beam.sim.termination.criterionName
+**  beam.sim.termination.terminateAtRideHailFleetStoredElectricityConvergence.maxLastIteration
+**  beam.sim.termination.terminateAtRideHailFleetStoredElectricityConvergence.minLastIteration
+**  beam.sim.termination.terminateAtRideHailFleetStoredElectricityConvergence.relativeTolerance
 **  beam.spatial.boundingBoxBuffer
 **  beam.spatial.localCRS
+**  beam.warmStart.enabled
 **  beam.warmStart.path
-**  beam.warmStart.type
 **  matsim.conversion.defaultHouseholdIncome.currency
 **  matsim.conversion.defaultHouseholdIncome.period
 **  matsim.conversion.defaultHouseholdIncome.value
@@ -236,8 +286,6 @@ Heap free memory: 1.3 GB
 **  matsim.modules.global.randomSeed
 **  matsim.modules.households.inputFile
 **  matsim.modules.households.inputHouseholdAttributesFile
-**  matsim.modules.linkStats.averageLinkStatsOverIterations
-**  matsim.modules.linkStats.writeLinkStatsInterval
 **  matsim.modules.network.inputNetworkFile
 **  matsim.modules.parallelEventHandling.estimatedNumberOfEvents
 **  matsim.modules.parallelEventHandling.numberOfThreads
@@ -265,179 +313,228 @@ Heap free memory: 1.3 GB
 **  matsim.modules.strategy.Module_2
 **  matsim.modules.strategy.Module_3
 **  matsim.modules.strategy.Module_4
-**  matsim.modules.strategy.fractionOfIterationsToDisableInnovation
 **  matsim.modules.strategy.maxAgentPlanMemorySize
 **  matsim.modules.strategy.parameterset
 **  matsim.modules.transit.transitModes
 **  matsim.modules.transit.useTransit
 **************************************************************************************************************************
 
-01:15:51.388 INFO  beam.sim.RunBeam$ - Starting beam on branch tin/singularity at commit d0f61043b8fb63870e3cc82d2299cb0fd2799fee.
-01:15:51.391 INFO  beam.sim.RunBeam$ - Maximum Memory (-Xmx): 85.9 (GB)
-01:15:51.467 INFO  beam.sim.RunBeam$ - Processing configs for [beamville] simulation.
-01:15:51.470 INFO  beam.sim.RunBeam$ - Config '/app/test/input/beamville/beam.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/beam.conf'.
-01:15:51.471 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/metrics.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/metrics.conf'.
-01:15:51.472 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/matsim.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/matsim.conf'.
-01:15:51.473 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/akka.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/akka.conf'.
-2021-09-29 01:15:51,755  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
-2021-09-29 01:15:51,821  INFO Config:561 setting context to [file:/app/test/input/beamville/]
-2021-09-29 01:15:52,744  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode car were just overwritten.
-2021-09-29 01:15:52,745  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode walk were just overwritten.
-2021-09-29 01:15:52,745  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode bike were just overwritten.
-01:15:52.832 INFO  b.r.r5.DefaultNetworkCoordinator - Initializing router by reading network from: /app/test/input/beamville/r5/network.dat
-2021-09-29 01:15:53,137  INFO MatsimXmlParser:147 starting to parse xml from file /app/test/input/beamville/physsim-network.xml ...
-2021-09-29 01:15:53,219  INFO MatsimNetworkReader:95 using network_v2-reader.
-2021-09-29 01:15:53,219  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/network_v2.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:53,790  INFO NetworkImpl:167  node # 1
-2021-09-29 01:15:53,791  INFO NetworkImpl:167  node # 4
-2021-09-29 01:15:53,793  INFO NetworkImpl:167  node # 16
-2021-09-29 01:15:53,802  INFO NetworkImpl:167  node # 64
-2021-09-29 01:15:53,813  INFO NetworkImpl:163  link # 1
-2021-09-29 01:15:53,816  INFO NetworkImpl:163  link # 4
-2021-09-29 01:15:53,819  INFO NetworkImpl:163  link # 16
-2021-09-29 01:15:53,830  INFO NetworkImpl:163  link # 64
-2021-09-29 01:15:53,849  INFO NetworkImpl:163  link # 256
-2021-09-29 01:15:54,423  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
-2021-09-29 01:15:55,022  INFO Logger:? dataFileCache open start
-2021-09-29 01:15:55,265  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
-2021-09-29 01:15:55,281  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
-2021-09-29 01:15:55,281  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
-01:15:55.331 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-0.010049999894685581,-0.010049999999999974,0.05005000009793684,0.05004999999997861) with resolution 6 executed in 38 ms
-01:15:55.331 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-0.010049999894685581,-0.010049999999999974,0.05005000009793684,0.05004999999997861) with resolution 6 gives 2 elemets
-01:15:55.484 INFO  b.agentsim.infrastructure.taz.H3TAZ - Constructed tazToH3TAZMapping executed in 152 ms
-2021-09-29 01:15:55,506  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
-2021-09-29 01:15:55,528  INFO ScenarioLoaderImpl:108 loading scenario from base directory: /global/scratch/tin/tin-gh/beam/Singularity-repo/
-2021-09-29 01:15:55,528  INFO ScenarioLoaderImpl:130 loading network from file:/app/test/input/beamville/physsim-network.xml
-2021-09-29 01:15:55,528  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/physsim-network.xml ...
-2021-09-29 01:15:55,531  INFO MatsimNetworkReader:95 using network_v2-reader.
-2021-09-29 01:15:55,531  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/network_v2.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:55,841  INFO NetworkImpl:167  node # 1
-2021-09-29 01:15:55,841  INFO NetworkImpl:167  node # 4
-2021-09-29 01:15:55,842  INFO NetworkImpl:167  node # 16
-2021-09-29 01:15:55,843  INFO NetworkImpl:167  node # 64
-2021-09-29 01:15:55,845  INFO NetworkImpl:163  link # 1
-2021-09-29 01:15:55,847  INFO NetworkImpl:163  link # 4
-2021-09-29 01:15:55,848  INFO NetworkImpl:163  link # 16
-2021-09-29 01:15:55,852  INFO NetworkImpl:163  link # 64
-2021-09-29 01:15:55,864  INFO NetworkImpl:163  link # 256
-2021-09-29 01:15:55,869  INFO ScenarioLoaderImpl:182 no facilities file set in config, therefore not loading any facilities.  This is not a problem except if you are using facilities
-2021-09-29 01:15:55,870  INFO ScenarioLoaderImpl:192 no facility-attributes file set in config, not loading any facility attributes
-2021-09-29 01:15:55,870  INFO ScenarioLoaderImpl:199 loading population from file:/app/test/input/beamville/population.xml
-2021-09-29 01:15:55,878  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/population.xml ...
-2021-09-29 01:15:55,883  INFO PopulationReader:109 using population_v6-reader.
-2021-09-29 01:15:55,884  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/population_v6.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:55,899  INFO PopulationImpl:112  person # 1
-2021-09-29 01:15:55,900  INFO PopulationImpl:112  person # 4
-2021-09-29 01:15:55,903  INFO PopulationImpl:112  person # 16
-2021-09-29 01:15:55,909  INFO PopulationUtils:992  person # 50
-2021-09-29 01:15:55,909  INFO ScenarioLoaderImpl:229 loading person attributes from file:/app/test/input/beamville/populationAttributes.xml
-2021-09-29 01:15:55,910  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/populationAttributes.xml ...
-2021-09-29 01:15:55,912  INFO MatsimXmlParser:270 Trying to load http://matsim.org/files/dtd/objectattributes_v1.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:56,225  INFO ObjectAttributesXmlReader:110 reading object #0
-2021-09-29 01:15:56,228  INFO ScenarioLoaderImpl:242 loading households from file:/app/test/input/beamville/households.xml
-2021-09-29 01:15:56,230  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/households.xml ...
-2021-09-29 01:15:56,237  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/households_v1.0.xsd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:56,276  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/matsimCommon.xsd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:56,295  INFO Counter:61   households # 1
-2021-09-29 01:15:56,295  INFO Counter:61   households # 2
-2021-09-29 01:15:56,297  INFO Counter:61   households # 4
-2021-09-29 01:15:56,299  INFO Counter:61   households # 8
-2021-09-29 01:15:56,302  INFO Counter:61   households # 16
-2021-09-29 01:15:56,304  INFO Counter:67   households # 21
-2021-09-29 01:15:56,304  INFO ScenarioLoaderImpl:244 households loaded.
-2021-09-29 01:15:56,305  INFO ScenarioLoaderImpl:252 loading household attributes from file:/app/test/input/beamville/householdAttributes.xml
-2021-09-29 01:15:56,305  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/householdAttributes.xml ...
-2021-09-29 01:15:56,307  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/objectattributes_v1.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
-2021-09-29 01:15:56,613  INFO ObjectAttributesXmlReader:110 reading object #0
-2021-09-29 01:15:56,615  INFO ScenarioLoaderImpl:284 no transit schedule file set in config, not loading any transit schedule
-2021-09-29 01:15:56,615  INFO ScenarioLoaderImpl:311 no transit vehicles file set in config, not loading any transit vehicles
-01:15:56.628 INFO  beam.sim.RunBeam$ - Load scenario using beam/xml executed in 3862 ms
-01:15:56.629 INFO  beam.sim.RunBeam$ - Java version: 1.8.0_222
-01:15:56.629 INFO  beam.sim.RunBeam$ - JVM args: List(-Xmx90g)
-01:15:56.630 INFO  beam.sim.RunBeam$ - Heap size: 1.5 GB
-01:15:56.630 INFO  beam.sim.RunBeam$ - Heap max memory: 80.0 GB
-01:15:56.630 INFO  beam.sim.RunBeam$ - Heap free memory: 1.3 GB
-01:15:56.633 WARN  beam.sim.RunBeam$ - 
-Scenario population size: 50
+04:07:07.091 INFO  beam.sim.RunBeam$ - Starting beam on branch tin/singularity at commit f111e398d27099320ced404dfa225e88e7341ac2.
+04:07:07.095 INFO  beam.sim.RunBeam$ - Maximum Memory (-Xmx): 1326.7 (GB)
+04:07:07.193 INFO  beam.sim.RunBeam$ - Processing configs for [gemini-runs-2021-02-27/gemini-base-2035] simulation.
+04:07:07.196 INFO  beam.sim.RunBeam$ - Config '/app/production/common/metrics.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/metrics.conf'.
+04:07:07.197 INFO  beam.sim.RunBeam$ - Config '/app/production/sfbay/gemini/gemini-base-2035.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/beam.conf'.
+04:07:07.198 INFO  beam.sim.RunBeam$ - Config '/app/production/sfbay/smart/smart-baseline-2040.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/smart-baseline-2040.conf'.
+04:07:07.200 INFO  beam.sim.RunBeam$ - Config '/app/production/sfbay/smart/smart-pilates.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/smart-pilates.conf'.
+04:07:07.202 INFO  beam.sim.RunBeam$ - Config '/app/production/common/akka.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/akka.conf'.
+04:07:07.203 INFO  beam.sim.RunBeam$ - Config '/app/production/sfbay/smart/smart-baseline.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/smart-baseline.conf'.
+04:07:07.205 INFO  beam.sim.RunBeam$ - Config '/app/production/common/matsim.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg/matsim.conf'.
+2021-09-29 04:07:07,562  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
+2021-09-29 04:07:07,634  INFO Config:561 setting context to [file:/app/production/sfbay/gemini/]
+2021-09-29 04:07:08,762  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode car were just overwritten.
+2021-09-29 04:07:08,762  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode walk were just overwritten.
+2021-09-29 04:07:08,763  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode bike were just overwritten.
+04:07:08.972 INFO  b.r.r5.DefaultNetworkCoordinator - Initializing router by reading network from: /app/production/sfbay/gemini/../r5-simple-no-local/network.dat
+2021-09-29 04:07:10,156  INFO MatsimXmlParser:147 starting to parse xml from file /app/production/sfbay/gemini/../r5-simple-no-local/physsim-network.xml ...
+2021-09-29 04:07:10,263  INFO MatsimNetworkReader:95 using network_v2-reader.
+2021-09-29 04:07:10,263  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/network_v2.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 04:07:10,769  INFO NetworkImpl:167  node # 1
+2021-09-29 04:07:10,770  INFO NetworkImpl:167  node # 4
+2021-09-29 04:07:10,772  INFO NetworkImpl:167  node # 16
+2021-09-29 04:07:10,779  INFO NetworkImpl:167  node # 64
+2021-09-29 04:07:10,794  INFO NetworkImpl:167  node # 256
+2021-09-29 04:07:10,809  INFO NetworkImpl:167  node # 1024
+2021-09-29 04:07:10,847  INFO NetworkImpl:167  node # 4096
+2021-09-29 04:07:10,914  INFO NetworkImpl:167  node # 16384
+2021-09-29 04:07:11,110  INFO NetworkImpl:167  node # 65536
+2021-09-29 04:07:11,130  INFO NetworkImpl:163  link # 1
+2021-09-29 04:07:11,131  INFO NetworkImpl:163  link # 4
+2021-09-29 04:07:11,133  INFO NetworkImpl:163  link # 16
+2021-09-29 04:07:11,137  INFO NetworkImpl:163  link # 64
+2021-09-29 04:07:11,142  WARN LinkImpl:139 permlanes=0.5 of link id 100112 may cause problems
+2021-09-29 04:07:11,142  WARN LinkImpl:141  Future occurences of this logging statement are suppressed.
+2021-09-29 04:07:11,149  INFO NetworkImpl:163  link # 256
+2021-09-29 04:07:11,173  INFO NetworkImpl:163  link # 1024
+2021-09-29 04:07:11,243  INFO NetworkImpl:163  link # 4096
+2021-09-29 04:07:11,249  WARN LinkImpl:148 length=0.0 of link id 10422 may cause problems
+2021-09-29 04:07:11,249  WARN LinkImpl:150  Future occurences of this logging statement are suppressed.
+2021-09-29 04:07:11,250  WARN LinkImpl:108 fromNode=toNode=[id=6707][coord=[x=601405.2917976339][y=4121504.0737079903]][type=null][nof_inlinks=0][nof_outlinks=0]: link is a loop
+2021-09-29 04:07:11,250  WARN LinkImpl:110  Future occurences of this logging statement are suppressed.
+2021-09-29 04:07:11,250  WARN NodeImpl:87 [id=6707][coord=[x=601405.2917976339][y=4121504.0737079903]][type=null][nof_inlinks=0][nof_outlinks=1]: inlink_id=10422 is now in- and out-link
+2021-09-29 04:07:11,250  WARN NodeImpl:88  This message given only once.
+2021-09-29 04:07:11,344  INFO NetworkImpl:163  link # 16384
+2021-09-29 04:07:11,725  INFO NetworkImpl:163  link # 65536
+2021-09-29 04:07:13,816  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 04:07:15,078  INFO Logger:? dataFileCache open start
+2021-09-29 04:07:15,363  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 04:07:15,408  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 04:07:15,408  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+04:07:15.589 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-123.54083200000001,36.88673099999949,-121.19936399999693,38.873811) with resolution 6 executed in 42 ms
+04:07:15.589 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-123.54083200000001,36.88673099999949,-121.19936399999693,38.873811) with resolution 6 gives 1212 elemets
+04:07:15.762 INFO  b.agentsim.infrastructure.taz.H3TAZ - Constructed tazToH3TAZMapping executed in 172 ms
+2021-09-29 04:07:15,778  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
+04:07:15.807 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/buildings.csv] to [/tmp/buildings.csv]
+04:07:23.854 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/persons.csv] to [/tmp/persons.csv]
+04:07:54.133 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/households.csv] to [/tmp/households.csv]
+04:08:05.749 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/plans.csv] to [/tmp/plans.csv]
+04:08:50.903 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/units.csv] to [/tmp/units.csv]
+04:08:59.090 INFO  beam.utils.FileUtils$ - Downloading [https://s3.us-east-2.amazonaws.com/beam-outputs/pilates-outputs/15thSep2019/baseline/urbansim/13September2019/baseline/2040/parcels.csv] to [/tmp/parcels.csv]
+04:09:34.236 INFO  b.u.s.urbansim.CsvScenarioReader$ - readHouseholdsFile executed in 19499 ms
+04:09:37.713 INFO  b.u.s.urbansim.CsvScenarioReader$ - readUnitsFile executed in 3474 ms
+04:10:03.698 INFO  b.u.s.urbansim.CsvScenarioReader$ - readParcelAttrFile executed in 25982 ms
+04:10:07.719 INFO  b.u.s.urbansim.CsvScenarioReader$ - readBuildingsFile executed in 4018 ms
+2021-09-29 04:10:38,853  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 04:10:38,858  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+04:11:09.628 INFO  b.u.s.u.UrbanSimScenarioSource - [1] getUnitIdToCoord executed in 61900 ms
+04:11:17.392 INFO  b.u.s.urbansim.CsvScenarioReader$ - readPlansFile executed in 122655 ms
+04:11:17.521 INFO  b.u.scenario.UrbanSimScenarioLoader - Read 3103404 households
+2021-09-29 04:11:17,683  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 04:11:17,684  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+04:11:55.131 INFO  b.u.scenario.UrbanSimScenarioLoader - Read 18875575 plans
+04:12:11.782 INFO  b.u.s.urbansim.CsvScenarioReader$ - readPersonsFile executed in 177045 ms
+04:12:13.464 INFO  b.u.scenario.UrbanSimScenarioLoader - Read 8154426 persons
+04:12:36.981 INFO  b.u.scenario.UrbanSimScenarioLoader - There are 3775115 persons with plans
+04:12:44.663 INFO  b.u.scenario.UrbanSimScenarioLoader - There are 2313365 non-empty households
+04:12:44.665 INFO  b.u.scenario.UrbanSimScenarioLoader - Applying households...
+04:12:58.589 WARN  beam.sim.common.GeoUtilsImpl - [1] Coordinate does not appear to be in WGS. No conversion will happen: [x=546574.220856997][y=4181125.532722155]
+04:12:58.598 WARN  beam.sim.common.GeoUtilsImpl - [2] Coordinate does not appear to be in WGS. No conversion will happen: [x=546574.220856997][y=4181125.532722155]
+04:12:58.599 WARN  beam.sim.common.GeoUtilsImpl - [4] Coordinate does not appear to be in WGS. No conversion will happen: [x=549680.7899375793][y=4176228.5071481317]
+04:12:58.599 WARN  beam.sim.common.GeoUtilsImpl - [8] Coordinate does not appear to be in WGS. No conversion will happen: [x=594571.4584615557][y=4249303.56844325]
+04:12:58.600 WARN  beam.sim.common.GeoUtilsImpl - [16] Coordinate does not appear to be in WGS. No conversion will happen: [x=545074.6370198764][y=4179471.2895948393]
+04:12:58.601 WARN  beam.sim.common.GeoUtilsImpl - [32] Coordinate does not appear to be in WGS. No conversion will happen: [x=584103.3645342446][y=4165028.971855351]
+04:12:58.602 WARN  beam.sim.common.GeoUtilsImpl - [64] Coordinate does not appear to be in WGS. No conversion will happen: [x=597891.8505328698][y=4144400.2583130924]
+04:12:58.605 WARN  beam.sim.common.GeoUtilsImpl - [128] Coordinate does not appear to be in WGS. No conversion will happen: [x=549418.510106912][y=4148296.339128672]
+04:12:58.610 WARN  beam.sim.common.GeoUtilsImpl - [256] Coordinate does not appear to be in WGS. No conversion will happen: [x=595781.3536226414][y=4139619.130364103]
+04:12:58.620 WARN  beam.sim.common.GeoUtilsImpl - [512] Coordinate does not appear to be in WGS. No conversion will happen: [x=550707.2297006354][y=4167370.6821679627]
+04:12:58.634 WARN  beam.sim.common.GeoUtilsImpl - [1024] Coordinate does not appear to be in WGS. No conversion will happen: [x=551889.4005184764][y=4164697.3147023087]
+04:12:58.654 WARN  beam.sim.common.GeoUtilsImpl - [2048] Coordinate does not appear to be in WGS. No conversion will happen: [x=566187.3496709182][y=4157157.095505176]
+04:12:58.668 WARN  beam.sim.common.GeoUtilsImpl - [4096] Coordinate does not appear to be in WGS. No conversion will happen: [x=519530.0263763752][y=4264690.522635041]
+04:12:58.688 WARN  beam.sim.common.GeoUtilsImpl - [8192] Coordinate does not appear to be in WGS. No conversion will happen: [x=555229.4296599893][y=4198634.165661538]
+04:12:58.732 WARN  beam.sim.common.GeoUtilsImpl - [16384] Coordinate does not appear to be in WGS. No conversion will happen: [x=588496.0039588516][y=4157198.805113656]
+04:12:58.775 WARN  beam.sim.common.GeoUtilsImpl - [32768] Coordinate does not appear to be in WGS. No conversion will happen: [x=570667.6704101855][y=4181507.0947638773]
+04:12:58.850 WARN  beam.sim.common.GeoUtilsImpl - [65536] Coordinate does not appear to be in WGS. No conversion will happen: [x=584737.4534437422][y=4136365.5616764924]
+04:12:58.979 WARN  beam.sim.common.GeoUtilsImpl - [131072] Coordinate does not appear to be in WGS. No conversion will happen: [x=598206.1004166706][y=4144891.2053612643]
+04:12:59.241 WARN  beam.sim.common.GeoUtilsImpl - [262144] Coordinate does not appear to be in WGS. No conversion will happen: [x=586765.6787021996][y=4136112.2367798504]
+04:12:59.697 WARN  beam.sim.common.GeoUtilsImpl - [524288] Coordinate does not appear to be in WGS. No conversion will happen: [x=553398.7193858466][y=4178733.8250875156]
+04:13:00.605 WARN  beam.sim.common.GeoUtilsImpl - [1048576] Coordinate does not appear to be in WGS. No conversion will happen: [x=525471.7930527045][y=4243021.685863671]
+04:13:02.538 WARN  beam.sim.common.GeoUtilsImpl - [2097152] Coordinate does not appear to be in WGS. No conversion will happen: [x=595781.3536226414][y=4139619.130364103]
+04:13:06.220 WARN  beam.sim.common.GeoUtilsImpl - [4194304] Coordinate does not appear to be in WGS. No conversion will happen: [x=551190.8335101866][y=4178278.303775078]
+04:13:26.476 WARN  beam.sim.common.GeoUtilsImpl - [8388608] Coordinate does not appear to be in WGS. No conversion will happen: [x=524472.2072063438][y=4252353.1007884]
+04:13:51.209 WARN  beam.sim.common.GeoUtilsImpl - [16777216] Coordinate does not appear to be in WGS. No conversion will happen: [x=593505.2120024533][y=4131505.373381663]
+04:14:06.545 INFO  b.u.scenario.UrbanSimScenarioLoader - Originally had 3353362 work vehicles and now have 4753224 of them, with a goal of making 0
+04:14:09.609 INFO  b.u.scenario.UrbanSimScenarioLoader - Ended up with 4753224 vehicles
+04:14:09.794 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [1] No categories defined for household with income -7196.0, choosing a default one
+04:14:09.840 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [2] No categories defined for household with income -7200.0, choosing a default one
+04:14:09.906 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [4] No categories defined for household with income -3600.0, choosing a default one
+04:14:10.041 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [8] No categories defined for household with income -3200.0, choosing a default one
+04:14:10.364 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [16] No categories defined for household with income -3200.0, choosing a default one
+04:14:11.011 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [32] No categories defined for household with income -1000.0, choosing a default one
+04:14:12.172 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [64] No categories defined for household with income -5400.0, choosing a default one
+04:14:15.012 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [128] No categories defined for household with income -6500.0, choosing a default one
+04:14:21.534 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [256] No categories defined for household with income -3600.0, choosing a default one
+04:14:31.278 WARN  b.s.v.IncomeBasedVehiclesAdjustment - [512] No categories defined for household with income -3200.0, choosing a default one
+04:14:43.213 INFO  b.u.scenario.UrbanSimScenarioLoader - Created 4753224 vehicles, scaling initial value of 4753224 by a factor of 1.0
+04:14:43.215 INFO  b.u.scenario.UrbanSimScenarioLoader - Applying persons...
+2021-09-29 04:14:48,463  INFO PopulationImpl:112  person # 1
+2021-09-29 04:14:48,465  INFO PopulationImpl:112  person # 4
+2021-09-29 04:14:48,470  INFO PopulationImpl:112  person # 16
+2021-09-29 04:14:48,479  INFO PopulationImpl:112  person # 64
+2021-09-29 04:14:48,503  INFO PopulationImpl:112  person # 256
+2021-09-29 04:14:48,544  INFO PopulationImpl:112  person # 1024
+2021-09-29 04:14:48,609  INFO PopulationImpl:112  person # 4096
+2021-09-29 04:14:48,803  INFO PopulationImpl:112  person # 16384
+2021-09-29 04:14:49,467  INFO PopulationImpl:112  person # 65536
+2021-09-29 04:15:37,817  INFO PopulationImpl:112  person # 262144
+2021-09-29 04:15:48,753  INFO PopulationImpl:112  person # 1048576
+04:16:30.379 INFO  b.u.scenario.UrbanSimScenarioLoader - Applying plans...
+04:16:56.823 INFO  b.u.scenario.UrbanSimScenarioLoader - The scenario loading is completed..
+04:16:56.824 INFO  beam.sim.RunBeam$ - Load scenario using urbansim/csv executed in 588038 ms
+04:16:56.824 INFO  beam.sim.RunBeam$ - Java version: 1.8.0_222
+04:16:56.825 INFO  beam.sim.RunBeam$ - JVM args: List(-Xmx1390g)
+04:16:56.826 INFO  beam.sim.RunBeam$ - Heap size: 61.4 GB
+04:16:56.826 INFO  beam.sim.RunBeam$ - Heap max memory: 1.2 TB
+04:16:56.826 INFO  beam.sim.RunBeam$ - Heap free memory: 27.5 GB
+04:16:57.567 WARN  beam.sim.RunBeam$ - 
+Scenario population size: 3775115
 Scenario vehicles size: 0
 Scenario lanes size: 0
-BeamScenario households size: 21
-BeamScenario privateVehicles size: 42
-BeamScenario vehicleTypes size: 16
-BeamScenario modIncentives size 3
+BeamScenario households size: 2313365
+BeamScenario privateVehicles size: 7066589
+BeamScenario vehicleTypes size: 133
+BeamScenario modIncentives size 0
 
-01:15:57.607 INFO  beam.utils.NetworkHelperImpl - Total number of links is 376 and MaxLinkId is 375.
-01:15:57.608 INFO  beam.utils.NetworkHelperImpl - NetworkHelperImpl init executed in 6 ms
-01:15:57.610 INFO  beam.sim.LoggingEventsManager - Created sequential class org.matsim.core.events.EventsManagerImpl with hashcode: 421481829
-01:15:57.610 INFO  beam.sim.LoggingEventsManager - Created default class org.matsim.core.events.ParallelEventsManagerImpl with hashcode: 2049602706
-01:15:57.637 INFO  b.s.m.InfluxDbSimulationMetricCollector - Enabled metrics: beam-run,beam-iteration,beam-map-envelope,beam-run-households,beam-run-population-size,beam-run-private-fleet-size,beam-run-charging-depots-cnt,beam-run-charging-depots-stalls-cnt,beam-run-public-fast-charge-cnt,beam-run-public-fast-charge-stalls-cnt,beam-run-RH-ev-cav,beam-run-RH-non-ev-cav,beam-run-RH-ev-non-cav,beam-run-RH-non-ev-non-cav,parking,chargingPower,mode-choices,average-travel-time,ride-hail-waiting-time,ride-hail-waiting-time-map,ride-hail-trip-distance
-01:15:57.637 INFO  b.s.m.InfluxDbSimulationMetricCollector - Today is 2021-09-29T00:00, toEpochMilli: 1632873600000 ms or 1632873600000000000 ns
-01:15:58.018 WARN  b.s.m.InfluxDbSimulationMetricCollector - There are enabled metrics, but InfluxDB is unavailable at http://localhost:8086, database: 'beam'. Error: java.net.ConnectException: Failed to connect to localhost/127.0.0.1:8086
-2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:186 ###########################################################
-2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:187 ### THE CONTROLER WILL OVERWRITE FILES IN:
-2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:188 ### /global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry
-2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:189 ###########################################################
-2021-09-29 01:15:58,034  INFO StrategyManager:59 global innovation switch off after iteration: 19999998
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearRoutes@45c423b3
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearModes@7e31d53b
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@68d8eb4f
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@64757d56
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearRoutes@4813d0
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearModes@702096ef
-2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@5f0d8937
-2021-09-29 01:15:58,037  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@105dc04d
-2021-09-29 01:15:58,037  INFO GenericStrategyManager:347 setting PlanSelectorForRemoval to class org.matsim.core.replanning.selectors.WorstPlanForRemovalSelector
-2021-09-29 01:15:58,038  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToActivities
-2021-09-29 01:15:58,038  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityStartEventHandler
-2021-09-29 01:15:58,039  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityStartEvent
-2021-09-29 01:15:58,039  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityEndEventHandler
-2021-09-29 01:15:58,039  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityEndEvent
-2021-09-29 01:15:58,039  INFO EventsManagerImpl:159 
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToLegs
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonDepartureEvent
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonArrivalEvent
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkEnterEventHandler
-2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkEnterEvent
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.TeleportationArrivalEventHandler
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.TeleportationArrivalEvent
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.TransitDriverStartsEvent
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonEntersVehicleEvent
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.VehicleArrivesAtFacilityEventHandler
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.VehicleArrivesAtFacilityEvent
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
-2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
-2021-09-29 01:15:58,042  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler
-2021-09-29 01:15:58,042  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleLeavesTrafficEvent
-2021-09-29 01:15:58,042  INFO EventsManagerImpl:159 
-2021-09-29 01:15:58,045  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.core.scoring.ScoringFunctionsForPopulation to thread 0
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.ScoringFunctionsForPopulation
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.events.handler.BasicEventHandler
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.Event
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToLegs$LegHandler
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToActivities$ActivityHandler
-2021-09-29 01:15:58,045  INFO EventsManagerImpl:159 
-01:15:58.626 INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started
-2021-09-29 01:15:59,083  INFO CalcLinkStats:151  resetting `count' to zero.  This info is here since we want to check when this is happening during normal simulation runs.  kai, jan'11
-2021-09-29 01:15:59,085  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.analysis.VolumesAnalyzer to thread 0
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.analysis.VolumesAnalyzer
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
-2021-09-29 01:15:59,085  INFO EventsManagerImpl:159 
+04:16:58.689 INFO  beam.utils.NetworkHelperImpl - Total number of links is 182772 and MaxLinkId is 182771.
+04:16:58.702 INFO  beam.utils.NetworkHelperImpl - NetworkHelperImpl init executed in 111 ms
+04:16:58.704 INFO  beam.sim.LoggingEventsManager - Created sequential class org.matsim.core.events.EventsManagerImpl with hashcode: 1847665197
+04:16:58.704 INFO  beam.sim.LoggingEventsManager - Created default class org.matsim.core.events.ParallelEventsManagerImpl with hashcode: 441645567
+04:16:58.709 INFO  b.s.m.InfluxDbSimulationMetricCollector - Enabled metrics: beam-run,beam-iteration,beam-map-envelope,beam-run-households,beam-run-population-size,beam-run-private-fleet-size,beam-run-charging-depots-cnt,beam-run-charging-depots-stalls-cnt,beam-run-public-fast-charge-cnt,beam-run-public-fast-charge-stalls-cnt,beam-run-RH-ev-cav,beam-run-RH-non-ev-cav,beam-run-RH-ev-non-cav,beam-run-RH-non-ev-non-cav,parking,chargingPower,mode-choices,average-travel-time,ride-hail-waiting-time,ride-hail-waiting-time-map,ride-hail-trip-distance
+04:16:58.709 INFO  b.s.m.InfluxDbSimulationMetricCollector - Today is 2021-09-29T00:00, toEpochMilli: 1632873600000 ms or 1632873600000000000 ns
+04:16:58.848 WARN  b.s.m.InfluxDbSimulationMetricCollector - There are enabled metrics, but InfluxDB is unavailable at http://localhost:8086, database: 'beam'. Error: java.net.ConnectException: Failed to connect to localhost/127.0.0.1:8086
+2021-09-29 04:16:58,857  WARN OutputDirectoryHierarchy:186 ###########################################################
+2021-09-29 04:16:58,857  WARN OutputDirectoryHierarchy:187 ### THE CONTROLER WILL OVERWRITE FILES IN:
+2021-09-29 04:16:58,857  WARN OutputDirectoryHierarchy:188 ### /global/scratch/tin/tin-gh/beam/Singularity-repo/output/sfbay/gemini-runs-2021-02-27/gemini-base-2035__2021-09-29_04-07-06_bwg
+2021-09-29 04:16:58,857  WARN OutputDirectoryHierarchy:189 ###########################################################
+2021-09-29 04:16:58,863  INFO StrategyManager:59 global innovation switch off after iteration: 2147483647
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.AddSupplementaryTrips@4085ad86
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.ClearRoutes@4c94cebb
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.ClearRoutes@7cfb1420
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.AddSupplementaryTrips@3d0d775
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@6e54a314
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@4df5973
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@20a117dc
+2021-09-29 04:16:58,865  INFO GenericStrategyManager:315 added change request:  iteration=-2147483648 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@254f07c2
+2021-09-29 04:16:58,866  INFO GenericStrategyManager:347 setting PlanSelectorForRemoval to class org.matsim.core.replanning.selectors.WorstPlanForRemovalSelector
+2021-09-29 04:16:58,867  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToActivities
+2021-09-29 04:16:58,867  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityStartEventHandler
+2021-09-29 04:16:58,867  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityStartEvent
+2021-09-29 04:16:58,868  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityEndEventHandler
+2021-09-29 04:16:58,868  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityEndEvent
+2021-09-29 04:16:58,868  INFO EventsManagerImpl:159 
+2021-09-29 04:16:58,868  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToLegs
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonDepartureEvent
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonArrivalEvent
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkEnterEventHandler
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkEnterEvent
+2021-09-29 04:16:58,869  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.TeleportationArrivalEventHandler
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.TeleportationArrivalEvent
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.TransitDriverStartsEvent
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonEntersVehicleEvent
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.VehicleArrivesAtFacilityEventHandler
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.VehicleArrivesAtFacilityEvent
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
+2021-09-29 04:16:58,870  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
+2021-09-29 04:16:58,871  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler
+2021-09-29 04:16:58,871  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleLeavesTrafficEvent
+2021-09-29 04:16:58,871  INFO EventsManagerImpl:159 
+2021-09-29 04:16:58,874  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.core.scoring.ScoringFunctionsForPopulation to thread 0
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.ScoringFunctionsForPopulation
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:151   org.matsim.core.events.handler.BasicEventHandler
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.Event
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToLegs$LegHandler
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToActivities$ActivityHandler
+2021-09-29 04:16:58,874  INFO EventsManagerImpl:159 
+04:16:59.243 INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+2021-09-29 04:16:59,654  INFO CalcLinkStats:151  resetting `count' to zero.  This info is here since we want to check when this is happening during normal simulation runs.  kai, jan'11
+2021-09-29 04:16:59,873  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.analysis.VolumesAnalyzer to thread 0
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.analysis.VolumesAnalyzer
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
+2021-09-29 04:16:59,874  INFO EventsManagerImpl:159 
 Exception in thread "main" com.google.inject.CreationException: Unable to create injector, see the following errors:
 
-1) Error injecting constructor, java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat (Read-only file system)
+1) Error injecting constructor, java.io.FileNotFoundException: /app/production/sfbay/gemini/../r5-simple-no-local/fares.dat (Read-only file system)
   at beam.router.gtfs.FareCalculator.<init>(FareCalculator.scala:161)
   at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:232) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
   while locating beam.router.gtfs.FareCalculator
-Caused by: java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat (Read-only file system)
+Caused by: java.io.FileNotFoundException: /app/production/sfbay/gemini/../r5-simple-no-local/fares.dat (Read-only file system)
 	at java.io.FileOutputStream.open0(Native Method)
 	at java.io.FileOutputStream.open(FileOutputStream.java:270)
 	at java.io.FileOutputStream.<init>(FileOutputStream.java:213)
@@ -478,7 +575,7 @@ Caused by: java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat
 	at beam.sim.RunBeam$.main(RunBeam.scala:27)
 	at beam.sim.RunBeam.main(RunBeam.scala)
 
-2) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+2) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
   at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
   at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
   while locating beam.router.osm.TollCalculator
@@ -491,7 +588,7 @@ Caused by: java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat
   while locating org.matsim.core.controler.NewControler
   at org.matsim.core.controler.NewControlerModule.install(NewControlerModule.java:8) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$1 -> org.matsim.core.controler.NewControlerModule)
   while locating org.matsim.core.controler.ControlerI
-Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
 	at org.mapdb.Volume.volumeForFile(Volume.java:202)
 	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
@@ -568,16 +665,16 @@ Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: 
 	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
 	at beam.sim.RunBeam$.main(RunBeam.scala:27)
 	at beam.sim.RunBeam.main(RunBeam.scala)
-Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
 	... 75 more
 
-3) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+3) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
   at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
   at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
   while locating beam.router.osm.TollCalculator
-Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
 	at org.mapdb.Volume.volumeForFile(Volume.java:202)
 	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
@@ -628,12 +725,12 @@ Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: 
 	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
 	at beam.sim.RunBeam$.main(RunBeam.scala:27)
 	at beam.sim.RunBeam.main(RunBeam.scala)
-Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
 	... 49 more
 
-4) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+4) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
   at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
   at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
   while locating beam.router.osm.TollCalculator
@@ -649,7 +746,7 @@ Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/b
   at beam.router.skim.Skims.<init>(Skims.scala:23)
   at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:238) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
   while locating beam.router.skim.Skims
-Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
 	at org.mapdb.Volume.volumeForFile(Volume.java:202)
 	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
@@ -743,7 +840,7 @@ Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: 
 	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
 	at beam.sim.RunBeam$.main(RunBeam.scala:27)
 	at beam.sim.RunBeam.main(RunBeam.scala)
-Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+Caused by: java.io.IOException: Parent folder is not writable: /app/production/sfbay/gemini/../r5-simple-no-local/osm.mapdb
 	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
 	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
 	... 92 more
