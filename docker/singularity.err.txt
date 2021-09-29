@@ -1,1 +1,2 @@
 [31mFATAL:  [0m image file already exists - will not overwrite
+
