@@ -1,0 +1,771 @@
+current time is
+Tue Sep 28 18:15:46 PDT 2021
+Wed Sep 29 01:15:46 CUT 2021
+Singularity image already cached
+**^ beyond singularity pull step ^**
+SINGULARITY_WORKDIR=/global/scratch/tin/cacheDir
+SINGULARITY_TMPDIR=/global/scratch/tin/cacheDir
+SINGULARITY_CACHEDIR=/global/scratch/tin/cacheDir
+SINGULARITY_BINDPATH=/global/scratch/tin/tin-gh/beam/:/mnt
+Starting Singularity run as: SINGULARITYENV_JAVA_OPTS='-Xmx90g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/test/input/beamville/beam.conf  2>&1 
+
+  ________
+  ___  __ )__________ _______ ___
+  __  __  |  _ \  __ `/_  __ `__ \
+  _  /_/ //  __/ /_/ /_  / / / / /
+  /_____/ \___/\__,_/ /_/ /_/ /_/
+
+ _____________________________________
+
+    
+Received 2 arguments: List(--config, /app/test/input/beamville/beam.conf)
+Java version: 1.8.0_222
+JVM args: List(-Xmx90g)
+Heap size: 1.4 GB
+Heap max memory: 80.0 GB
+Heap free memory: 1.3 GB
+01:15:51.174 INFO  beam.sim.RunBeam$ - 
+****************************************************************************************************************************  
+** Config File Consistency Check
+**  
+** Testing your config file against what BEAM is expecting.
+**  
+** Found the following duplicate config keys from your config file:
+**  
+**  beam.outputs.baseOutputDirectory
+**  
+** Found the following deprecated parameters, you can safely remove them from your config file:
+**  
+**  beam.agentsim.agentSampleSizeAsFractionOfPopulation
+**  beam.agentsim.agents.households.inputFilePath
+**  beam.agentsim.agents.households.inputHouseholdAttributesFilePath
+**  beam.agentsim.agents.modalBehaviors.defaultValueOfTime
+**  beam.agentsim.agents.modalBehaviors.lccm.filePath
+**  beam.agentsim.agents.modalBehaviors.modeChoiceClass
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.bike_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.car_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.drive_transit_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.ride_hail_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.ride_hail_pooled_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.ride_hail_transit_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.transfer
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.walk_intercept
+**  beam.agentsim.agents.modalBehaviors.mulitnomialLogit.params.walk_transit_intercept
+**  beam.agentsim.agents.modalBehaviors.overrideAutomationForVOTT
+**  beam.agentsim.agents.modalBehaviors.overrideAutomationLevel
+**  beam.agentsim.agents.modeIncentive.filePath
+**  beam.agentsim.agents.plans.inputPersonAttributesFilePath
+**  beam.agentsim.agents.plans.inputPlansFilePath
+**  beam.agentsim.agents.ptFare.filePath
+**  beam.agentsim.agents.rideHail.allocationManager.alonsoMora.maxRequestsPerVehicle
+**  beam.agentsim.agents.rideHail.allocationManager.matchingAlgorithm
+**  beam.agentsim.agents.rideHail.allocationManager.maxExcessRideTime
+**  beam.agentsim.agents.rideHail.allocationManager.maxWaitingTimeInSec
+**  beam.agentsim.agents.rideHail.allocationManager.name
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.allowIncreasingRadiusIfDemandInRadiusLow
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.demandWeight
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.distanceWeight
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.keepMaxTopNScores
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minDemandPercentageInRadius
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minScoreThresholdForRepositioning
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.minimumNumberOfIdlingVehiclesThresholdForRepositioning
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.percentageOfVehiclesToReposition
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.produceDebugImages
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.repositionCircleRadiusInMeters
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.repositioningMethod
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.timeWindowSizeInSecForDecidingAboutRepositioning
+**  beam.agentsim.agents.rideHail.allocationManager.repositionLowWaitingTimes.waitingTimeWeight
+**  beam.agentsim.agents.rideHail.allocationManager.requestBufferTimeoutInSeconds
+**  beam.agentsim.agents.rideHail.defaultCostPerMile
+**  beam.agentsim.agents.rideHail.defaultCostPerMinute
+**  beam.agentsim.agents.rideHail.initialization.filePath
+**  beam.agentsim.agents.rideHail.initialization.initType
+**  beam.agentsim.agents.rideHail.initialization.procedural.fractionOfInitialVehicleFleet
+**  beam.agentsim.agents.rideHail.initialization.procedural.initialLocation.home.radiusInMeters
+**  beam.agentsim.agents.rideHail.initialization.procedural.initialLocation.name
+**  beam.agentsim.agents.rideHail.initialization.procedural.vehicleTypeId
+**  beam.agentsim.agents.rideHail.iterationStats.timeBinSizeInSec
+**  beam.agentsim.agents.rideHail.refuelLocationType
+**  beam.agentsim.agents.rideHail.refuelThresholdInMeters
+**  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.numberOfClustersForDemand
+**  beam.agentsim.agents.rideHail.repositioningManager.demandFollowingRepositioningManager.sensitivityOfRepositioningToDemand
+**  beam.agentsim.agents.rideHail.repositioningManager.name
+**  beam.agentsim.agents.rideHail.repositioningManager.timeout
+**  beam.agentsim.agents.rideHail.rideHailManager.radiusInMeters
+**  beam.agentsim.agents.rideHail.surgePricing.minimumSurgeLevel
+**  beam.agentsim.agents.rideHail.surgePricing.priceAdjustmentStrategy
+**  beam.agentsim.agents.rideHail.surgePricing.surgeLevelAdaptionStep
+**  beam.agentsim.agents.rideHailTransit.modesToConsider
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.activity_file_path
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.additional_trip_utility
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.destination_nest_scale_factor
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.generate_secondary_activities
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.intercept_file_path
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.max_destination_choice_set_size
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.max_destination_distance_meters
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.mode_nest_scale_factor
+**  beam.agentsim.agents.tripBehaviors.mulitnomialLogit.trip_nest_scale_factor
+**  beam.agentsim.agents.vehicles.fuelTypesFilePath
+**  beam.agentsim.agents.vehicles.linkToGradePercentFilePath
+**  beam.agentsim.agents.vehicles.sharedFleets
+**  beam.agentsim.agents.vehicles.vehicleTypesFilePath
+**  beam.agentsim.agents.vehicles.vehiclesFilePath
+**  beam.agentsim.endTime
+**  beam.agentsim.firstIteration
+**  beam.agentsim.lastIteration
+**  beam.agentsim.populationAdjustment
+**  beam.agentsim.schedulerParallelismWindow
+**  beam.agentsim.simulationName
+**  beam.agentsim.startTime
+**  beam.agentsim.taz.filePath
+**  beam.agentsim.taz.parkingFilePath
+**  beam.agentsim.thresholdForMakingParkingChoiceInMeters
+**  beam.agentsim.thresholdForWalkingInMeters
+**  beam.agentsim.timeBinSize
+**  beam.agentsim.toll.filePath
+**  beam.agentsim.tuning.rideHailPrice
+**  beam.agentsim.tuning.tollPrice
+**  beam.agentsim.tuning.transitCapacity
+**  beam.agentsim.tuning.transitPrice
+**  beam.calibration.counts.averageCountsOverIterations
+**  beam.calibration.counts.countsScaleFactor
+**  beam.calibration.counts.writeCountsInterval
+**  beam.calibration.mode.benchmarkFilePath
+**  beam.calibration.objectiveFunction
+**  beam.cosim.helics.federateName
+**  beam.cosim.helics.timeStep
+**  beam.debug.actor.logDepth
+**  beam.debug.debugActorTimerIntervalInSec
+**  beam.debug.debugEnabled
+**  beam.debug.stuckAgentDetection.checkIntervalMs
+**  beam.debug.stuckAgentDetection.checkMaxNumberOfMessagesEnabled
+**  beam.debug.stuckAgentDetection.defaultTimeoutMs
+**  beam.debug.stuckAgentDetection.enabled
+**  beam.debug.stuckAgentDetection.overallSimulationTimeoutMs
+**  beam.debug.stuckAgentDetection.thresholds
+**  beam.inputDirectory
+**  beam.metrics.level
+**  beam.outputs.addTimestampToOutputDirectory
+**  beam.outputs.baseOutputDirectory
+**  beam.outputs.defaultWriteInterval
+**  beam.outputs.events.eventsToWrite
+**  beam.outputs.events.fileOutputFormats
+**  beam.outputs.stats.binSize
+**  beam.outputs.writeAnalysis
+**  beam.outputs.writeEventsInterval
+**  beam.outputs.writeLinkTraversalInterval
+**  beam.outputs.writePlansInterval
+**  beam.physsim.flowCapacityFactor
+**  beam.physsim.inputNetworkFilePath
+**  beam.physsim.jdeqsim.agentSimPhysSimInterfaceDebugger.enabled
+**  beam.physsim.jdeqsim.cacc.enabled
+**  beam.physsim.jdeqsim.cacc.minRoadCapacity
+**  beam.physsim.jdeqsim.cacc.minSpeedMetersPerSec
+**  beam.physsim.jdeqsim.cacc.speedAdjustmentFactor
+**  beam.physsim.linkStatsWriteInterval
+**  beam.physsim.ptSampleSize
+**  beam.physsim.quick_fix_minCarSpeedInMetersPerSecond
+**  beam.physsim.skipPhysSim
+**  beam.physsim.storageCapacityFactor
+**  beam.physsim.writeEventsInterval
+**  beam.physsim.writeMATSimNetwork
+**  beam.physsim.writePlansInterval
+**  beam.replanning.ModuleProbability_1
+**  beam.replanning.ModuleProbability_2
+**  beam.replanning.ModuleProbability_3
+**  beam.replanning.ModuleProbability_4
+**  beam.replanning.Module_1
+**  beam.replanning.Module_2
+**  beam.replanning.Module_3
+**  beam.replanning.Module_4
+**  beam.replanning.cleanNonCarModesInIteration
+**  beam.replanning.fractionOfIterationsToDisableInnovation
+**  beam.replanning.maxAgentPlanMemorySize
+**  beam.router.skim.collectFullCarSkimsInterval
+**  beam.router.skim.h3Resolution
+**  beam.router.skim.keepKLatestSkims
+**  beam.router.skim.origin_destination_skimmer.fileBaseName
+**  beam.router.skim.origin_destination_skimmer.name
+**  beam.router.skim.origin_destination_skimmer.writeAllModeSkimsForPeakNonPeakPeriodsInterval
+**  beam.router.skim.origin_destination_skimmer.writeFullSkimsInterval
+**  beam.router.skim.taz-skimmer.fileBaseName
+**  beam.router.skim.taz-skimmer.name
+**  beam.router.skim.travel-time-skimmer.fileBaseName
+**  beam.router.skim.travel-time-skimmer.name
+**  beam.router.skim.writeAggregatedSkimsInterval
+**  beam.router.skim.writeSkimsInterval
+**  beam.routing.baseDate
+**  beam.routing.r5.departureWindow
+**  beam.routing.r5.directory
+**  beam.routing.r5.mNetBuilder.fromCRS
+**  beam.routing.r5.mNetBuilder.toCRS
+**  beam.routing.r5.osmFile
+**  beam.routing.r5.osmMapdbFile
+**  beam.routing.startingIterationForTravelTimesMSA
+**  beam.routing.transitOnStreetNetwork
+**  beam.sim.metric.collector.influxDbSimulationMetricCollector.connectionString
+**  beam.sim.metric.collector.influxDbSimulationMetricCollector.database
+**  beam.sim.metric.collector.metrics
+**  beam.spatial.boundingBoxBuffer
+**  beam.spatial.localCRS
+**  beam.warmStart.path
+**  beam.warmStart.type
+**  matsim.conversion.defaultHouseholdIncome.currency
+**  matsim.conversion.defaultHouseholdIncome.period
+**  matsim.conversion.defaultHouseholdIncome.value
+**  matsim.conversion.generateVehicles
+**  matsim.conversion.matsimNetworkFile
+**  matsim.conversion.osmFile
+**  matsim.conversion.populationFile
+**  matsim.conversion.scenarioDirectory
+**  matsim.conversion.shapeConfig.shapeFile
+**  matsim.conversion.shapeConfig.tazIdFieldName
+**  matsim.conversion.vehiclesFile
+**  matsim.modules.changeMode.modes
+**  matsim.modules.controler.eventsFileFormat
+**  matsim.modules.controler.firstIteration
+**  matsim.modules.controler.lastIteration
+**  matsim.modules.controler.mobsim
+**  matsim.modules.controler.outputDirectory
+**  matsim.modules.controler.overwriteFiles
+**  matsim.modules.counts.averageCountsOverIterations
+**  matsim.modules.counts.countsScaleFactor
+**  matsim.modules.counts.outputformat
+**  matsim.modules.counts.writeCountsInterval
+**  matsim.modules.global.coordinateSystem
+**  matsim.modules.global.randomSeed
+**  matsim.modules.households.inputFile
+**  matsim.modules.households.inputHouseholdAttributesFile
+**  matsim.modules.linkStats.averageLinkStatsOverIterations
+**  matsim.modules.linkStats.writeLinkStatsInterval
+**  matsim.modules.network.inputNetworkFile
+**  matsim.modules.parallelEventHandling.estimatedNumberOfEvents
+**  matsim.modules.parallelEventHandling.numberOfThreads
+**  matsim.modules.parallelEventHandling.oneThreadPerHandler
+**  matsim.modules.parallelEventHandling.synchronizeOnSimSteps
+**  matsim.modules.planCalcScore.BrainExpBeta
+**  matsim.modules.planCalcScore.earlyDeparture
+**  matsim.modules.planCalcScore.lateArrival
+**  matsim.modules.planCalcScore.learningRate
+**  matsim.modules.planCalcScore.parameterset
+**  matsim.modules.planCalcScore.performing
+**  matsim.modules.planCalcScore.traveling
+**  matsim.modules.planCalcScore.waiting
+**  matsim.modules.planCalcScore.writeExperiencedPlans
+**  matsim.modules.plans.inputPersonAttributesFile
+**  matsim.modules.plans.inputPlansFile
+**  matsim.modules.qsim.endTime
+**  matsim.modules.qsim.snapshotperiod
+**  matsim.modules.qsim.startTime
+**  matsim.modules.strategy.ModuleProbability_1
+**  matsim.modules.strategy.ModuleProbability_2
+**  matsim.modules.strategy.ModuleProbability_3
+**  matsim.modules.strategy.ModuleProbability_4
+**  matsim.modules.strategy.Module_1
+**  matsim.modules.strategy.Module_2
+**  matsim.modules.strategy.Module_3
+**  matsim.modules.strategy.Module_4
+**  matsim.modules.strategy.fractionOfIterationsToDisableInnovation
+**  matsim.modules.strategy.maxAgentPlanMemorySize
+**  matsim.modules.strategy.parameterset
+**  matsim.modules.transit.transitModes
+**  matsim.modules.transit.useTransit
+**************************************************************************************************************************
+
+01:15:51.388 INFO  beam.sim.RunBeam$ - Starting beam on branch tin/singularity at commit d0f61043b8fb63870e3cc82d2299cb0fd2799fee.
+01:15:51.391 INFO  beam.sim.RunBeam$ - Maximum Memory (-Xmx): 85.9 (GB)
+01:15:51.467 INFO  beam.sim.RunBeam$ - Processing configs for [beamville] simulation.
+01:15:51.470 INFO  beam.sim.RunBeam$ - Config '/app/test/input/beamville/beam.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/beam.conf'.
+01:15:51.471 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/metrics.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/metrics.conf'.
+01:15:51.472 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/matsim.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/matsim.conf'.
+01:15:51.473 INFO  beam.sim.RunBeam$ - Config '/app/test/input/common/akka.conf' copied to '/global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry/akka.conf'.
+2021-09-29 01:15:51,755  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
+2021-09-29 01:15:51,821  INFO Config:561 setting context to [file:/app/test/input/beamville/]
+2021-09-29 01:15:52,744  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode car were just overwritten.
+2021-09-29 01:15:52,745  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode walk were just overwritten.
+2021-09-29 01:15:52,745  INFO PlanCalcScoreConfigGroup$ScoringParameterSet:1305 mode parameters for mode bike were just overwritten.
+01:15:52.832 INFO  b.r.r5.DefaultNetworkCoordinator - Initializing router by reading network from: /app/test/input/beamville/r5/network.dat
+2021-09-29 01:15:53,137  INFO MatsimXmlParser:147 starting to parse xml from file /app/test/input/beamville/physsim-network.xml ...
+2021-09-29 01:15:53,219  INFO MatsimNetworkReader:95 using network_v2-reader.
+2021-09-29 01:15:53,219  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/network_v2.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:53,790  INFO NetworkImpl:167  node # 1
+2021-09-29 01:15:53,791  INFO NetworkImpl:167  node # 4
+2021-09-29 01:15:53,793  INFO NetworkImpl:167  node # 16
+2021-09-29 01:15:53,802  INFO NetworkImpl:167  node # 64
+2021-09-29 01:15:53,813  INFO NetworkImpl:163  link # 1
+2021-09-29 01:15:53,816  INFO NetworkImpl:163  link # 4
+2021-09-29 01:15:53,819  INFO NetworkImpl:163  link # 16
+2021-09-29 01:15:53,830  INFO NetworkImpl:163  link # 64
+2021-09-29 01:15:53,849  INFO NetworkImpl:163  link # 256
+2021-09-29 01:15:54,423  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 01:15:55,022  INFO Logger:? dataFileCache open start
+2021-09-29 01:15:55,265  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 01:15:55,281  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+2021-09-29 01:15:55,281  WARN MGC:175 Assuming that coordinates are in longitude first notation, i.e. (longitude, latitude).
+01:15:55.331 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-0.010049999894685581,-0.010049999999999974,0.05005000009793684,0.05004999999997861) with resolution 6 executed in 38 ms
+01:15:55.331 INFO  b.agentsim.infrastructure.taz.H3TAZ - fillBox for boundingBox QuadTreeBounds(-0.010049999894685581,-0.010049999999999974,0.05005000009793684,0.05004999999997861) with resolution 6 gives 2 elemets
+01:15:55.484 INFO  b.agentsim.infrastructure.taz.H3TAZ - Constructed tazToH3TAZMapping executed in 152 ms
+2021-09-29 01:15:55,506  INFO Config:561 setting context to [file:/global/scratch/tin/tin-gh/beam/Singularity-repo/]
+2021-09-29 01:15:55,528  INFO ScenarioLoaderImpl:108 loading scenario from base directory: /global/scratch/tin/tin-gh/beam/Singularity-repo/
+2021-09-29 01:15:55,528  INFO ScenarioLoaderImpl:130 loading network from file:/app/test/input/beamville/physsim-network.xml
+2021-09-29 01:15:55,528  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/physsim-network.xml ...
+2021-09-29 01:15:55,531  INFO MatsimNetworkReader:95 using network_v2-reader.
+2021-09-29 01:15:55,531  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/network_v2.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:55,841  INFO NetworkImpl:167  node # 1
+2021-09-29 01:15:55,841  INFO NetworkImpl:167  node # 4
+2021-09-29 01:15:55,842  INFO NetworkImpl:167  node # 16
+2021-09-29 01:15:55,843  INFO NetworkImpl:167  node # 64
+2021-09-29 01:15:55,845  INFO NetworkImpl:163  link # 1
+2021-09-29 01:15:55,847  INFO NetworkImpl:163  link # 4
+2021-09-29 01:15:55,848  INFO NetworkImpl:163  link # 16
+2021-09-29 01:15:55,852  INFO NetworkImpl:163  link # 64
+2021-09-29 01:15:55,864  INFO NetworkImpl:163  link # 256
+2021-09-29 01:15:55,869  INFO ScenarioLoaderImpl:182 no facilities file set in config, therefore not loading any facilities.  This is not a problem except if you are using facilities
+2021-09-29 01:15:55,870  INFO ScenarioLoaderImpl:192 no facility-attributes file set in config, not loading any facility attributes
+2021-09-29 01:15:55,870  INFO ScenarioLoaderImpl:199 loading population from file:/app/test/input/beamville/population.xml
+2021-09-29 01:15:55,878  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/population.xml ...
+2021-09-29 01:15:55,883  INFO PopulationReader:109 using population_v6-reader.
+2021-09-29 01:15:55,884  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/population_v6.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:55,899  INFO PopulationImpl:112  person # 1
+2021-09-29 01:15:55,900  INFO PopulationImpl:112  person # 4
+2021-09-29 01:15:55,903  INFO PopulationImpl:112  person # 16
+2021-09-29 01:15:55,909  INFO PopulationUtils:992  person # 50
+2021-09-29 01:15:55,909  INFO ScenarioLoaderImpl:229 loading person attributes from file:/app/test/input/beamville/populationAttributes.xml
+2021-09-29 01:15:55,910  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/populationAttributes.xml ...
+2021-09-29 01:15:55,912  INFO MatsimXmlParser:270 Trying to load http://matsim.org/files/dtd/objectattributes_v1.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:56,225  INFO ObjectAttributesXmlReader:110 reading object #0
+2021-09-29 01:15:56,228  INFO ScenarioLoaderImpl:242 loading households from file:/app/test/input/beamville/households.xml
+2021-09-29 01:15:56,230  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/households.xml ...
+2021-09-29 01:15:56,237  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/households_v1.0.xsd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:56,276  INFO MatsimXmlParser:270 Trying to load file:/app/test/input/dtd/matsimCommon.xsd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:56,295  INFO Counter:61   households # 1
+2021-09-29 01:15:56,295  INFO Counter:61   households # 2
+2021-09-29 01:15:56,297  INFO Counter:61   households # 4
+2021-09-29 01:15:56,299  INFO Counter:61   households # 8
+2021-09-29 01:15:56,302  INFO Counter:61   households # 16
+2021-09-29 01:15:56,304  INFO Counter:67   households # 21
+2021-09-29 01:15:56,304  INFO ScenarioLoaderImpl:244 households loaded.
+2021-09-29 01:15:56,305  INFO ScenarioLoaderImpl:252 loading household attributes from file:/app/test/input/beamville/householdAttributes.xml
+2021-09-29 01:15:56,305  WARN MatsimXmlParser:155 starting to parse xml from url file:/app/test/input/beamville/householdAttributes.xml ...
+2021-09-29 01:15:56,307  INFO MatsimXmlParser:270 Trying to load http://www.matsim.org/files/dtd/objectattributes_v1.dtd. In some cases (e.g. network interface up but no connection), this may take a bit.
+2021-09-29 01:15:56,613  INFO ObjectAttributesXmlReader:110 reading object #0
+2021-09-29 01:15:56,615  INFO ScenarioLoaderImpl:284 no transit schedule file set in config, not loading any transit schedule
+2021-09-29 01:15:56,615  INFO ScenarioLoaderImpl:311 no transit vehicles file set in config, not loading any transit vehicles
+01:15:56.628 INFO  beam.sim.RunBeam$ - Load scenario using beam/xml executed in 3862 ms
+01:15:56.629 INFO  beam.sim.RunBeam$ - Java version: 1.8.0_222
+01:15:56.629 INFO  beam.sim.RunBeam$ - JVM args: List(-Xmx90g)
+01:15:56.630 INFO  beam.sim.RunBeam$ - Heap size: 1.5 GB
+01:15:56.630 INFO  beam.sim.RunBeam$ - Heap max memory: 80.0 GB
+01:15:56.630 INFO  beam.sim.RunBeam$ - Heap free memory: 1.3 GB
+01:15:56.633 WARN  beam.sim.RunBeam$ - 
+Scenario population size: 50
+Scenario vehicles size: 0
+Scenario lanes size: 0
+BeamScenario households size: 21
+BeamScenario privateVehicles size: 42
+BeamScenario vehicleTypes size: 16
+BeamScenario modIncentives size 3
+
+01:15:57.607 INFO  beam.utils.NetworkHelperImpl - Total number of links is 376 and MaxLinkId is 375.
+01:15:57.608 INFO  beam.utils.NetworkHelperImpl - NetworkHelperImpl init executed in 6 ms
+01:15:57.610 INFO  beam.sim.LoggingEventsManager - Created sequential class org.matsim.core.events.EventsManagerImpl with hashcode: 421481829
+01:15:57.610 INFO  beam.sim.LoggingEventsManager - Created default class org.matsim.core.events.ParallelEventsManagerImpl with hashcode: 2049602706
+01:15:57.637 INFO  b.s.m.InfluxDbSimulationMetricCollector - Enabled metrics: beam-run,beam-iteration,beam-map-envelope,beam-run-households,beam-run-population-size,beam-run-private-fleet-size,beam-run-charging-depots-cnt,beam-run-charging-depots-stalls-cnt,beam-run-public-fast-charge-cnt,beam-run-public-fast-charge-stalls-cnt,beam-run-RH-ev-cav,beam-run-RH-non-ev-cav,beam-run-RH-ev-non-cav,beam-run-RH-non-ev-non-cav,parking,chargingPower,mode-choices,average-travel-time,ride-hail-waiting-time,ride-hail-waiting-time-map,ride-hail-trip-distance
+01:15:57.637 INFO  b.s.m.InfluxDbSimulationMetricCollector - Today is 2021-09-29T00:00, toEpochMilli: 1632873600000 ms or 1632873600000000000 ns
+01:15:58.018 WARN  b.s.m.InfluxDbSimulationMetricCollector - There are enabled metrics, but InfluxDB is unavailable at http://localhost:8086, database: 'beam'. Error: java.net.ConnectException: Failed to connect to localhost/127.0.0.1:8086
+2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:186 ###########################################################
+2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:187 ### THE CONTROLER WILL OVERWRITE FILES IN:
+2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:188 ### /global/scratch/tin/tin-gh/beam/Singularity-repo/output/beamville/beamville__2021-09-29_01-15-50_qry
+2021-09-29 01:15:58,026  WARN OutputDirectoryHierarchy:189 ###########################################################
+2021-09-29 01:15:58,034  INFO StrategyManager:59 global innovation switch off after iteration: 19999998
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearRoutes@45c423b3
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearModes@7e31d53b
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@68d8eb4f
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@64757d56
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearRoutes@4813d0
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.ClearModes@702096ef
+2021-09-29 01:15:58,036  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamTimeMutator@5f0d8937
+2021-09-29 01:15:58,037  INFO GenericStrategyManager:315 added change request:  iteration=19999999 newWeight=0.0 strategy=beam.replanning.BeamExpBeta@105dc04d
+2021-09-29 01:15:58,037  INFO GenericStrategyManager:347 setting PlanSelectorForRemoval to class org.matsim.core.replanning.selectors.WorstPlanForRemovalSelector
+2021-09-29 01:15:58,038  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToActivities
+2021-09-29 01:15:58,038  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityStartEventHandler
+2021-09-29 01:15:58,039  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityStartEvent
+2021-09-29 01:15:58,039  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.ActivityEndEventHandler
+2021-09-29 01:15:58,039  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.ActivityEndEvent
+2021-09-29 01:15:58,039  INFO EventsManagerImpl:159 
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.EventsToLegs
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonDepartureEventHandler
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonDepartureEvent
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonArrivalEventHandler
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonArrivalEvent
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkEnterEventHandler
+2021-09-29 01:15:58,040  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkEnterEvent
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.TeleportationArrivalEventHandler
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.TeleportationArrivalEvent
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.TransitDriverStartsEventHandler
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.TransitDriverStartsEvent
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.PersonEntersVehicleEventHandler
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.PersonEntersVehicleEvent
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.core.api.experimental.events.handler.VehicleArrivesAtFacilityEventHandler
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.core.api.experimental.events.VehicleArrivesAtFacilityEvent
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
+2021-09-29 01:15:58,041  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
+2021-09-29 01:15:58,042  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleLeavesTrafficEventHandler
+2021-09-29 01:15:58,042  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleLeavesTrafficEvent
+2021-09-29 01:15:58,042  INFO EventsManagerImpl:159 
+2021-09-29 01:15:58,045  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.core.scoring.ScoringFunctionsForPopulation to thread 0
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.core.scoring.ScoringFunctionsForPopulation
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.events.handler.BasicEventHandler
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.Event
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToLegs$LegHandler
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:151   org.matsim.core.scoring.EventsToActivities$ActivityHandler
+2021-09-29 01:15:58,045  INFO EventsManagerImpl:159 
+01:15:58.626 INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started
+2021-09-29 01:15:59,083  INFO CalcLinkStats:151  resetting `count' to zero.  This info is here since we want to check when this is happening during normal simulation runs.  kai, jan'11
+2021-09-29 01:15:59,085  INFO ParallelEventsManagerImpl:128 adding Event-Handler org.matsim.analysis.VolumesAnalyzer to thread 0
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:147 adding Event-Handler: org.matsim.analysis.VolumesAnalyzer
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.LinkLeaveEvent
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:151   org.matsim.api.core.v01.events.handler.VehicleEntersTrafficEventHandler
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:215     > org.matsim.api.core.v01.events.VehicleEntersTrafficEvent
+2021-09-29 01:15:59,085  INFO EventsManagerImpl:159 
+Exception in thread "main" com.google.inject.CreationException: Unable to create injector, see the following errors:
+
+1) Error injecting constructor, java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat (Read-only file system)
+  at beam.router.gtfs.FareCalculator.<init>(FareCalculator.scala:161)
+  at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:232) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
+  while locating beam.router.gtfs.FareCalculator
+Caused by: java.io.FileNotFoundException: /app/test/input/beamville/r5/fares.dat (Read-only file system)
+	at java.io.FileOutputStream.open0(Native Method)
+	at java.io.FileOutputStream.open(FileOutputStream.java:270)
+	at java.io.FileOutputStream.<init>(FileOutputStream.java:213)
+	at java.io.FileOutputStream.<init>(FileOutputStream.java:162)
+	at beam.router.gtfs.FareCalculator.loadBeamFares(FareCalculator.scala:29)
+	at beam.router.gtfs.FareCalculator.<init>(FareCalculator.scala:20)
+	at beam.router.gtfs.FareCalculator$$FastClassByGuice$$eecfc35e.newInstance(<generated>)
+	at com.google.inject.internal.DefaultConstructionProxyFactory$FastClassProxy.newInstance(DefaultConstructionProxyFactory.java:89)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:111)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:205)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1085)
+	at com.google.inject.internal.InternalInjectorCreator.loadEagerSingletons(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InternalInjectorCreator.injectDynamically(InternalInjectorCreator.java:180)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:110)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:232)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:236)
+	at org.matsim.core.controler.Injector.createInjector(Injector.java:73)
+	at beam.sim.BeamHelper.buildInjector(BeamHelper.scala:610)
+	at beam.sim.BeamHelper.buildInjector$(BeamHelper.scala:601)
+	at beam.sim.RunBeam$.buildInjector(RunBeam.scala:10)
+	at beam.sim.BeamHelper.prepareBeamService(BeamHelper.scala:557)
+	at beam.sim.BeamHelper.prepareBeamService$(BeamHelper.scala:518)
+	at beam.sim.RunBeam$.prepareBeamService(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamWithConfig(BeamHelper.scala:507)
+	at beam.sim.BeamHelper.runBeamWithConfig$(BeamHelper.scala:498)
+	at beam.sim.RunBeam$.runBeamWithConfig(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamUsing(BeamHelper.scala:372)
+	at beam.sim.BeamHelper.runBeamUsing$(BeamHelper.scala:361)
+	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
+	at beam.sim.RunBeam$.main(RunBeam.scala:27)
+	at beam.sim.RunBeam.main(RunBeam.scala)
+
+2) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+  at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
+  at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
+  while locating beam.router.osm.TollCalculator
+    for the 3rd parameter of beam.sim.BeamSim.<init>(BeamSim.scala:72)
+  while locating beam.sim.BeamSim
+  while locating org.matsim.core.controler.listener.ControlerListener annotated with @com.google.inject.multibindings.Element(setName=,uniqueId=122, type=MULTIBINDER, keyType=)
+  at com.google.inject.util.Modules$OverrideModule.configure(Modules.java:198) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2 -> com.google.inject.multibindings.Multibinder$RealMultibinder)
+  while locating java.util.Set<org.matsim.core.controler.listener.ControlerListener>
+    for the 13th parameter of org.matsim.core.controler.NewControler.<init>(NewControler.java:56)
+  while locating org.matsim.core.controler.NewControler
+  at org.matsim.core.controler.NewControlerModule.install(NewControlerModule.java:8) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$1 -> org.matsim.core.controler.NewControlerModule)
+  while locating org.matsim.core.controler.ControlerI
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
+	at org.mapdb.Volume.volumeForFile(Volume.java:202)
+	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
+	at org.mapdb.StoreDirect.<init>(StoreDirect.java:202)
+	at org.mapdb.DBMaker.extendStoreDirect(DBMaker.java:971)
+	at org.mapdb.DBMaker.makeEngine(DBMaker.java:758)
+	at org.mapdb.DBMaker.make(DBMaker.java:701)
+	at com.conveyal.osmlib.OSM.<init>(OSM.java:106)
+	at beam.router.osm.TollCalculator.loadOSM$1(TollCalculator.scala:122)
+	at beam.router.osm.TollCalculator.$anonfun$fromDirectory$6(TollCalculator.scala:149)
+	at scala.Option.map(Option.scala:230)
+	at beam.router.osm.TollCalculator.fromDirectory(TollCalculator.scala:149)
+	at beam.router.osm.TollCalculator.readFromDatAndCreateCache(TollCalculator.scala:111)
+	at beam.router.osm.TollCalculator.$anonfun$readFromCacheFileOrOSM$2(TollCalculator.scala:106)
+	at scala.Option.getOrElse(Option.scala:189)
+	at beam.router.osm.TollCalculator.readFromCacheFileOrOSM(TollCalculator.scala:106)
+	at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:36)
+	at beam.router.osm.TollCalculator$$FastClassByGuice$$eef3588.newInstance(<generated>)
+	at com.google.inject.internal.DefaultConstructionProxyFactory$FastClassProxy.newInstance(DefaultConstructionProxyFactory.java:89)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:111)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.SingleParameterInjector.inject(SingleParameterInjector.java:38)
+	at com.google.inject.internal.SingleParameterInjector.getAll(SingleParameterInjector.java:62)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:110)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.FactoryProxy.get(FactoryProxy.java:56)
+	at com.google.inject.internal.InjectorImpl$2$1.call(InjectorImpl.java:1019)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.InjectorImpl$2.get(InjectorImpl.java:1015)
+	at com.google.inject.multibindings.Multibinder$RealMultibinder.get(Multibinder.java:375)
+	at com.google.inject.multibindings.Multibinder$RealMultibinder.get(Multibinder.java:258)
+	at com.google.inject.internal.ProviderInternalFactory.provision(ProviderInternalFactory.java:81)
+	at com.google.inject.internal.InternalFactoryToInitializableAdapter.provision(InternalFactoryToInitializableAdapter.java:53)
+	at com.google.inject.internal.ProviderInternalFactory.circularGet(ProviderInternalFactory.java:61)
+	at com.google.inject.internal.InternalFactoryToInitializableAdapter.get(InternalFactoryToInitializableAdapter.java:45)
+	at com.google.inject.internal.SingleParameterInjector.inject(SingleParameterInjector.java:38)
+	at com.google.inject.internal.SingleParameterInjector.getAll(SingleParameterInjector.java:62)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:110)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.FactoryProxy.get(FactoryProxy.java:56)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:205)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1085)
+	at com.google.inject.internal.InternalInjectorCreator.loadEagerSingletons(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InternalInjectorCreator.injectDynamically(InternalInjectorCreator.java:180)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:110)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:232)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:236)
+	at org.matsim.core.controler.Injector.createInjector(Injector.java:73)
+	at beam.sim.BeamHelper.buildInjector(BeamHelper.scala:610)
+	at beam.sim.BeamHelper.buildInjector$(BeamHelper.scala:601)
+	at beam.sim.RunBeam$.buildInjector(RunBeam.scala:10)
+	at beam.sim.BeamHelper.prepareBeamService(BeamHelper.scala:557)
+	at beam.sim.BeamHelper.prepareBeamService$(BeamHelper.scala:518)
+	at beam.sim.RunBeam$.prepareBeamService(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamWithConfig(BeamHelper.scala:507)
+	at beam.sim.BeamHelper.runBeamWithConfig$(BeamHelper.scala:498)
+	at beam.sim.RunBeam$.runBeamWithConfig(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamUsing(BeamHelper.scala:372)
+	at beam.sim.BeamHelper.runBeamUsing$(BeamHelper.scala:361)
+	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
+	at beam.sim.RunBeam$.main(RunBeam.scala:27)
+	at beam.sim.RunBeam.main(RunBeam.scala)
+Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
+	... 75 more
+
+3) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+  at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
+  at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
+  while locating beam.router.osm.TollCalculator
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
+	at org.mapdb.Volume.volumeForFile(Volume.java:202)
+	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
+	at org.mapdb.StoreDirect.<init>(StoreDirect.java:202)
+	at org.mapdb.DBMaker.extendStoreDirect(DBMaker.java:971)
+	at org.mapdb.DBMaker.makeEngine(DBMaker.java:758)
+	at org.mapdb.DBMaker.make(DBMaker.java:701)
+	at com.conveyal.osmlib.OSM.<init>(OSM.java:106)
+	at beam.router.osm.TollCalculator.loadOSM$1(TollCalculator.scala:122)
+	at beam.router.osm.TollCalculator.$anonfun$fromDirectory$6(TollCalculator.scala:149)
+	at scala.Option.map(Option.scala:230)
+	at beam.router.osm.TollCalculator.fromDirectory(TollCalculator.scala:149)
+	at beam.router.osm.TollCalculator.readFromDatAndCreateCache(TollCalculator.scala:111)
+	at beam.router.osm.TollCalculator.$anonfun$readFromCacheFileOrOSM$2(TollCalculator.scala:106)
+	at scala.Option.getOrElse(Option.scala:189)
+	at beam.router.osm.TollCalculator.readFromCacheFileOrOSM(TollCalculator.scala:106)
+	at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:36)
+	at beam.router.osm.TollCalculator$$FastClassByGuice$$eef3588.newInstance(<generated>)
+	at com.google.inject.internal.DefaultConstructionProxyFactory$FastClassProxy.newInstance(DefaultConstructionProxyFactory.java:89)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:111)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:205)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1085)
+	at com.google.inject.internal.InternalInjectorCreator.loadEagerSingletons(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InternalInjectorCreator.injectDynamically(InternalInjectorCreator.java:180)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:110)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:232)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:236)
+	at org.matsim.core.controler.Injector.createInjector(Injector.java:73)
+	at beam.sim.BeamHelper.buildInjector(BeamHelper.scala:610)
+	at beam.sim.BeamHelper.buildInjector$(BeamHelper.scala:601)
+	at beam.sim.RunBeam$.buildInjector(RunBeam.scala:10)
+	at beam.sim.BeamHelper.prepareBeamService(BeamHelper.scala:557)
+	at beam.sim.BeamHelper.prepareBeamService$(BeamHelper.scala:518)
+	at beam.sim.RunBeam$.prepareBeamService(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamWithConfig(BeamHelper.scala:507)
+	at beam.sim.BeamHelper.runBeamWithConfig$(BeamHelper.scala:498)
+	at beam.sim.RunBeam$.runBeamWithConfig(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamUsing(BeamHelper.scala:372)
+	at beam.sim.BeamHelper.runBeamUsing$(BeamHelper.scala:361)
+	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
+	at beam.sim.RunBeam$.main(RunBeam.scala:27)
+	at beam.sim.RunBeam.main(RunBeam.scala)
+Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
+	... 49 more
+
+4) Error injecting constructor, java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+  at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:24)
+  at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:233) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
+  while locating beam.router.osm.TollCalculator
+    for the 3rd parameter of beam.sim.BeamSim.<init>(BeamSim.scala:72)
+  while locating beam.sim.BeamSim
+  while locating org.matsim.core.controler.listener.ControlerListener annotated with @com.google.inject.multibindings.Element(setName=,uniqueId=122, type=MULTIBINDER, keyType=)
+  at com.google.inject.util.Modules$OverrideModule.configure(Modules.java:198) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2 -> com.google.inject.multibindings.Multibinder$RealMultibinder)
+  while locating java.util.Set<org.matsim.core.controler.listener.ControlerListener>
+    for the 13th parameter of org.matsim.core.controler.NewControler.<init>(NewControler.java:56)
+  while locating org.matsim.core.controler.NewControler
+  at org.matsim.core.controler.NewControlerModule.install(NewControlerModule.java:8) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$1 -> org.matsim.core.controler.NewControlerModule)
+  while locating org.matsim.core.controler.ControlerI
+  at beam.router.skim.Skims.<init>(Skims.scala:23)
+  at beam.sim.BeamHelper$$anon$2.install(BeamHelper.scala:238) (via modules: com.google.inject.util.Modules$CombinedModule -> com.google.inject.util.Modules$CombinedModule -> org.matsim.core.controler.AbstractModule$4 -> com.google.inject.util.Modules$OverrideModule -> beam.sim.BeamHelper$$anon$2)
+  while locating beam.router.skim.Skims
+Caused by: java.io.IOError: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:543)
+	at org.mapdb.Volume.volumeForFile(Volume.java:202)
+	at org.mapdb.Volume$1.createIndexVolume(Volume.java:276)
+	at org.mapdb.StoreDirect.<init>(StoreDirect.java:202)
+	at org.mapdb.DBMaker.extendStoreDirect(DBMaker.java:971)
+	at org.mapdb.DBMaker.makeEngine(DBMaker.java:758)
+	at org.mapdb.DBMaker.make(DBMaker.java:701)
+	at com.conveyal.osmlib.OSM.<init>(OSM.java:106)
+	at beam.router.osm.TollCalculator.loadOSM$1(TollCalculator.scala:122)
+	at beam.router.osm.TollCalculator.$anonfun$fromDirectory$6(TollCalculator.scala:149)
+	at scala.Option.map(Option.scala:230)
+	at beam.router.osm.TollCalculator.fromDirectory(TollCalculator.scala:149)
+	at beam.router.osm.TollCalculator.readFromDatAndCreateCache(TollCalculator.scala:111)
+	at beam.router.osm.TollCalculator.$anonfun$readFromCacheFileOrOSM$2(TollCalculator.scala:106)
+	at scala.Option.getOrElse(Option.scala:189)
+	at beam.router.osm.TollCalculator.readFromCacheFileOrOSM(TollCalculator.scala:106)
+	at beam.router.osm.TollCalculator.<init>(TollCalculator.scala:36)
+	at beam.router.osm.TollCalculator$$FastClassByGuice$$eef3588.newInstance(<generated>)
+	at com.google.inject.internal.DefaultConstructionProxyFactory$FastClassProxy.newInstance(DefaultConstructionProxyFactory.java:89)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:111)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.SingleParameterInjector.inject(SingleParameterInjector.java:38)
+	at com.google.inject.internal.SingleParameterInjector.getAll(SingleParameterInjector.java:62)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:110)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.FactoryProxy.get(FactoryProxy.java:56)
+	at com.google.inject.internal.InjectorImpl$2$1.call(InjectorImpl.java:1019)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.InjectorImpl$2.get(InjectorImpl.java:1015)
+	at com.google.inject.multibindings.Multibinder$RealMultibinder.get(Multibinder.java:375)
+	at com.google.inject.multibindings.Multibinder$RealMultibinder.get(Multibinder.java:258)
+	at com.google.inject.internal.ProviderInternalFactory.provision(ProviderInternalFactory.java:81)
+	at com.google.inject.internal.InternalFactoryToInitializableAdapter.provision(InternalFactoryToInitializableAdapter.java:53)
+	at com.google.inject.internal.ProviderInternalFactory.circularGet(ProviderInternalFactory.java:61)
+	at com.google.inject.internal.InternalFactoryToInitializableAdapter.get(InternalFactoryToInitializableAdapter.java:45)
+	at com.google.inject.internal.SingleParameterInjector.inject(SingleParameterInjector.java:38)
+	at com.google.inject.internal.SingleParameterInjector.getAll(SingleParameterInjector.java:62)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:110)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.FactoryProxy.get(FactoryProxy.java:56)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.InjectorImpl$2$1.call(InjectorImpl.java:1019)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.InjectorImpl$2.get(InjectorImpl.java:1015)
+	at com.google.inject.internal.InjectorImpl.getInstance(InjectorImpl.java:1054)
+	at org.matsim.core.controler.MatsimServicesImpl.addControlerListener(MatsimServicesImpl.java:115)
+	at beam.router.skim.Skims.addEvent(Skims.scala:43)
+	at beam.router.skim.Skims.<init>(Skims.scala:37)
+	at beam.router.skim.Skims$$FastClassByGuice$$b56cb6ab.newInstance(<generated>)
+	at com.google.inject.internal.DefaultConstructionProxyFactory$FastClassProxy.newInstance(DefaultConstructionProxyFactory.java:89)
+	at com.google.inject.internal.ConstructorInjector.provision(ConstructorInjector.java:111)
+	at com.google.inject.internal.ConstructorInjector.construct(ConstructorInjector.java:90)
+	at com.google.inject.internal.ConstructorBindingImpl$Factory.get(ConstructorBindingImpl.java:268)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter$1.call(ProviderToInternalFactoryAdapter.java:46)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1092)
+	at com.google.inject.internal.ProviderToInternalFactoryAdapter.get(ProviderToInternalFactoryAdapter.java:40)
+	at com.google.inject.internal.SingletonScope$1.get(SingletonScope.java:194)
+	at com.google.inject.internal.InternalFactoryToProviderAdapter.get(InternalFactoryToProviderAdapter.java:41)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:205)
+	at com.google.inject.internal.InternalInjectorCreator$1.call(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InjectorImpl.callInContext(InjectorImpl.java:1085)
+	at com.google.inject.internal.InternalInjectorCreator.loadEagerSingletons(InternalInjectorCreator.java:199)
+	at com.google.inject.internal.InternalInjectorCreator.injectDynamically(InternalInjectorCreator.java:180)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:110)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:232)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:236)
+	at org.matsim.core.controler.Injector.createInjector(Injector.java:73)
+	at beam.sim.BeamHelper.buildInjector(BeamHelper.scala:610)
+	at beam.sim.BeamHelper.buildInjector$(BeamHelper.scala:601)
+	at beam.sim.RunBeam$.buildInjector(RunBeam.scala:10)
+	at beam.sim.BeamHelper.prepareBeamService(BeamHelper.scala:557)
+	at beam.sim.BeamHelper.prepareBeamService$(BeamHelper.scala:518)
+	at beam.sim.RunBeam$.prepareBeamService(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamWithConfig(BeamHelper.scala:507)
+	at beam.sim.BeamHelper.runBeamWithConfig$(BeamHelper.scala:498)
+	at beam.sim.RunBeam$.runBeamWithConfig(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamUsing(BeamHelper.scala:372)
+	at beam.sim.BeamHelper.runBeamUsing$(BeamHelper.scala:361)
+	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
+	at beam.sim.RunBeam$.main(RunBeam.scala:27)
+	at beam.sim.RunBeam.main(RunBeam.scala)
+Caused by: java.io.IOException: Parent folder is not writable: /app/test/input/beamville/r5/osm.mapdb
+	at org.mapdb.Volume$FileChannelVol.checkFolder(Volume.java:829)
+	at org.mapdb.Volume$MappedFileVol.<init>(Volume.java:527)
+	... 92 more
+
+4 errors
+	at com.google.inject.internal.Errors.throwCreationExceptionIfErrorsExist(Errors.java:470)
+	at com.google.inject.internal.InternalInjectorCreator.injectDynamically(InternalInjectorCreator.java:184)
+	at com.google.inject.internal.InternalInjectorCreator.build(InternalInjectorCreator.java:110)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:232)
+	at com.google.inject.internal.InjectorImpl.createChildInjector(InjectorImpl.java:236)
+	at org.matsim.core.controler.Injector.createInjector(Injector.java:73)
+	at beam.sim.BeamHelper.buildInjector(BeamHelper.scala:610)
+	at beam.sim.BeamHelper.buildInjector$(BeamHelper.scala:601)
+	at beam.sim.RunBeam$.buildInjector(RunBeam.scala:10)
+	at beam.sim.BeamHelper.prepareBeamService(BeamHelper.scala:557)
+	at beam.sim.BeamHelper.prepareBeamService$(BeamHelper.scala:518)
+	at beam.sim.RunBeam$.prepareBeamService(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamWithConfig(BeamHelper.scala:507)
+	at beam.sim.BeamHelper.runBeamWithConfig$(BeamHelper.scala:498)
+	at beam.sim.RunBeam$.runBeamWithConfig(RunBeam.scala:10)
+	at beam.sim.BeamHelper.runBeamUsing(BeamHelper.scala:372)
+	at beam.sim.BeamHelper.runBeamUsing$(BeamHelper.scala:361)
+	at beam.sim.RunBeam$.runBeamUsing(RunBeam.scala:10)
+	at beam.sim.RunBeam$.main(RunBeam.scala:27)
+	at beam.sim.RunBeam.main(RunBeam.scala)
