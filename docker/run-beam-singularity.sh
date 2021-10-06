@@ -50,7 +50,7 @@ echo "Current dir is $(pwd)"
 ##input_folder_name="/projects/geminixfc/repos/beam/configs/beam-run-configs/production/sfbay/gemini/" 
 ##                                                                          ^--config base
 
-input_folder_name="/global/scratch/tin/tin-gh/beam/"
+input_folder_name="/global/scratch/tin/tin-gh/beam/docker/PROD_EG/production"
 output_folder_name="$input_folder_name/output" 
 
 ##cd /projects/geminixfc/repos/beam
@@ -67,15 +67,17 @@ output_folder_name="$input_folder_name/output"
 #--module load singularity-container unset XDG_RUNTIME_DIR
 
 unset LD_PRELOAD
-export SINGULARITY_BINDPATH="$input_folder_name:/mnt"   # tmp as I don't have actual data for gemini
-#export SINGULARITY_BINDPATH="$input_folder_name:/app/production/sfbay/gemini"
-##export SINGULARITY_BINDPATH="$input_folder_name:/apps/output"   
+#export SINGULARITY_BINDPATH="$input_folder_name:/mnt"   # tmp as I don't have actual data for gemini
+#??export SINGULARITY_BINDPATH="$input_folder_name:/app/production/sfbay/gemini"
+export SINGULARITY_BINDPATH="$input_folder_name:/app/production"
+##^^ working, got production2.zip unzipped at  docker/PROD_EG/
+##^^ and there are contents as  docker/PROD_EG/production/sfbay/gemini/
 # --mount source=/global/home/users/tin/tin-gh/beam/docker/test,destination=/app/test,type=bind --mount source=/global/home/users/tin/tin-gh/beam/docker/beam_output,destination=/app/output
 
 # /app/production/sfbay/gemini exist inside the container
 # /app/production/sfbay/gemini/gemini-base-2035.conf  maybe usable for --config
-##config="production/sfbay/gemini/gemini-base-2035-helics-18k.conf"
-config="production/sfbay/gemini/gemini-base-2035.conf"
+config="production/sfbay/gemini/gemini-base-2035-helics-18k.conf"
+#~~config="production/sfbay/gemini/gemini-base-2035.conf"
 #?config="input/beamville/beam.conf"
 #~~config="test/input/beamville/beam.conf"
 #~~BeamBase=/global/scratch/tin/tin-gh/beam
@@ -105,7 +107,7 @@ echo "i/o set to $input_folder_name $output_folder_name"
 
 echo "Starting Singularity run as: SINGULARITYENV_JAVA_OPTS='-Xmx1390g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/$config  2>&1 "
 SINGULARITYENV_JAVA_OPTS='-Xmx1390g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/$config  2>&1 
-##>> java -Xmx490g -cp /app/resources:/app/classes:/app/libs/* beam.sim.RunBeam --config /app/production/sfbay/gemini/gemini-base-2035.conf
+#>>java -Xmx490g -cp /app/resources:/app/classes:/app/libs/* beam.sim.RunBeam --config /app/production/sfbay/gemini/gemini-base-2035.conf
 
 
 #//SINGULARITYENV_JAVA_OPTS='-Xmx90g' singularity shell --network host beam_production-gemini-develop-1.sif --config /app/$config
