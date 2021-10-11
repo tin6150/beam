@@ -45,7 +45,7 @@ export S_IMG=/global/scratch/tin/tin-gh/beam/Singularity-repo/beam_production-ge
 singularity exec -B SINGULARITY_BINDPATH $S_IMG  java $JAVA_CLASSPATH TinHelloWorld    
 
 export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true" 
-singularity exec -B SINGULARITY_BINDPATH $S_IMG  java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld    
+singularity exec -B $SINGULARITY_BINDPATH $S_IMG  java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld    
 
 
 */
