@@ -127,7 +127,7 @@ echo "--"
 #%%%% singularity exec -B $SINGULARITY_BINDPATH --network host beam_production-gemini-develop-1.sif  /usr/local/openjdk-8/bin/java  $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld --config /app/$config
 
 ## ++ if only 1 param for JAVA_OPTS only anyway, may as well go back to use singularity run rather than exec, then don't have to specify that ugly long classpath
-## actually some JNI complains
+## actually still get some JNI complains when used with java exec
 echo "--Running java as: singularity exec -B $SINGULARITY_BINDPATH --network host beam_production-gemini-develop-1.sif  /usr/local/openjdk-8/bin/java  $JAVA_OPTS  $JAVA_CLASSPATH beam.sim.RunBeam --config /app/$config  2>&1 "
 singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /usr/local/openjdk-8/bin/java  $JAVA_OPTS  $JAVA_CLASSPATH beam.sim.RunBeam --config /app/$config  2>&1 
 echo "----after singularity run ... java... " 
