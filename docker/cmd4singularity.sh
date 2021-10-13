@@ -1,94 +1,35 @@
-#!/bin/bash
+## this wrapper is expected as command argument to singularity call
+## needed cuz some strange java interaction with singularity can't process more than one JAVA_OPTS 
+## when invoked as 
+## export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true" 
+## singularity run --network host $S_IMG  --config /app/$config  2>&1 
+## will error out 
+
+## setup (now done by run-beam-singularity.sh):
+## cp -p cmd4singularity.sh  /global/scratch/tin/tin-gh/beam/docker/PROD_EG/production
+## which after bind mount will be in /app/production
+## then run as:
+#> sbatch  run-beam-singularity.sh
+## which essentially invoke :
+## singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /app/production/cmd4singularity.sh   2>&1                                                                    
 
 
 
-#SBATCH                         --job-name=SnGpuTest    # -J CLI arg will overwrite this
-#                               CPU time (in seconds 1199 == 00:19:59 HH:MM:ss) :
-#                               Wall clock limit in HH:MM:ss
-#SBATCH                         --time=07:59:00
 
-#SBATCH                         --qos=lr_normal
-#SBATCH                         --account=scs          # -A
-#SBATCH                         --partition=lr_bigmem  # lr6
-
-
-#SBATCH --nodes=1
-#                              #SBATCH --mem=184GB
-#                              #SBATCH --mem=90GB   # lr6
-#SBATCH --mem=1390GB           # lr_bigmem
-
-#SBATCH                        -o  sn_%N_%j.OUT.txt
-#SBATCH                        -e  sn_%N_%j.ERR.txt
-#SBATCH                         --export=ALL
-
-
-#### slurm sbatch script to run beam container workflow via singularity
-####
-#### branch: tin/singularity  (off development)
-#### will see if can run as singularity in lrc
-#### tin 2021.0928
-#### run as:
-#>>> sbatch  run-beam-singularity.sh 
-
-#--MyDir=$(pwd)
-
-#### setup that need tweak when going to production
-cp -p cmd4singularity.sh  /global/scratch/tin/tin-gh/beam/docker/PROD_EG/production
-sleep 5 # ensure files is stable in FS :P
-
-##--
-
-echo "current time is"
-date
-TZ=CUT date
-
-
-#++ find out flat to ensure singularity store image as .SIF, then just test for that before this block.
-cd /global/scratch/tin/tin-gh/beam/
-[[ -d Singularity-repo ]] || mkdir Singularity-repo
-cd    Singularity-repo
-export SINGULARITY_TMPDIR="/global/scratch/tin/cacheDir" 
-#// singularity pull docker://beammodel/beam:production-gemini-develop-1     
-#++singularity pull docker://beammodel/beam:production-gemini-develop-1  || echo "Singularity image already cached"   
-echo "**^ beyond singularity pull step ^**"
-echo "Current dir is $(pwd)"
-
-##config=$1
 ##input_folder_name="/projects/geminixfc/repos/beam/configs/beam-run-configs/production/sfbay/gemini/" 
 ##                                                                          ^--config base
 
 input_folder_name="/global/scratch/tin/tin-gh/beam/docker/PROD_EG/production"
 output_folder_name="$input_folder_name/output" 
 
-##cd /projects/geminixfc/repos/beam
-#~~cd $MyDir
-#~~cd /global/scratch/tin/tin-gh/beam/
-
-#~~input_folder_name="input"
-#~~output_folder_name="beam_output"
-#~~mkdir -m 777 $output_folder_name 2>/dev/null
-
-
-
-
-#--module load singularity-container unset XDG_RUNTIME_DIR
-
-unset LD_PRELOAD
-#export SINGULARITY_BINDPATH="$input_folder_name:/mnt"   # tmp as I don't have actual data for gemini
-#??export SINGULARITY_BINDPATH="$input_folder_name:/app/production/sfbay/gemini"
 export SINGULARITY_BINDPATH="$input_folder_name:/app/production"
 ##^^ working, got production2.zip unzipped at  docker/PROD_EG/
 ##^^ and there are contents as  docker/PROD_EG/production/sfbay/gemini/
+
 # --mount source=/global/home/users/tin/tin-gh/beam/docker/test,destination=/app/test,type=bind --mount source=/global/home/users/tin/tin-gh/beam/docker/beam_output,destination=/app/output
 
-# /app/production/sfbay/gemini exist inside the container
-# /app/production/sfbay/gemini/gemini-base-2035.conf  maybe usable for --config
 config="production/sfbay/gemini/gemini-base-2035-helics-18k.conf"
 #~~config="production/sfbay/gemini/gemini-base-2035.conf"
-#?config="input/beamville/beam.conf"
-#~~config="test/input/beamville/beam.conf"
-#~~BeamBase=/global/scratch/tin/tin-gh/beam
-#~~config="test/input/beamville/beam.conf"
 
 #?? SINGULARITYENV_JAVA_OPTS='-Xms12g -Xmx90g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/$config
 ## **^ tin n0000.dirac1 /global/scratch/tin/tin-gh/beam/Singularity-repo ^**>  SINGULARITYENV_JAVA_OPTS='-Xms12g -Xmx90g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/$config
@@ -108,63 +49,46 @@ config="production/sfbay/gemini/gemini-base-2035-helics-18k.conf"
 #??export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true -cp /app/resources:/app/classes:$JAR_LIST beam.sim.RunBeam"
 #export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true -cp /app/resources:/app/classes:/app/libs   beam.sim.RunBeam"
 export JAVA_CLASSPATH="-classpath /app/resources:/app/classes:/app/libs:$JAR_LIST"
+#export JAVA_CLASSPATH="-cp /app/production"
+export CP4TinTest="-classpath /app/production"
 export JAVA_OPTS="-Djava.awt.headless=true" 
 #export JAVA_OPTS="-Xmx1390g"
-#XX export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true"   # singularity should inherit the user's env...  may need sbatch --export=ALL
+#?export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true"   
 
-env | grep SINGULARITY
-echo "config set to $config"
+export S_IMG=/global/scratch/tin/tin-gh/beam/Singularity-repo/beam_production-gemini-develop-1.sif
+
+echo "---- inside container, config set to $config"
 echo "i/o set to $input_folder_name $output_folder_name"
-echo "JAVA_OPTS is $JAVA_OPTS"
+echo "JAVA_OPTS is :: $JAVA_OPTS ::"
 #echo  "ls -l of $input_folder_name"
 #ls -l $input_folder_name
 #echo "---ls -l /mnt next---"
 #ls -l /mnt
-export S_IMG=/global/scratch/tin/tin-gh/beam/Singularity-repo/beam_production-gemini-develop-1.sif
 echo "--"
+env | grep SINGULARITY
 echo "--"
 
-
-#++ echo "++Running as: SINGULARITYENV_JAVA_OPTS=$JAVA_OPTS singularity run --network host $S_IMG  --config /app/$config  2>&1"
-#++ SINGULARITYENV_JAVA_OPTS=$JAVA_OPTS singularity run --network host $S_IMG  --config /app/$config  2>&1 
-#** yeap, dont need SINGULARITYENV_JAVA_OPTS=$JAVA_OPTS  as singularity will inherit, but still can't have JAVA_OPTS with more than one entry :\
-#** 2021.1013 below is last working config with singularity run , which work, just that it only allow a single JAVA_OPTS
-#** echo "+++ running as: singularity run --network host $S_IMG  --config /app/$config  2>&1 "
-#** singularity run --network host $S_IMG  --config /app/$config  2>&1 
-
-#++singularity exec -B $SINGULARITY_BINDPATH --network host beam_production-gemini-develop-1.sif  /usr/local/openjdk-8/bin/java  $JAVA_OPTS  --config /app/$config  2>&1 
-## problem is that singularity 3.2 isn't likely taking options at the end to pass to the java cmd, or java interaction with container  parse error...
-#%%%% singularity exec -B $SINGULARITY_BINDPATH --network host beam_production-gemini-develop-1.sif  /usr/local/openjdk-8/bin/java  $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld --config /app/$config
-
-## ++ if only 1 param for JAVA_OPTS only anyway, may as well go back to use singularity run rather than exec, then don't have to specify that ugly long classpath
-## ++ actually still get some JNI complains when used with singularity exec
-## ++ singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /usr/local/openjdk-8/bin/java  $JAVA_OPTS  $JAVA_CLASSPATH beam.sim.RunBeam --config /app/$config  2>&1 
-echo "--slurm about to run: singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /app/production/cmd4singularity.sh   2>&1 "
-singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /app/production/cmd4singularity.sh   2>&1 
-echo "--after singularity run ... java... " 
-#++ need to know what code they run with java that call --config...
-
-#>>java -Xmx490g -cp /app/resources:/app/classes:/app/libs/* beam.sim.RunBeam --config /app/production/sfbay/gemini/gemini-base-2035.conf
-
-
-#//SINGULARITYENV_JAVA_OPTS='-Xmx90g' singularity shell --network host beam_production-gemini-develop-1.sif --config /app/$config
-
-### seems to be expecting /projects/geminixfc/repos/beam/configs/beam-run-configs/production/sfbay/gemini/ production/sfbay/gemini/gemini-base-2035-helics-18k.conf
-
-##SINGULARITYENV_JAVA_OPTS='-Xms12g -Xmx100g' singularity run --network host beam_production-gemini-develop-1.sif --config /app/$config
-
-
-
-exit $?
 
 ##  test with TinHelloWorld , .class placed in /global/scratch/tin/tin-gh/beam/docker/PROD_EG/production
-export JAVA_CLASSPATH="-cp /app/production"
-export S_IMG=/global/scratch/tin/tin-gh/beam/Singularity-repo/beam_production-gemini-develop-1.sif
-export JAVA_OPTS="-Xms12g -Xmx1390g -Djava.awt.headless=true" 
-##echo "another try as: singularity exec -B $SINGULARITY_BINDPATH $S_IMG  java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld"
-##singularity exec -B $SINGULARITY_BINDPATH $S_IMG  java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld 2>&1
-##singularity exec  $S_IMG  java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld 2>&1
-## see TinHelloWorld.sbatch  parsing JAVA_OPTS is buggy somewhere along the line :/
+echo "----inside container, trying TinHelloWorld as"
+#OK echo "java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld 2>&1"
+#OK java $JAVA_OPTS $JAVA_CLASSPATH TinHelloWorld 2>&1
+echo "java $JAVA_OPTS  $CP4TinTest TinHelloWorld 2>&1"
+java $JAVA_OPTS $JAVA_CLASSPATH $JAVA_CLASSPATH  $CP4TinTest TinHelloWorld 2>&1
+
+echo "--"
+echo "--"
+echo "-- ls -la /app/$config"
+ls -la /app/$config
+echo "--"
+
+## hmm... JNI error now:
+
+echo "----inside container, trying beam code, run as"
+echo "java $JAVA_OPTS $JAVA_CLASSPATH  beam.sim.RunBeam --config /app/$config 2>&1"
+java $JAVA_OPTS $JAVA_CLASSPATH  beam.sim.RunBeam --config /app/$config 2>&1
 
 
+
+## java is in /usr/local/openjdk-8/bin/java 
 
