@@ -141,7 +141,7 @@ echo "--"
 ## ++ singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /usr/local/openjdk-8/bin/java  $JAVA_OPTS  $JAVA_CLASSPATH beam.sim.RunBeam --config /app/$config  2>&1 
 echo "--slurm about to run: singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /app/production/cmd4singularity.sh   2>&1 "
 singularity exec -B $SINGULARITY_BINDPATH --network host $S_IMG  /app/production/cmd4singularity.sh   2>&1 
-echo "--after singularity run ... java... " 
+echo "--after singularity run ... java." 
 #++ need to know what code they run with java that call --config...
 
 #>>java -Xmx490g -cp /app/resources:/app/classes:/app/libs/* beam.sim.RunBeam --config /app/production/sfbay/gemini/gemini-base-2035.conf
