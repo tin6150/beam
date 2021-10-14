@@ -77,7 +77,11 @@ echo "--"
 JAVA=/usr/local/openjdk-8/bin/java 
 
 echo "----inside container, trying beam code, run as"
-echo "$JAVA $JAVA_OPTS $JAVA_CLASSPATH  beam.sim.RunBeam --config /app/$config 2>&1"
-$JAVA $JAVA_OPTS $JAVA_CLASSPATH  beam.sim.RunBeam --config /app/$config 2>&1
+#-- $JAVA $JAVA_OPTS $JAVA_CLASSPATH  beam.sim.RunBeam --config /app/$config 2>&1
+echo "/app/entrypoint.sh --config /app/$config 2>&1"
+/app/entrypoint.sh --config /app/$config 2>&1
+
+## this method no longer trigger JNI error
+## akka seems to start, not sure if having zmq message problem.  see singularity.out.txt around line 2816 and 5443 for more details.
 
 
